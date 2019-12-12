@@ -8,10 +8,8 @@ from werkzeug.serving import run_simple
 from config import config
 from sqlalchemy import create_engine, MetaData, Table
 
-from flask_compress import Compress
 
 db = SQLAlchemy()
-compress = Compress()
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -44,14 +42,12 @@ def create_app():
 
     app.debug = config.modeDebug
 
-    from app.rendered_routes import main as main_blueprint
+    from main.rendered_routes import rendered
+    app.register_blueprint(rendered)
 
-    app.register_blueprint(main_blueprint)
-
-    from app.api_routes import api
+    from main.api_routes import api
     app.register_blueprint(api, url_prefix='/api')
 
-    compress.init_app(app)
 
     app.wsgi_app = ReverseProxied(app.wsgi_app, script_name=config.URL_APPLICATION)
 
@@ -65,5 +61,5 @@ app = create_app()
 if __name__ == '__main__':
     # Manager(app).run()
     app.run(
-        host="0.0.0.0", port=8181, debug=config.modeDebug
+        host="0.0.0.0", port=8080, debug=config.modeDebug
     )

@@ -1,15 +1,10 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.pool import QueuePool
+from flask_sqlalchemy import SQLAlchemy
 
 from config.config import NOM_APPLICATION, database_connection
 
-engine = create_engine(
-    database_connection,
-    client_encoding="utf8",
-    echo=False,
-    poolclass=QueuePool,
-    connect_args={"application_name": "GN-BT_{}".format(NOM_APPLICATION)},
-)
+DB = SQLAlchemy()
 
 
 def loadSession():
