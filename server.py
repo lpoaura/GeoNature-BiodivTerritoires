@@ -15,8 +15,6 @@ compress = Compress()
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
-print("APP_DIR",APP_DIR)
-
 class ReverseProxied(object):
 
     def __init__(self, app, script_name=None, scheme=None, server=None):
@@ -67,5 +65,5 @@ app = create_app()
 if __name__ == '__main__':
     # Manager(app).run()
     app.run(
-        host="0.0.0.0", port=8080, debug=config.modeDebug
+        host="0.0.0.0", port=8181, debug=config.modeDebug
     )
