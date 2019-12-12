@@ -1,10 +1,10 @@
-<!doctype html>
-<html>
+{% extends "core/layout.html" %} {% block title %}Territoire{% endblock %} {% block head %} {{ super() }}
+<style type="text/css">
 
-<body>
-global_variables
-    <h1>Hello {{ insee }}!</h1>
-    <p>This is a proxy reverse theme</p>
-</body>
+</style>
+{% endblock %} {% block content %}
 
-</html>
+<h1>Hello {{ insee }}!</h1>
+<p>This is a proxy reverse theme</p>
+
+{% endblock %}
