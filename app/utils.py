@@ -1,10 +1,11 @@
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.pool import QueuePool
 from flask_sqlalchemy import SQLAlchemy
+from server import app
 
 from config.config import NOM_APPLICATION, database_connection
 
-DB = SQLAlchemy()
+DB = SQLAlchemy(app)
 
 
 def loadSession():

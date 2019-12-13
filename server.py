@@ -41,6 +41,7 @@ def create_app():
     app = Flask(__name__, template_folder=APP_DIR+'/templates')
 
     app.debug = config.modeDebug
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.database_connection
 
     from main.rendered_routes import rendered
     app.register_blueprint(rendered)
@@ -48,9 +49,7 @@ def create_app():
     from main.api_routes import api
     app.register_blueprint(api, url_prefix='/api')
 
-
     app.wsgi_app = ReverseProxied(app.wsgi_app, script_name=config.URL_APPLICATION)
-
 
     return app
 

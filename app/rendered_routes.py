@@ -1,5 +1,5 @@
 from flask import render_template, redirect, abort
-from config import config
+import config
 from .models.ref_geo import LAreas
 
 from flask import Blueprint
@@ -18,7 +18,7 @@ def index():
 
 @rendered.route('/territory/<code>')
 def territory(code):
-   area = LAreas.filter_by(area_code=code).first()
+   area = LAreas.query.filter_by(area_code=code).first()
    area_code = area.area_code
    area_name = area.area_name
    return render_template('territory.html', code=area_code, name=area_name)

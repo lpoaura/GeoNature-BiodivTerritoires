@@ -3,24 +3,38 @@ from geoalchemy2 import Geometry
 from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, DateTime, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from config.config import LOCAL_SRID
+import config
+from app import db
+
 
 # from server import db
 Base = declarative_base()
 metadata = Base.metadata
 
-class LAreas(Base):
+
+class BibAreasTypes(db.Model):
+    __tablename__ = "bib_areas_types"
+    __table_args__ = {"schema": "ref_geo"}
+    id_type = Column(String, primary_key=True)
+    type_name = Column(String)
+    type_code = Column(String)
+    type_desc = Column(String)
+    ref_name = Column(String)
+    ref_version = Column(String)
+    num_version = Column(String)
+
+class LAreas(db.Model):
     __tablename__ = "l_areas"
     __table_args__ = {"schema": "ref_geo"}
     id_area = Column(Integer, primary_key=True)
     id_type = Column(Integer, ForeignKey("ref_geo.bib_areas_types.id_type"))
     area_name = Column(String)
     area_code = Column(String)
-    geom = Column(Geometry("GEOMETRY", LOCAL_SRID))
+    geom = Column(Geometry("GEOMETRY", config.LOCAL_SRID))
     source = Column(String)
     area_type = relationship("BibAreasTypes", lazy="select")
 
-class LiMunicipalities(Base):
+class LiMunicipalities(db.Model):
     __tablename__ = "li_municipalities"
     __table_args__ = {"schema": "ref_geo"}
     id_municipality = Column(Integer, primary_key=True)

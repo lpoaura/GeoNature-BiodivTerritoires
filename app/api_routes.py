@@ -1,5 +1,5 @@
 from flask import render_template, redirect, abort
-from config import config
+import config
 from flask import jsonify
 
 from flask import Blueprint
