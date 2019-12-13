@@ -109,3 +109,5 @@ GitHub.sublime-settings
 config/config.py
 config/settings.ini
 
+#generated static files
+app/static/bundle.*

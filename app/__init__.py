@@ -15,16 +15,25 @@ app = Flask(
 
 # Configurations
 app.config.from_object("config")
-
+app.config["PYSCSS_STYLE"] = "compressed"
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
 assets = Environment(app)
 
-js = Bundle("vue.js", "bootstrap.js", "leaflet.js","Chart.js",filters="rjsmin", output="bundle.js")
+js = Bundle(
+    "vue.js",
+    "bootstrap.js",
+    "leaflet.js",
+    "Chart.js",
+    filters="rjsmin",
+    output="bundle.js",
+)
 assets.register("js_all", js)
 
-css = Bundle("bootstrap.css", "leaflet.css","Chart.css", filters="pyscss", output="bundle.css")
+css = Bundle(
+    "bootstrap.css", "leaflet.css", "Chart.css", filters="pyscss", output="bundle.css"
+)
 assets.register("css_all", css)
 
 # Sample HTTP error handling

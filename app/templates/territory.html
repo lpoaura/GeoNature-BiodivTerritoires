@@ -1,10 +1,26 @@
-{% extends "core/layout.html" %} {% block title %}Territoire{% endblock %} {% block head %} {{ super() }}
+{% extends "core/layout.html" %} {% block title %}{{area_info.type_name}} {{ area_info.area_name }} {% endblock %}
+{% block head %} {{ super() }}
 <style type="text/css">
 
 </style>
 {% endblock %} {% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <h1 class="d-inline-block">{{ area_info.area_name }} ({{area_info.area_code}})</h1><span
+                class="badge badge-primary align-top">{{area_info.type_name}}</span>
+        </div>
+        <div class="col">
+            MAP
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            gdg
+        </div>
+        <div class="col">
+            dgdg
+        </div>
+    </div>
 
-<h1>Hello {{ name }}!</h1>
-<p>This is a proxy reverse theme</p>
-
-{% endblock %}
+    {% endblock %}

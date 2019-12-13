@@ -3,34 +3,47 @@
     /*
  * Base structure
  */
-    
-    body {
-        /*background-image: url("https://ggarrardresearch.files.wordpress.com/2015/10/fishermans-bend_wide1.jpg");*/
+
+
+    .jumbotron {
+        text-align: center;
+        min-height: 100vh;
+        height: calc(100% - 65px);
+        height: -o-calc(100% - 65px);
+        /* opera */
+        height: -webkit-calc(100% - 65px);
+        /* google, safari */
+        height: -moz-calc(100% - 65px);
+        /* firefox */
+        position: relative;
+        background: url({{ url_for('static', filename='images/paysage_crollant.jpg')}});
         background-repeat: no-repeat;
-        background-size: 100% 100%;
-        background: rgb(255,255,255);
-        background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(238,238,238,1) 100%);
+        background-size: cover;
+        color: white;
     }
-    
-    html {
-        height: 100%
+
+    #home-info {
+        margin: auto;
+        top: 50%;
+        left: 50%;
+        margin: 0;
+        position: absolute;
+        transform: translate(-50%, -50%);
     }
 </style>
 {% endblock %} {% block content %}
-
-<div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
-
-    <main role="main" class="inner cover">
-        <h1 class="cover-heading">Cover your page.</h1>
-        <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
-        <p class="lead">
-            <a href="#" class="btn btn-lg btn-secondary">Learn more</a>
+<div class="container-fluid">
+    <div id="jumbotron" class="jumbotron">
+        <div id="home-info">
+            <h1>{{site_name}}</h1>
+            <p class="lead">{{site_desc|safe}}</p>
+            <div>
+                <input type="text" class="form-control" placeholder="Recherchez un territoire">
+            </div>
+        </div>
         </p>
-    </main>
+    </div>
 </div>
-
-
-
 <!-- Marketing messaging and featurettes
     ================================================== -->
 <!-- Wrap the rest of the page in another container to center all the content. -->

@@ -24,7 +24,7 @@ CSRF_SESSION_KEY = "mysecret"
 # Nom du Site
 SITE_NAME = "Biodiv'Territoires"
 #SITE_NAME = SITE_NAME.encode('utf-8') # Fonction permettant d'encoder ce nom en utf-8, à ne pas modifier
-
+SITE_DESC = "Une plateforme de porté à connaissance de la <b>biodiversité</b> des territoires"
 
 
 # URL de l'application depuis la racine du domaine
