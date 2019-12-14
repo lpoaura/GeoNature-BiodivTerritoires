@@ -107,6 +107,7 @@ GitHub.sublime-settings
 
 # Config files
 config/config.py
+config.py
 config/settings.ini
 
 #generated static files
