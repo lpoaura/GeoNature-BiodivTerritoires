@@ -1,13 +1,19 @@
-
 # -*- coding:utf-8 -*-
 
 # Mettre l'application en mode debug ou pas
-modeDebug = True
+DEBUG = True
 
 # Connexion de l'application à la BDD
 # Remplacer user, monpassachanger, IPADRESSE (localhost si la BDD est sur le même serveur que l'application), 
 # eventuellement le port de la BDD et le nom de la BDD avec l'utilisateur qui a des droits de lecture sur les vues de l'atlas (user_pg dans settings.ini)
 database_connection = "postgresql://dbUser:dbPassword@dbHost:dbPort/dbName"
+DATABASE_CONNECT_OPTIONS = {}
+
+# Enable protection agains *Cross-site Request Forgery (CSRF)*
+CSRF_ENABLED = True
+# Use a secure, unique and absolutely secret key for
+# signing the data. 
+CSRF_SESSION_KEY = "mysecret"
 
 #################################
 #################################
@@ -18,7 +24,7 @@ database_connection = "postgresql://dbUser:dbPassword@dbHost:dbPort/dbName"
 # Nom du Site
 SITE_NAME = "Biodiv'Territoires"
 #SITE_NAME = SITE_NAME.encode('utf-8') # Fonction permettant d'encoder ce nom en utf-8, à ne pas modifier
-
+SITE_DESC = "Une plateforme de porté à connaissance de la <b>biodiversité</b> des territoires"
 
 
 # URL de l'application depuis la racine du domaine
@@ -30,8 +36,10 @@ URL_APPLICATION = ""
 ###### Cartographie #######
 ###########################
 
+LOCAL_SRID = 2154
+
 # Clé IGN si vous utilisez l'API Geoportail pour afficher les fonds cartographiques
-IGNAPIKEY = 'myIGNkey';
+IGNAPIKEY = 'myIGNkey'
 
 # Configuration des cartes (centre du territoire, couches CARTE et ORTHO, échelle par défaut...)
 MAP = {
@@ -74,12 +82,3 @@ REMOTE_MEDIAS_PATH = "static/medias/"
 # Si le service Taxhub n'est pas utilisé, commenter la variable
 TAXHUB_URL = "http://mondomaine.fr/taxhub"
 
-#############################
-#### Pages statistiques #####
-#############################
-
-# Permet de lister les pages statiques souhaitées et de les afficher dynamiquement dans le menu sidebar
-# Les pictos se limitent au Glyphicon proposés par Bootstrap (https://getbootstrap.com/docs/3.3/components/)
-STATIC_PAGES = {
-    'presentation': {'title': u"Présentation de l'atlas", 'picto': 'glyphicon-question-sign', 'order': 0, 'template': 'static/custom/templates/presentation.html'}
-}

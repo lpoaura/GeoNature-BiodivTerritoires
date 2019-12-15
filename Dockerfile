@@ -25,4 +25,8 @@ COPY . /app
 
 VOLUME ["/config"]
 
+EXPOSE 8080
+
+COPY docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
+
 ENTRYPOINT [ "docker-entrypoint.sh" ]

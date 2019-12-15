@@ -15,11 +15,9 @@ export SECRETKEY=${SECRETKEY:-$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c50)}
 export SRID=${SRID:-4326}
 
 
-shopt -s dotglob nullglob
-
 if [ ! -f /config/config.py ]; then
     echo "Generate new config file"
-    cp configs/config.py.sample /config/config.py
+    cp /app/configs/config.py.sample /config/config.py
     ln -s /config/config.py /app/config.py
     sed -i "s/dbHost/${DBHOST}/g" /config/config.py
     sed -i "s/dbName/${DBNAME}/g" /config/config.py
@@ -30,5 +28,14 @@ if [ ! -f /config/config.py ]; then
 else
     echo "config file already exists" 
 fi
+
+until pg_isready -h $DBHOST -p $DBPORT
+do
+  echo "Awaiting Database container"
+  sleep 1
+done
+sleep 2
+
+cd /app
 
 python -m run

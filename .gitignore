@@ -112,3 +112,6 @@ config/settings.ini
 
 #generated static files
 app/static/bundle.*
+
+#Docker config file
+.env
