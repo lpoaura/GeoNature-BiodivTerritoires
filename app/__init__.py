@@ -1,7 +1,6 @@
 # Import flask and template operators
 from flask import Flask, render_template
-from flask_assets import Environment, Bundle
-
+from flask_assets import Bundle, Environment
 # Import SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
 
@@ -41,12 +40,12 @@ assets.register("css_all", css)
 def not_found(error):
     return render_template("404.html"), 404
 
-
+from app.api_routes import api
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.rendered_routes import rendered
-from app.api_routes import api
+
+db.create_all()
 
 # Register blueprint(s)
 app.register_blueprint(rendered)
 app.register_blueprint(api, url_prefix="/api")
-

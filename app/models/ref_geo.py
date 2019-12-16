@@ -7,15 +7,10 @@ import config
 from app import db
 
 
-# from server import db
-Base = declarative_base()
-metadata = Base.metadata
-
-
 class BibAreasTypes(db.Model):
     __tablename__ = "bib_areas_types"
     __table_args__ = {"schema": "ref_geo"}
-    id_type = Column(String, primary_key=True)
+    id_type = Column(Integer, primary_key=True)
     type_name = Column(String)
     type_code = Column(String)
     type_desc = Column(String)

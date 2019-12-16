@@ -6,7 +6,7 @@ DEBUG = True
 # Connexion de l'application à la BDD
 # Remplacer user, monpassachanger, IPADRESSE (localhost si la BDD est sur le même serveur que l'application), 
 # eventuellement le port de la BDD et le nom de la BDD avec l'utilisateur qui a des droits de lecture sur les vues de l'atlas (user_pg dans settings.ini)
-SQLALCHEMY_DATABASE_URI = "postgresql://fcloitre:Philogas80@localhost:5432/gn2dev"
+database_connection = "postgresql://dbUser:dbPassword@dbHost:dbPort/dbName"
 DATABASE_CONNECT_OPTIONS = {}
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
@@ -82,12 +82,3 @@ REMOTE_MEDIAS_PATH = "static/medias/"
 # Si le service Taxhub n'est pas utilisé, commenter la variable
 TAXHUB_URL = "http://mondomaine.fr/taxhub"
 
-#############################
-#### Pages statistiques #####
-#############################
-
-# Permet de lister les pages statiques souhaitées et de les afficher dynamiquement dans le menu sidebar
-# Les pictos se limitent au Glyphicon proposés par Bootstrap (https://getbootstrap.com/docs/3.3/components/)
-STATIC_PAGES = {
-    'presentation': {'title': u"Présentation de l'atlas", 'picto': 'glyphicon-question-sign', 'order': 0, 'template': 'static/custom/templates/presentation.html'}
-}

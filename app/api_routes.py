@@ -3,6 +3,7 @@ from sqlalchemy import and_
 import config
 from flask import jsonify
 from app.models.ref_geo import BibAreasTypes, LAreas
+from app.models.datas import BibDatasTypes, TReleasedDatas
 from app import db
 
 from flask import Blueprint
@@ -29,5 +30,25 @@ def main_area_info(type_code, area_code):
         )
     )
     result = qterritory.one()
+    data = result._asdict()
+    return jsonify(data)
+
+
+
+@api.route("/type")
+def datas_types():
+    """
+    
+    """
+    qdatatype = (
+        db.session.query(
+            BibDatasTypes.type_protocol,
+            BibDatasTypes.type_name,
+            TReleasedDatas.data_name,
+            TReleasedDatas.data_desc,
+        )
+        .join(TReleasedDatas,  BibDatasTypes.id_type == TReleasedDatas.id_type, isouter=True)
+    )
+    result = qdatatype.first()
     data = result._asdict()
     return jsonify(data)
