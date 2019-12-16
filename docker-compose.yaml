@@ -3,12 +3,12 @@ version: "3"
 services:
 
   gnbt:
-    image: gnbiodivterritoire:dev
+    build: .
     container_name: gnbt
     volumes:
-      - /home/docker/gnbt/config:/config
+      - /opt/docker/gnbt/config:/config
     ports:
-      - 85:8080
+      - 86:8080
     environment:
       POSTGRES_HOST: $POSTGRES_HOST
       POSTGRES_DB: $POSTGRES_DB

@@ -8,12 +8,16 @@ WORKDIR /app
 RUN apk add --no-cache \
             --upgrade \
             --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-        postgresql-client \
+        postgresql-client gcc \
+        && apk add --no-cache \
+            --upgrade \
+            --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
+        geos \
     && apk add --no-cache \
             --upgrade \
             --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
             --virtual .build-deps \
-        postgresql-dev gcc python3-dev musl-dev
+        postgresql-dev python3-dev musl-dev
 
 COPY requirements.txt /app
 

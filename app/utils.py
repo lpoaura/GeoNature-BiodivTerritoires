@@ -20,13 +20,14 @@ SERIALIZERS = {
     "numeric": lambda x: str(x) if x else None,
 }
 
-
 def create_schemas(db):
     """create db schemas at first launch
 
     :param db: db connection
     """
-    db.session.execute("CREATE SCHEMA IF NOT EXISTS gn_biodiv_territory")
+    schemas_to_create = ['gn_biodiv_territory']
+    for schema in schemas_to_create:
+        db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
     db.session.commit()
 
 
