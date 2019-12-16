@@ -8,8 +8,9 @@
         <div class="col">
             <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span class="badge badge-primary align-top">{{ area_info.type_name }}</span>
         </div>
-        <div id="situationMap" class="col">
-            MAP
+        <div class="col">
+            <div id="situationMap" class="card">
+            </div>
         </div>
     </div>
     <div id="genstats" class="row">
@@ -85,9 +86,18 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(situationMap);
 
-        L.marker([51.5, -0.09]).addTo(situationMap)
-            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-            .openPopup();
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.responseType = 'json';
+        xhr.onload = function() {
+            if (xhr.status !== 200) return
+            var situationObject = L.geoJSON(xhr.response);
+            situationObject.getBounds();
+            situationObject.addTo(situationMap);
+            situationMap.fitBounds(situationObject.getBounds());
+        };
+        xhr.send();
     </script>
 
     {% endblock %}

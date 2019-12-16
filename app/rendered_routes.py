@@ -28,6 +28,7 @@ def territory(type_code, area_code):
    """
     qterritory = (
         db.session.query(
+            BibAreasTypes.type_code,
             BibAreasTypes.type_name,
             BibAreasTypes.type_desc,
             LAreas.id_area,

@@ -3,7 +3,7 @@ from geoalchemy2 import func
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from sqlalchemy import and_
-from app.utils import json_resp
+from app.utils import json_resp, get_geojson_feature
 import config
 from app import db
 from app.models.datas import BibDatasTypes, TReleasedDatas
@@ -54,7 +54,6 @@ def datas_types():
 
 
 @api.route("/geom/<type_code>/<area_code>", methods=["GET"])
-@json_resp
 def get_geojson_area(type_code, area_code):
     """Get one enabled municipality by insee code
         ---
@@ -92,12 +91,12 @@ def get_geojson_area(type_code, area_code):
                 and_(BibAreasTypes.type_code == type_code.upper()),
                 LAreas.area_code == area_code,
             )
-        )
-        result = qterritory.one()._asdict()
-        geometry = to_shape(qterritory.geom)
-        feature = Feature(geometry=to_shape(qterritory.geom))
-        feature["properties"]["area_name"] = qterritory.area_name
-        feature["properties"]["area_code"] = qterritory.area_code
+        ).limit(1)
+        result = qterritory.one()
+        geometry = get_geojson_feature(result.geom)
+        feature = Feature(geometry=to_shape(result.geom))
+        feature["properties"]["area_name"] = result.area_name
+        feature["properties"]["area_code"] = result.area_code
         return feature
     except Exception as e:
         return {"message": str(e)}, 400
