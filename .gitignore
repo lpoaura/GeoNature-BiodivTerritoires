@@ -113,6 +113,8 @@ config/settings.ini
 
 #generated static files
 app/static/bundle.*
+app/static/.webassets-cache
 
 #Docker config file
 .env
+

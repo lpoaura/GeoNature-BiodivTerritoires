@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 import config
 from app import db
 
+from app.utils import serializable, geoserializable
+
 
 class BibAreasTypes(db.Model):
     __tablename__ = "bib_areas_types"
@@ -18,6 +20,7 @@ class BibAreasTypes(db.Model):
     ref_version = Column(String)
     num_version = Column(String)
 
+@geoserializable
 class LAreas(db.Model):
     __tablename__ = "l_areas"
     __table_args__ = {"schema": "ref_geo"}
@@ -28,6 +31,8 @@ class LAreas(db.Model):
     geom = Column(Geometry("GEOMETRY", config.LOCAL_SRID))
     source = Column(String)
     area_type = relationship("BibAreasTypes", lazy="select")
+
+
 
 class LiMunicipalities(db.Model):
     __tablename__ = "li_municipalities"

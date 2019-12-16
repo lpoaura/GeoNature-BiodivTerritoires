@@ -29,9 +29,9 @@ assets = Environment(app)
 
 
 js = Bundle(
+        "leaflet.js",
     "vue.js",
     "bootstrap.js",
-    "leaflet.js",
     "Chart.js",
     "main.js",
     filters="rjsmin",

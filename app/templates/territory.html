@@ -1,83 +1,93 @@
-{% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
-{% block head %} {{ super() }}
-    <style type="text/css">
+{% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %} {% block head %} {{ super() }}
+<style type="text/css">
 
-    </style>
+</style>
 {% endblock %} {% block content %}
-    <div class="container-fluid">
-        <div id="situation" class="row">
-            <div class="col">
-                <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span
-                    class="badge badge-primary align-top">{{ area_info.type_name }}</span>
-            </div>
-            <div class="col">
-                MAP
-            </div>
+<div class="container-fluid">
+    <div id="situation" class="row">
+        <div class="col">
+            <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span class="badge badge-primary align-top">{{ area_info.type_name }}</span>
         </div>
-        <div id="genstats" class="row">
-            <div class="col">
-                <div class="card">
-                    <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
-                    <div class="card-body text-center">
-                        <h2 class="count">5665</h2>
-                        <div class="subject">Observations</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card">
-                    <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
-                    <div class="card-body text-center">
-                        <h2 class="count">365</h2>
-                        <div class="subject">Espèces</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card">
-                    <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
-                    <div class="card-body text-center">
-                        <h2 class="count">365</h2>
-                        <div class="subject">Espèces</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card">
-                    <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
-                    <div class="card-body text-center">
-                        <h2 class="count">365</h2>
-                        <div class="subject">Espèces</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card">
-                    <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
-                    <div class="card-body text-center">
-                        <h2 class="count">365</h2>
-                        <div class="subject">Espèces</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card">
-                    <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
-                    <div class="card-body text-center">
-                        <h2 class="count">365</h2>
-                        <div class="subject">Espèces</div>
-                    </div>
+        <div id="situationMap" class="col">
+            MAP
+        </div>
+    </div>
+    <div id="genstats" class="row">
+        <div class="col">
+            <div class="card">
+                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
+                <div class="card-body text-center">
+                    <h2 class="count">5665</h2>
+                    <div class="subject">Observations</div>
                 </div>
             </div>
         </div>
+        <div class="col">
+            <div class="card">
+                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
+                <div class="card-body text-center">
+                    <h2 class="count">365</h2>
+                    <div class="subject">Espèces</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
+                <div class="card-body text-center">
+                    <h2 class="count">365</h2>
+                    <div class="subject">Espèces</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
+                <div class="card-body text-center">
+                    <h2 class="count">365</h2>
+                    <div class="subject">Espèces</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
+                <div class="card-body text-center">
+                    <h2 class="count">365</h2>
+                    <div class="subject">Espèces</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
+                <div class="card-body text-center">
+                    <h2 class="count">365</h2>
+                    <div class="subject">Espèces</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <div class="row">
-            <div class="col">
-                gdg
-            </div>
-            <div class="col">
-                dgdg
-            </div>
+    <div class="row">
+        <div class="col">
+            gdg
         </div>
+        <div class="col">
+            dgdg
+        </div>
+    </div>
 
-{% endblock %}
+    <script>
+        var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(situationMap);
+
+        L.marker([51.5, -0.09]).addTo(situationMap)
+            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            .openPopup();
+    </script>
+
+    {% endblock %}
