@@ -1,43 +1,26 @@
-FROM python:3-alpine
+FROM python:slim-buster
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
 WORKDIR /app
 
-RUN apk add --no-cache \
-            --upgrade \
-            --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-        postgresql-client gcc \
-        && apk add --no-cache \
-            --upgrade \
-            --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-        geos 
-RUN apk add --no-cache \
-            --upgrade \
-            --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-            --virtual .build-deps \
-        postgresql-dev python3-dev musl-dev libc-dev 
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get install -y locales && \
+    locale-gen fr_FR.UTF-8 
 
-RUN apk add --virtual .build-deps \
-        --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-        --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-        --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-        gcc libc-dev geos-dev geos && \
-    runDeps="$(scanelf --needed --nobanner --recursive /usr/local \
-    | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
-    | xargs -r apk info --installed \
-    | sort -u)" && \
-    apk add --virtual .rundeps $runDeps
 
-RUN geos-config --cflags
+RUN apt-get update && \
+        apt-get install -y postgresql-client gcc libgeos-dev 
 
 COPY requirements.txt /app
 
 RUN python3 -m pip install --upgrade pip --no-cache-dir \
     && pip install -r requirements.txt  --no-cache-dir 
 
-RUN apk --purge del .build-deps 
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 
 COPY . /app
 
