@@ -38,8 +38,8 @@
             <h1>{{site_name}}</h1>
             <p class="lead">{{site_desc|safe}}</p>
             <div>
-                <input type="text" class="form-control" placeholder="Recherchez un territoire">
-            </div>
+            {% include "core/search_territory.html" %}
+        </div>
         </div>
         </p>
     </div>

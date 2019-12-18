@@ -29,10 +29,12 @@ assets = Environment(app)
 
 
 js = Bundle(
-        "leaflet.js",
+    "leaflet.js",
     "vue.js",
     "bootstrap.js",
     "Chart.js",
+    "jquery.min.js",
+    "select2.js",
     "main.js",
     filters="rjsmin",
     output="bundle.js",
@@ -40,7 +42,7 @@ js = Bundle(
 assets.register("js_all", js)
 
 css = Bundle(
-    "bootstrap.css", "leaflet.css", "Chart.css", "main.css","custom.css", filters="pyscss", output="bundle.css"
+    "bootstrap.css", "leaflet.css", "Chart.css", "main.css","custom.css","select2.css", filters="pyscss", output="bundle.css"
 )
 assets.register("css_all", css)
 

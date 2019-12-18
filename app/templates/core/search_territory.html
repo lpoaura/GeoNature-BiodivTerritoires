@@ -1,0 +1,61 @@
+<select class="js-example-data-ajax form-control mr-sm-2" type="text" placeholder="Rechercher un territoire" aria-label="Search" style="width:100%;" ></select>
+
+<script>
+  console.log('GETTTT');
+    $(".js-example-data-ajax").select2({
+        ajax: {
+          url: "https://api.github.com/search/repositories",
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+            return {
+              q: params.term, // search term
+              page: params.page
+            };
+          },
+          processResults: function (data, params) {
+            // parse the results into the format expected by Select2
+            // since we are using custom formatting functions we do not need to
+            // alter the remote JSON data, except to indicate that infinite
+            // scrolling can be used
+            params.page = params.page || 1;
+      
+            return {
+              results: data.items,
+              pagination: {
+                more: (params.page * 30) < data.total_count
+              }
+            };
+          },
+          cache: true
+        },
+        placeholder: 'Search for a repository',
+        minimumInputLength: 1,
+        templateResult: formatRepo,
+        templateSelection: formatRepoSelection
+      });
+      
+      function formatRepo (repo) {
+        if (repo.loading) {
+          return repo.text;
+        }
+      
+        var $container = $(
+          "<div class='select2-result-repository clearfix'>" +
+              "<div class='select2-result-repository__title'></div>"+"<div class='select2-result-repository__description'></div>"+
+          "</div>"
+        );
+      
+        $container.find(".select2-result-repository__title").text(repo.full_name);
+        $container.find(".select2-result-repository__description").text(repo.description);
+        $container.find(".select2-result-repository__forks").append(repo.forks_count + " Forks");
+        $container.find(".select2-result-repository__stargazers").append(repo.stargazers_count + " Stars");
+        $container.find(".select2-result-repository__watchers").append(repo.watchers_count + " Watchers");
+      
+        return $container;
+      }
+      
+      function formatRepoSelection (repo) {
+        return repo.full_name || repo.text;
+      }
+</script>
