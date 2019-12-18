@@ -18,7 +18,6 @@ export SRID=${SRID:-4326}
 if [ ! -f /config/config.py ]; then
     echo "Generate new config file"
     cp /app/configs/config.py.sample /config/config.py
-    ln -s /config/config.py /app/config.py
     sed -i "s/dbHost/${DBHOST}/g" /config/config.py
     sed -i "s/dbName/${DBNAME}/g" /config/config.py
     sed -i "s/dbUser/${DBUSER}/g" /config/config.py
@@ -28,6 +27,11 @@ if [ ! -f /config/config.py ]; then
 else
     echo "config file already exists" 
 fi
+
+rm /app/config.py
+ln -s /config/config.py /app/config.py
+
+ls -alh /app
 
 until pg_isready -h $DBHOST -p $DBPORT
 do
