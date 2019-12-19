@@ -5,6 +5,9 @@ from flask import Response, current_app
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
 from shapely.geometry import asShape
+from sqlalchemy.sql.functions import GenericFunction
+from sqlalchemy import String
+from sqlalchemy.sql.expression import func, select
 
 """
     Liste des types de données sql qui
@@ -30,6 +33,11 @@ def create_schemas(db):
         db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
     db.session.commit()
 
+class Unaccent(GenericFunction):
+    type = String
+    package = "str"
+    name = "unaccent"
+    identifier = "unaccent"
 
 def geom_from_geojson(data):
     """this function transform geojson geometry into `WKB\

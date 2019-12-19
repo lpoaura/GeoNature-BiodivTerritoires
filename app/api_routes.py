@@ -2,14 +2,46 @@ from flask import Blueprint, abort, jsonify, redirect, render_template
 from geoalchemy2 import func
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from app.utils import json_resp, get_geojson_feature
 import config
 from app import db
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
+from sqlalchemy.sql import func
+from flask import request
 
 api = Blueprint("api", __name__)
+
+
+@api.route("/find/area")
+def find_area():
+    """
+    """
+    search_term = "%{}%".format(request.args.get('q'))
+    qarea = (
+        db.session.query(
+            BibAreasTypes.type_name,
+            BibAreasTypes.type_desc,
+            BibAreasTypes.type_code,
+            LAreas.area_name,
+            LAreas.area_code,
+        )
+        .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+        .filter(
+            or_(
+                func.unaccent(LAreas.area_name).ilike(func.unaccent(search_term)),
+                func.unaccent(LAreas.area_code).ilike(func.unaccent(search_term)),
+            )
+        )
+        .limit(20)
+    )
+    result = qarea.all()
+    count = len(result)
+    datas = []
+    for r in result:
+        datas.append(r._asdict())
+    return {"count": count, "datas": datas}, 200
 
 
 @api.route("/<type_code>/<area_code>")
@@ -84,7 +116,7 @@ def get_geojson_area(type_code, area_code):
                 BibAreasTypes.type_desc,
                 LAreas.area_name,
                 LAreas.area_code,
-                func.ST_Transform(LAreas.geom, 4326).label('geom')
+                func.ST_Transform(LAreas.geom, 4326).label("geom"),
             )
             .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
             .filter(

@@ -8,7 +8,7 @@ from app import db
 
 from app.utils import serializable, geoserializable
 
-
+@geoserializable
 class BibAreasTypes(db.Model):
     __tablename__ = "bib_areas_types"
     __table_args__ = {"schema": "ref_geo"}
@@ -33,7 +33,7 @@ class LAreas(db.Model):
     area_type = relationship("BibAreasTypes", lazy="select")
 
 
-
+@geoserializable
 class LiMunicipalities(db.Model):
     __tablename__ = "li_municipalities"
     __table_args__ = {"schema": "ref_geo"}
