@@ -1,10 +1,9 @@
 {% extends "core/layout.html" %} {% block title %}Accueil{% endblock %} {% block head %} {{ super() }}
 <style type="text/css">
-    /*
+/*
  * Base structure
  */
-
-
+    
     .jumbotron {
         text-align: center;
         min-height: 100vh;
@@ -21,15 +20,15 @@
         background-size: cover;
         color: white;
     }
-
-    #home-info {
-        margin: auto;
-        top: 50%;
-        left: 50%;
-        margin: 0;
-        position: absolute;
-        transform: translate(-50%, -50%);
-    }
+#home-info {
+    margin: auto;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    position: absolute;
+    transform: translate(-50%,
+    -50%);
+}
 </style>
 {% endblock %} {% block content %}
 <div class="container-fluid">
@@ -38,15 +37,12 @@
             <h1>{{site_name}}</h1>
             <p class="lead">{{site_desc|safe}}</p>
             <div>
-            {% include "core/search_territory.html" %}
-        </div>
+                {% include "core/search_territory.html" %}
+            </div>
         </div>
         </p>
     </div>
 </div>
-<!-- Marketing messaging and featurettes
-    ================================================== -->
-<!-- Wrap the rest of the page in another container to center all the content. -->
 
 
 {% endblock %}

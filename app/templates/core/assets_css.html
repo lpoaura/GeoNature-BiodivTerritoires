@@ -1,0 +1,15 @@
+{% block assets_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='leaflet.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='Chart.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='select2.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+
+<!-- {% assets "js_all" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "css_all" %}
+<link  type="text/css" rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %} -->
+{% endblock %}

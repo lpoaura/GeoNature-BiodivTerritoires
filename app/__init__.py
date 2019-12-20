@@ -1,6 +1,7 @@
 # Import flask and template operators
 from flask import Flask, render_template
 from flask_assets import Bundle, Environment
+from flask_admin import Admin
 # Import SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
 import config
@@ -26,7 +27,7 @@ app.config["PYSCSS_STYLE"] = "compressed"
 # by modules and controllers
 db = SQLAlchemy(app)
 assets = Environment(app)
-
+admin = Admin(app, name='GnBT', template_mode='bootstrap3')
 
 js = Bundle(
     "leaflet.js",

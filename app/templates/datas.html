@@ -1,0 +1,16 @@
+{% extends "core/layout.html" %} {% block title %}Données {% endblock %} {% block head %} {{ super() }}
+<style type="text/css">
+
+</style>
+{% endblock %} {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Données</h1>
+            <ul>
+                {% for v in datas %}
+                <li><b>{{v.data_name}}</b><span class="badge badge-info">{{v.type_protocol}}</span>: {{v.data_desc}} </li> {%endfor%} {% endblock %}
+            </ul>
+        </div>
+    </div>
+</div>

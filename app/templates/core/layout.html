@@ -5,10 +5,10 @@
     {% block head %}
 
     <title>{% block title %}{% endblock %} {{site_name}}</title>
-    {% endblock %} {% include "core/assets.html" %}
+    {% endblock %} {% include "core/assets_css.html" %} {% include "core/assets_js.html" %}
     <style>
         body {
-            padding-top: 4.5rem;
+            padding-top: 5rem;
         }
     </style>
 </head>
@@ -21,6 +21,7 @@
     <footer id="footer">
         {% include "core/footer.html" %}
     </footer>
+
 </body>
 
 </html>

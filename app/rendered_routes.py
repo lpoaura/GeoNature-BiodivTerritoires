@@ -4,6 +4,7 @@ from sqlalchemy import and_
 import config
 from app import db
 from app.models.ref_geo import BibAreasTypes, LAreas
+from app.models.datas import BibDatasTypes, TReleasedDatas
 
 rendered = Blueprint("rendered", __name__)
 
@@ -19,6 +20,23 @@ def global_variables():
 @rendered.route("/")
 def index():
     return render_template("home.html", name=config.SITE_NAME)
+
+@rendered.route("/datas")
+def datas():
+    qdatas = (
+        db.session.query(
+            BibDatasTypes.type_desc,
+            BibDatasTypes.type_name,
+            BibDatasTypes.type_protocol,
+            TReleasedDatas.data_desc,
+            TReleasedDatas.data_name,
+            TReleasedDatas.data_type
+        )
+        .join(TReleasedDatas, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True)
+    )
+    result = qdatas.all()
+    return render_template("datas.html", datas=result)
+
 
 
 @rendered.route("/territory/<type_code>/<area_code>")

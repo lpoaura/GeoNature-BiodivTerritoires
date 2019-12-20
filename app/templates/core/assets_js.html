@@ -1,10 +1,4 @@
-{% block assets %}
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='leaflet.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='Chart.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='select2.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
+{% block assets_js %}
 <script type="application/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 <script type="application/javascript" src="{{ url_for('static', filename='bootstrap.js') }}"></script>
 <script type="application/javascript" src="{{ url_for('static', filename='vue.js') }}"></script>
@@ -12,7 +6,6 @@
 <script type="application/javascript" src="{{ url_for('static', filename='Chart.js') }}"></script>
 <script type="application/javascript" src="{{ url_for('static', filename='select2.js') }}"></script>
 <script type="application/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
-
 
 <!-- {% assets "js_all" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>

@@ -28,16 +28,11 @@ def create_schemas(db):
 
     :param db: db connection
     """
-    schemas_to_create = ['gn_biodiv_territory']
+    schemas_to_create = ['gn_biodivterritory']
     for schema in schemas_to_create:
         db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
     db.session.commit()
 
-class Unaccent(GenericFunction):
-    type = String
-    package = "str"
-    name = "unaccent"
-    identifier = "unaccent"
 
 def geom_from_geojson(data):
     """this function transform geojson geometry into `WKB\

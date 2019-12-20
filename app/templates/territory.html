@@ -8,15 +8,10 @@
         <div class="col">
             <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span class="badge badge-primary align-top">{{ area_info.type_name }}</span>
         </div>
-        <div class="col">
-            <div id="situationMap" class="card">
-            </div>
-        </div>
     </div>
     <div id="genstats" class="row">
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
                 <div class="card-body text-center">
                     <h2 class="count">5665</h2>
                     <div class="subject">Observations</div>
@@ -25,7 +20,6 @@
         </div>
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
                 <div class="card-body text-center">
                     <h2 class="count">365</h2>
                     <div class="subject">Espèces</div>
@@ -34,7 +28,6 @@
         </div>
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
                 <div class="card-body text-center">
                     <h2 class="count">365</h2>
                     <div class="subject">Espèces</div>
@@ -43,7 +36,6 @@
         </div>
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
                 <div class="card-body text-center">
                     <h2 class="count">365</h2>
                     <div class="subject">Espèces</div>
@@ -52,7 +44,6 @@
         </div>
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
                 <div class="card-body text-center">
                     <h2 class="count">365</h2>
                     <div class="subject">Espèces</div>
@@ -61,7 +52,6 @@
         </div>
         <div class="col">
             <div class="card">
-                <img class="card-img-top" src="https://temp.media/?height=50" alt="Card image cap">
                 <div class="card-body text-center">
                     <h2 class="count">365</h2>
                     <div class="subject">Espèces</div>
@@ -72,32 +62,77 @@
 
     <div class="row">
         <div class="col">
-            gdg
+            <div id="situationMap" class="card">
+                <script>
+                    var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(situationMap);
+
+                    let xhr = new XMLHttpRequest();
+                    xhr.open('GET', '/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}');
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.responseType = 'json';
+                    xhr.onload = function() {
+                        if (xhr.status !== 200) return
+                        var situationObject = L.geoJSON(xhr.response);
+                        situationObject.getBounds();
+                        situationObject.addTo(situationMap);
+                        situationMap.fitBounds(situationObject.getBounds());
+                    };
+                    xhr.send();
+                </script>
+            </div>
         </div>
         <div class="col">
-            dgdg
+            <div id="container">
+                <canvas id="myChart" width="400" height="300"></canvas>
+                <script>
+                    var ctx = document.getElementById('myChart').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                            datasets: [{
+                                label: '# of Votes',
+                                data: [12, 19, 3, 5, 2, 3],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                </script>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(situationMap);
 
-        let xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.responseType = 'json';
-        xhr.onload = function() {
-            if (xhr.status !== 200) return
-            var situationObject = L.geoJSON(xhr.response);
-            situationObject.getBounds();
-            situationObject.addTo(situationMap);
-            situationMap.fitBounds(situationObject.getBounds());
-        };
-        xhr.send();
-    </script>
-
-    {% endblock %}
+<script></script>
+{% endblock %}
