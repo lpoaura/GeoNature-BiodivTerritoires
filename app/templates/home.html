@@ -1,0 +1,48 @@
+{% extends "core/layout.html" %} {% block title %}Accueil{% endblock %} {% block head %} {{ super() }}
+<style type="text/css">
+/*
+ * Base structure
+ */
+    
+    .jumbotron {
+        text-align: center;
+        min-height: 100vh;
+        height: calc(100% - 65px);
+        height: -o-calc(100% - 65px);
+        /* opera */
+        height: -webkit-calc(100% - 65px);
+        /* google, safari */
+        height: -moz-calc(100% - 65px);
+        /* firefox */
+        position: relative;
+        background: url({{ url_for('static', filename='images/paysage_crollant.jpg')}});
+        background-repeat: no-repeat;
+        background-size: cover;
+        color: white;
+    }
+#home-info {
+    margin: auto;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    position: absolute;
+    transform: translate(-50%,
+    -50%);
+}
+</style>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+    <div id="jumbotron" class="jumbotron">
+        <div id="home-info">
+            <h1>{{site_name}}</h1>
+            <p class="lead">{{site_desc|safe}}</p>
+            <div>
+                {% include "core/search_territory.html" %}
+            </div>
+        </div>
+        </p>
+    </div>
+</div>
+
+
+{% endblock %}

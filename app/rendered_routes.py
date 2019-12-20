@@ -1,24 +1,68 @@
-from flask import render_template, redirect, abort
-from config import config
+from flask import Blueprint, abort, redirect, render_template
+from sqlalchemy import and_
 
-from flask import Blueprint
+import config
+from app import db
+from app.models.ref_geo import BibAreasTypes, LAreas
+from app.models.datas import BibDatasTypes, TReleasedDatas
 
-main = Blueprint('main', __name__)
+rendered = Blueprint("rendered", __name__)
 
-@main.context_processor
+
+@rendered.context_processor
 def global_variables():
-    values= {}
-    values['site_name'] = config.SITE_NAME
+    values = {}
+    values["site_name"] = config.SITE_NAME
+    values["site_desc"] = config.SITE_DESC
     return values
 
-@main.route('/')
+
+@rendered.route("/")
 def index():
-   return render_template('home.html', name = config.SITE_NAME)
+    return render_template("home.html", name=config.SITE_NAME)
 
-@main.route('/territory/<insee>')
-def territory(insee):
-   return render_template('territory.html', insee = insee)
+@rendered.route("/datas")
+def datas():
+    qdatas = (
+        db.session.query(
+            BibDatasTypes.type_desc,
+            BibDatasTypes.type_name,
+            BibDatasTypes.type_protocol,
+            TReleasedDatas.data_desc,
+            TReleasedDatas.data_name,
+            TReleasedDatas.data_type
+        )
+        .join(TReleasedDatas, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True)
+    )
+    result = qdatas.all()
+    return render_template("datas.html", datas=result)
 
-@main.route('/proxy/<user>')
+
+
+@rendered.route("/territory/<type_code>/<area_code>")
+def territory(type_code, area_code):
+    """
+    
+   """
+    qterritory = (
+        db.session.query(
+            BibAreasTypes.type_code,
+            BibAreasTypes.type_name,
+            BibAreasTypes.type_desc,
+            LAreas.id_area,
+            LAreas.area_name,
+            LAreas.area_code,
+        )
+        .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+        .filter(
+            and_(BibAreasTypes.type_code == type_code.upper()),
+            LAreas.area_code == area_code,
+        )
+    )
+    result = qterritory.one()
+    return render_template("territory.html", area_info=result)
+
+
+@rendered.route("/proxy/<user>")
 def proxy_test(user):
-   return render_template('proxy.html', name = user)
+    return render_template("proxy.html", name=user)
