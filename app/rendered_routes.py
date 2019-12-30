@@ -5,6 +5,7 @@ import config
 from app import db
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.territory import VMTerritoryGeneralStats
 
 rendered = Blueprint("rendered", __name__)
 
@@ -21,22 +22,21 @@ def global_variables():
 def index():
     return render_template("home.html", name=config.SITE_NAME)
 
+
 @rendered.route("/datas")
 def datas():
-    qdatas = (
-        db.session.query(
-            BibDatasTypes.type_desc,
-            BibDatasTypes.type_name,
-            BibDatasTypes.type_protocol,
-            TReleasedDatas.data_desc,
-            TReleasedDatas.data_name,
-            TReleasedDatas.data_type
-        )
-        .join(TReleasedDatas, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True)
+    qdatas = db.session.query(
+        BibDatasTypes.type_desc,
+        BibDatasTypes.type_name,
+        BibDatasTypes.type_protocol,
+        TReleasedDatas.data_desc,
+        TReleasedDatas.data_name,
+        TReleasedDatas.data_type,
+    ).join(
+        TReleasedDatas, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True
     )
-    result = qdatas.all()
-    return render_template("datas.html", datas=result)
-
+    datas = qdatas.all()
+    return render_template("datas.html", datas=datas)
 
 
 @rendered.route("/territory/<type_code>/<area_code>")
@@ -44,7 +44,7 @@ def territory(type_code, area_code):
     """
     
    """
-    qterritory = (
+    q_area_info = (
         db.session.query(
             BibAreasTypes.type_code,
             BibAreasTypes.type_name,
@@ -59,8 +59,15 @@ def territory(type_code, area_code):
             LAreas.area_code == area_code,
         )
     )
-    result = qterritory.one()
-    return render_template("territory.html", area_info=result)
+    area_info = q_area_info.one()
+
+    # Retrieve general stats
+    # q_gen_stats = db.session.query(VMTerritoryGeneralStats).filter(
+    #     VMTerritoryGeneralStats.id_area == area_info.id_area
+    # )
+    # gen_stats = q_gen_stats.one()
+    # print(gen_stats)
+    return render_template("territory.html", area_info=area_info)
 
 
 @rendered.route("/proxy/<user>")

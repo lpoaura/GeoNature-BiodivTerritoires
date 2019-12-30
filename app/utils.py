@@ -6,8 +6,10 @@ from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
 from shapely.geometry import asShape
 from sqlalchemy.sql.functions import GenericFunction
-from sqlalchemy import String
+from sqlalchemy import String, Table, Column, MetaData, event, DDL
 from sqlalchemy.sql.expression import func, select
+from sqlalchemy.ext import compiler
+from sqlalchemy.schema import DDLElement
 
 """
     Liste des types de données sql qui
@@ -23,14 +25,15 @@ SERIALIZERS = {
     "numeric": lambda x: str(x) if x else None,
 }
 
+
 def create_schemas(db):
     """create db schemas at first launch
 
     :param db: db connection
     """
-    schemas = ['gn_biodivterritory']
+    schemas = ["gn_biodivterritory"]
     for schema in schemas:
-        print('create DB schema {}'.format(schema) )
+        print("create DB schema {}".format(schema))
         db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
     db.session.commit()
 
@@ -93,9 +96,7 @@ def serializable(cls):
     cls_db_columns = [
         (
             db_col.key,
-            SERIALIZERS.get(
-                db_col.type.__class__.__name__.lower(), lambda x: x
-            ),
+            SERIALIZERS.get(db_col.type.__class__.__name__.lower(), lambda x: x),
         )
         for db_col in cls.__mapper__.c
         if not db_col.type.__class__.__name__ == "Geometry"
@@ -128,10 +129,7 @@ def serializable(cls):
         else:
             fprops = cls_db_columns
 
-        out = {
-            item: _serializer(getattr(self, item))
-            for item, _serializer in fprops
-        }
+        out = {item: _serializer(getattr(self, item)) for item, _serializer in fprops}
 
         if recursif is False:
             return out
@@ -213,9 +211,7 @@ def to_json_resp(res, status=200, filename=None, as_file=False, indent=None):
         headers = Headers()
         headers.add("Content-Type", "application/json")
         headers.add(
-            "Content-Disposition",
-            "attachment",
-            filename="export_%s.json" % filename,
+            "Content-Disposition", "attachment", filename="export_%s.json" % filename,
         )
 
     return Response(
@@ -224,3 +220,31 @@ def to_json_resp(res, status=200, filename=None, as_file=False, indent=None):
         mimetype="application/json",
         headers=headers,
     )
+
+
+class CreateMaterializedView(DDLElement):
+    def __init__(self, name, selectable):
+        self.name = name
+        self.selectable = selectable
+
+
+@compiler.compiles(CreateMaterializedView)
+def compile(element, compiler, **kw):
+    # Could use "CREATE OR REPLACE MATERIALIZED VIEW..."
+    # but I'd rather have noisy errors
+    return "CREATE MATERIALIZED VIEW %s AS %s" % (
+        element.name,
+        compiler.sql_compiler.process(element.selectable, literal_binds=True),
+    )
+
+
+def create_mat_view(name, selectable, metadata=MetaData()):
+    _mt = MetaData()  # temp metadata just for initial Table object creation
+    t = Table(name, _mt)  # the actual mat view class is bound to db.metadata
+    for c in selectable.c:
+        t.append_column(Column(c.name, c.type, primary_key=c.primary_key))
+        event.listen(metadata, "after_create", CreateMaterializedView(name, selectable))
+        event.listen(
+            metadata, "before_drop", DDL("DROP MATERIALIZED VIEW IF EXISTS " + name)
+        )
+    return t
