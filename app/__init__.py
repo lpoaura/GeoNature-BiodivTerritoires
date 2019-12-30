@@ -2,6 +2,7 @@
 from flask import Flask, render_template
 from flask_assets import Bundle, Environment
 from flask_admin import Admin
+
 # Import SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
 import config
@@ -19,15 +20,15 @@ app = Flask(
 try:
     app.config.from_object(config)
 except Exception as e:
-    print('Import config error : ', e)
+    print("Import config error : ", e)
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["PYSCSS_STYLE"] = "compressed"
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
 assets = Environment(app)
-admin = Admin(app, name='GnBT', template_mode='bootstrap3')
+admin = Admin(app, name="GnBT", template_mode="bootstrap3")
 
 js = Bundle(
     "leaflet.js",
@@ -43,7 +44,14 @@ js = Bundle(
 assets.register("js_all", js)
 
 css = Bundle(
-    "bootstrap.css", "leaflet.css", "Chart.css", "main.css","custom.css","select2.css", filters="pyscss", output="bundle.css"
+    "bootstrap.css",
+    "leaflet.css",
+    "Chart.css",
+    "main.css",
+    "custom.css",
+    "select2.css",
+    filters="pyscss",
+    output="bundle.css",
 )
 assets.register("css_all", css)
 
@@ -53,14 +61,14 @@ assets.register("css_all", css)
 def not_found(error):
     return render_template("404.html"), 404
 
+
+from app.api_routes import api
+from app.rendered_routes import rendered
+
 # Create schemas
 create_schemas(db)
 db.create_all()
 
-
-
-from app.api_routes import api
-from app.rendered_routes import rendered
 
 
 # Register blueprint(s)

@@ -28,8 +28,9 @@ def create_schemas(db):
 
     :param db: db connection
     """
-    schemas_to_create = ['gn_biodivterritory']
-    for schema in schemas_to_create:
+    schemas = ['gn_biodivterritory']
+    for schema in schemas:
+        print('create DB schema {}'.format(schema) )
         db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
     db.session.commit()
 
