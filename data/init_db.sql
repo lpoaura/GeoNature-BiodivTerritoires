@@ -3,38 +3,44 @@
  *******************************/
 DROP MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
 
-create materialized view gn_biodivterritory.mv_territory_general_stats as
+CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
 (
-with observers as (
-    select distinct cor_area_synthese.id_area,
-                    unaccent(trim(regexp_split_to_table(synthese.observers, ','))) as observer
-    from gn_synthese.synthese
-             join gn_synthese.cor_area_synthese on synthese.id_synthese = cor_area_synthese.id_synthese
-)
-select l_areas.id_area,
-       count(distinct synthese.cd_nom)     as count_taxa,
-       count(synthese.id_synthese)         as count_occtax,
-       count(distinct synthese.id_dataset) as count_dataset,
-       count(distinct synthese.date_min)   as count_date,
-       count(distinct observers.observer)  as count_observer
-
-from ref_geo.l_areas
-         join gn_synthese.cor_area_synthese on l_areas.id_area = cor_area_synthese.id_area
-         join gn_synthese.synthese on cor_area_synthese.id_synthese = synthese.id_synthese
-         join observers on observers.id_area = l_areas.id_area
-group by l_areas.id_area
+WITH
+    observers AS (
+        SELECT DISTINCT
+            cor_area_synthese.id_area
+          , unaccent(trim(regexp_split_to_table(synthese.observers, ','))) AS observer
+        FROM
+            gn_synthese.synthese
+                JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
+    )
+SELECT
+    l_areas.id_area
+  , bib_areas_types.type_code
+  , l_areas.area_code
+  , l_areas.area_name
+  , count(DISTINCT synthese.cd_nom)      AS count_taxa
+  , count(DISTINCT synthese.id_synthese) AS count_occtax
+  , count(DISTINCT synthese.id_dataset)  AS count_dataset
+  , count(DISTINCT synthese.date_min)    AS count_date
+  , count(DISTINCT observers.observer)   AS count_observer
+  , max(date_min)                        AS last_obs
+  , l_areas.geom
+FROM
+    ref_geo.l_areas
+        JOIN ref_geo.bib_areas_types ON l_areas.id_type = bib_areas_types.id_type
+        JOIN gn_synthese.cor_area_synthese ON l_areas.id_area = cor_area_synthese.id_area
+        JOIN gn_synthese.synthese ON cor_area_synthese.id_synthese = synthese.id_synthese
+        JOIN observers ON observers.id_area = l_areas.id_area
+GROUP BY
+    l_areas.id_area
+  , bib_areas_types.type_code
+  , l_areas.area_code
+  , l_areas.area_name
+  , l_areas.geom
     );
 
-/***********************************
- *   TERRITORY GEO GENERAL STATS   *
- ***********************************/
-
-create materialized view gn_biodivterritory.mv_territory_geo_general_stats as
-(
-    with observers as (
-        select distinct cor_area_synthese.id_area,
-                        unaccent(trim(regexp_split_to_table(synthese.observers, ','))) as observer
-        from gn_synthese.synthese
-                 join gn_synthese.cor_area_synthese on synthese.id_synthese = cor_area_synthese.id_synthese
-    )
-)
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(id_area);
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(area_name);
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(area_code);
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats USING gist(geom);
