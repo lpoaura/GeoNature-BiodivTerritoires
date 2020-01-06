@@ -5,7 +5,7 @@ import config
 from app import db
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.datas import BibDatasTypes, TReleasedDatas
-from app.models.territory import VMTerritoryGeneralStats
+from app.models.territory import MVTerritoryGeneralStats
 
 rendered = Blueprint("rendered", __name__)
 
@@ -15,6 +15,9 @@ def global_variables():
     values = {}
     values["site_name"] = config.SITE_NAME
     values["site_desc"] = config.SITE_DESC
+    values["default_grid"] = config.DEFAULT_GRID
+    values["default_buffer"] = config.DEFAULT_BUFFER
+
     return values
 
 
@@ -42,8 +45,7 @@ def datas():
 @rendered.route("/territory/<type_code>/<area_code>")
 def territory(type_code, area_code):
     """
-    
-   """
+    """
     q_area_info = (
         db.session.query(
             BibAreasTypes.type_code,
@@ -62,14 +64,11 @@ def territory(type_code, area_code):
     area_info = q_area_info.one()
 
     # Retrieve general stats
-    # q_gen_stats = db.session.query(VMTerritoryGeneralStats).filter(
-    #     VMTerritoryGeneralStats.id_area == area_info.id_area
-    # )
-    # gen_stats = q_gen_stats.one()
-    # print(gen_stats)
-    return render_template("territory.html", area_info=area_info)
-
-
-@rendered.route("/proxy/<user>")
-def proxy_test(user):
-    return render_template("proxy.html", name=user)
+    q_gen_stats = db.session.query(MVTerritoryGeneralStats).filter(
+        MVTerritoryGeneralStats.id_area == area_info.id_area
+    )
+    gen_stats = q_gen_stats.one()
+    print(gen_stats)
+    return render_template(
+        "territory/_main.html", area_info=area_info, gen_stats=gen_stats
+    )
