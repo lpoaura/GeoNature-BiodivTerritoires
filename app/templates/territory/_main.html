@@ -1,95 +1,129 @@
-{% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %} {% block head %} {{ super() }}
-<style type="text/css">
+{% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
+{% block head %} {{ super() }}
+    <style type="text/css">
 
-</style>
+    </style>
 {% endblock %} {% block content %}
-<div class="container-fluid">
-    <div id="situation" class="row">
-        <div class="col">
-            <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span class="badge badge-primary align-top">{{ area_info.type_name }}</span>
-        </div>
-    </div>
-    <div id="genstats" class="row">
-        <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <h2 class="count">{{gen_stats.count_occtax}}</h2>
-                    <div class="subject">Observations</div>
-                </div>
+    <div id="situation" class="container-fluid">
+        <div class="row mt-2">
+            <div class="col">
+                <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span
+                    class="badge badge-primary align-top">{{ area_info.type_name }}</span>
+                <span>{{ area_info.id_area }}</span>
             </div>
         </div>
-        <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <h2 class="count">{{gen_stats.count_taxa}}</h2>
-                    <div class="subject">Espèces</div>
-                </div>
-            </div>
-        </div>
-                <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <h2 class="count">{{gen_stats.count_observer}}</h2>
-                    <div class="subject">Observateurs</div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <h2 class="count">{{gen_stats.count_date}}</h2>
-                    <div class="subject">Dates</div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <h2 class="count">{{gen_stats.last_obs.strftime('%Y-%m-%d')}}</h2>
-                    <div class="subject">Dernière date</div>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <h2 class="count">{{gen_stats.count_dataset}}</h2>
-                    <div class="subject">Jeux de données</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col">
-            <div id="situationMap" class="card">
-                <script>
-                    var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    }).addTo(situationMap);
-
-                    let xhr = new XMLHttpRequest();
-                    xhr.open('GET', '/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}');
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.responseType = 'json';
-                    xhr.onload = function() {
-                        if (xhr.status !== 200) return
-                        var situationObject = L.geoJSON(xhr.response);
-                        situationObject.getBounds();
-                        situationObject.addTo(situationMap);
-                        situationMap.fitBounds(situationObject.getBounds());
-                    };
-                    xhr.send();
-                </script>
-            </div>
+        <div id="genstats" class="row mt-2">
+            {% include "territory/gen_stats.html" %}
         </div>
-        <div class="col">
-            <div id="container">
-                <canvas id="myChart" width="400" height="300"></canvas>
+        <div class="row mt-2">
+            <div class="col">
+                <div id="situationMap" class="card">
+                    <script>
+                        var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
+
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }).addTo(situationMap)
+
+                        var territoryStyle = {
+                            "color": "#ea09b9",
+                            "weight": 3,
+                            "opacity": 0.65,
+                            "fillOpacity": 0
+                        };
+
+                        function getColor(data, type, color) {
+                            var genColor = null;
+                            axios
+                                .get('/api/territory/conf/ntile/' + type)
+                                .then(function (response) {
+                                    colorGradiant = generateColor('#000000', color, 5);
+                                    //console.log('<getColor> data', data);
+                                    for (var i = 0; i < response.data.length; i++) {
+                                        if (data >= response.data[i].min && data < response.data[i].max) {
+                                            break;
+                                        };
+                                        //console.log('<getColor> colorGradiant',i, colorGradiant[i]);
+                                        this.genColor = colorGradiant[i];
+                                        //console.log('<getColor> genColor', this.genColor);
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log('<getColor> Error', error);
+                                });
+                            console.log('color', data, genColor);
+                            return genColor;
+                        };
+
+
+                        function getTerritoryArea() {
+                            axios
+                                .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
+                                .then(function (response) {
+                                    var situationObject = L.geoJson(response.data, {
+                                        style: territoryStyle
+                                    });
+                                    situationObject.addTo(situationMap);
+                                    situationMap.fitBounds(situationObject.getBounds());
+                                }).catch(function (error) {
+                                console.log('<getTerritoryArea> Error', error);
+                            });
+
+                        };
+
+                        function occtaxStyle(feature) {
+                            console.log('<occTaxStyle>',feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'))
+                            return {
+                                fillColor: getColor(feature.properties.count_occtax, 'occtax', '#0233d6'),
+                                weight: 2,
+                                opacity: 1,
+                                color: 'white',
+                                dashArray: '3',
+                                fillOpacity: 0.7
+                            };
+                        }
+
+                        function getGridArea() {
+                            axios
+                                .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
+                                .then(function (response) {
+                                    var areaGrid = L.geoJson(response.data, {
+                                        style: occtaxStyle
+                                    });
+                                    areaGrid.addTo(situationMap);
+                                    situationMap.fitBounds(areaGrid.getBounds());
+                                }).catch(function (error) {
+                                console.log('<getTerritoryArea> Error', error);
+                            })
+                        };
+
+                        getTerritoryArea();
+                        getGridArea();
+
+
+                    </script>
+                </div>
+            </div>
+            <div class="col">
+                <div class="chart-container" style="position: relative; height:500px; width:50vw">
+                    <canvas id="myChart"></canvas>
+                </div>
                 <script>
                     var ctx = document.getElementById('myChart').getContext('2d');
+
+                    {#var labels = data.customers[0].amounts.map(function (e) {#}
+                    {#    return e[0];#}
+                    {#})
+                    ;
+                    #}
+                    {##}
+                    {#var data = data.customers[0].amounts.map(function (e) {#}
+                    {#    return e[1];#}
+                    {#})
+                    ;
+                    #}
+
                     var myChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
@@ -117,6 +151,8 @@
                             }]
                         },
                         options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
                             scales: {
                                 yAxes: [{
                                     ticks: {
@@ -127,12 +163,11 @@
                         }
                     });
                 </script>
+
             </div>
         </div>
     </div>
-</div>
 
 
-
-<script></script>
+    <script></script>
 {% endblock %}

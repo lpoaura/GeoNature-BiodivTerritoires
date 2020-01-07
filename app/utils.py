@@ -73,13 +73,13 @@ def get_geojson_feature(wkb):
     try:
         geometry = to_shape(wkb)
         feature = Feature(geometry=geometry, properties={})
+        return feature
     except Exception as e:
         current_app.logger.error(
             "[get_geojson_feature] Can't convert wkb geometry to geojson: {}".format(
                 str(e)
             )
         )
-    return feature
 
 
 def serializable(cls):
