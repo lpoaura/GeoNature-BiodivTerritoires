@@ -2,8 +2,7 @@ from flask import Blueprint, abort, jsonify, redirect, render_template
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from sqlalchemy import and_, or_
-from app.utils import json_resp, get_geojson_feature
-import config
+from app.utils import get_geojson_feature
 from app import db
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas

@@ -1,14 +1,14 @@
 # coding: utf-8
 from geoalchemy2 import Geometry
 from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, DateTime, Float
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import config
 from app import db
+from utils_flask_sqla.serializers import serializable
+from utils_flask_sqla_geo.serializers import geoserializable
 
-from app.utils import serializable, geoserializable
 
-@geoserializable
+@serializable
 class BibAreasTypes(db.Model):
     __tablename__ = "bib_areas_types"
     __table_args__ = {"schema": "ref_geo"}
@@ -19,6 +19,7 @@ class BibAreasTypes(db.Model):
     ref_name = Column(String)
     ref_version = Column(String)
     num_version = Column(String)
+
 
 @geoserializable
 class LAreas(db.Model):
@@ -32,8 +33,11 @@ class LAreas(db.Model):
     source = Column(String)
     area_type = relationship("BibAreasTypes", lazy="select")
 
+    def get_geofeature(self, recursif=True, columns=None):
+        return self.as_geofeature("geom", "id_area", recursif, columns=columns)
 
-@geoserializable
+
+@serializable
 class LiMunicipalities(db.Model):
     __tablename__ = "li_municipalities"
     __table_args__ = {"schema": "ref_geo"}

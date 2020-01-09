@@ -2,10 +2,12 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from flask_admin.contrib.sqla import ModelView
+from utils_flask_sqla.serializers import serializable
 
 from app import db, admin
 
 
+@serializable
 class BibDatasTypes(db.Model):
     __tablename__ = "bib_datas_types"
     __table_args__ = {"schema": "gn_biodivterritory"}
@@ -16,6 +18,7 @@ class BibDatasTypes(db.Model):
     type_desc = Column(String)
 
 
+@serializable
 class TReleasedDatas(db.Model):
     __tablename__ = "t_released_datas"
     __table_args__ = {"schema": "gn_biodivterritory"}

@@ -1,9 +1,9 @@
-from app.utils import create_mat_view
 from app import db
 from sqlalchemy import Column, Integer, String, Date
 from geoalchemy2 import Geometry
 import config
-from app.utils import serializable, geoserializable
+from utils_flask_sqla.serializers import serializable
+from utils_flask_sqla_geo.serializers import geoserializable
 
 
 @serializable
