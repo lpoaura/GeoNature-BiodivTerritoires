@@ -16,6 +16,8 @@ api = Blueprint("api", __name__)
 @api.route("/find/area")
 def find_area():
     """
+
+    :return:
     """
     try:
         search_term = "%{}%".format(request.args.get("q"))
@@ -52,7 +54,7 @@ def main_area_info(type_code, area_code):
     
     """
     try:
-        qterritory = (
+        query = (
             db.session.query(
                 BibAreasTypes.type_name,
                 BibAreasTypes.type_desc,
@@ -65,7 +67,7 @@ def main_area_info(type_code, area_code):
                 LAreas.area_code == area_code,
             )
         )
-        result = qterritory.one()
+        result = query.one()
         data = result._asdict()
         return jsonify(data)
     except Exception as e:
@@ -78,7 +80,7 @@ def datas_types():
     
     """
     try:
-        qdatatype = db.session.query(
+        query = db.session.query(
             BibDatasTypes.type_protocol,
             BibDatasTypes.type_name,
             TReleasedDatas.data_name,
@@ -88,7 +90,7 @@ def datas_types():
             BibDatasTypes.id_type == TReleasedDatas.id_type,
             isouter=True,
         )
-        result = qdatatype.first()
+        result = query.first()
         data = result._asdict()
         return jsonify(data)
     except Exception as e:
@@ -121,7 +123,7 @@ def get_geojson_area(type_code, area_code):
             description: A municipality
         """
     try:
-        qterritory = (
+        query = (
             db.session.query(
                 BibAreasTypes.type_desc,
                 LAreas.area_name,
@@ -134,7 +136,7 @@ def get_geojson_area(type_code, area_code):
                 LAreas.area_code == area_code,
             )
         ).limit(1)
-        result = qterritory.one()
+        result = query.one()
         geometry = get_geojson_feature(result.geom)
         feature = Feature(geometry=to_shape(result.geom))
         feature["properties"]["area_name"] = result.area_name
@@ -197,11 +199,8 @@ def get_occtax_ntile(type):
     :param type:
     :return:
     """
-    qntile = MVAreaNtileLimit.query.filter_by(type=type).order_by(
-        MVAreaNtileLimit.ntile
-    )
-    print(qntile)
-    ntiles = qntile.all()
+    query = MVAreaNtileLimit.query.filter_by(type=type).order_by(MVAreaNtileLimit.ntile)
+    ntiles = query.all()
     datas = []
     for r in ntiles:
         datas.append(r.as_dict())

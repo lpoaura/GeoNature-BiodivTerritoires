@@ -12,7 +12,6 @@
                 <span>{{ area_info.id_area }}</span>
             </div>
         </div>
-
         <div id="genstats" class="row mt-2">
             {% include "territory/gen_stats.html" %}
         </div>
@@ -43,7 +42,8 @@
                                     for (var i = 0; i < response.data.length; i++) {
                                         if (data >= response.data[i].min && data < response.data[i].max) {
                                             break;
-                                        };
+                                        }
+                                        ;
                                         //console.log('<getColor> colorGradiant',i, colorGradiant[i]);
                                         this.genColor = colorGradiant[i];
                                         //console.log('<getColor> genColor', this.genColor);
@@ -73,7 +73,7 @@
                         };
 
                         function occtaxStyle(feature) {
-                            console.log('<occTaxStyle>',feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'))
+                            console.log('<occTaxStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'))
                             return {
                                 fillColor: getColor(feature.properties.count_occtax, 'occtax', '#0233d6'),
                                 weight: 2,

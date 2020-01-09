@@ -5,9 +5,18 @@ import config
 from app import db
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.datas import BibDatasTypes, TReleasedDatas
-from app.models.territory import MVTerritoryGeneralStats
+from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 
 rendered = Blueprint("rendered", __name__)
+
+
+def get_legend_classes(type):
+    query = MVAreaNtileLimit.query.filter_by(type=type).order_by(MVAreaNtileLimit.ntile)
+    ntiles = query.all()
+    datas = []
+    for r in ntiles:
+        datas.append(r.as_dict())
+    return datas
 
 
 @rendered.context_processor
@@ -68,7 +77,16 @@ def territory(type_code, area_code):
         MVTerritoryGeneralStats.id_area == area_info.id_area
     )
     gen_stats = q_gen_stats.one()
+
+    # generate Legend Dict
+    legend_dict = {}
+    for type in db.session.query(MVAreaNtileLimit.type).distinct():
+        legend_dict[type[0]] = get_legend_classes(type)
+    print("legend_dict", legend_dict)
     print(gen_stats)
     return render_template(
-        "territory/_main.html", area_info=area_info, gen_stats=gen_stats
+        "territory/_main.html",
+        area_info=area_info,
+        gen_stats=gen_stats,
+        legend_dict=legend_dict,
     )
