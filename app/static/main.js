@@ -101,21 +101,18 @@ function generateColor(colorStart, colorEnd, colorCount) {
     //Alpha blending amount
     var alpha = 0.0;
 
-    var saida = [];
+    var out = [];
 
     for (i = 0; i < len; i++) {
         var c = [];
         alpha += (1.0 / len);
-
         c[0] = start[0] * alpha + (1 - alpha) * end[0];
         c[1] = start[1] * alpha + (1 - alpha) * end[1];
         c[2] = start[2] * alpha + (1 - alpha) * end[2];
-
-        saida.push(convertToHex(c));
-
+        out.push(convertToHex(c));
     }
 
-    return saida;
+    return out;
 
 }
 

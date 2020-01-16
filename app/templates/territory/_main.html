@@ -32,28 +32,53 @@
                             "fillOpacity": 0
                         };
 
-                        function getColor(data, type, color) {
-                            var genColor = null;
+                        var styleStorage = window.localStorage;
+
+                        function storeStyles() {
                             axios
-                                .get('/api/territory/conf/ntile/' + type)
+                                .get('/api/territory/conf/ntile/')
                                 .then(function (response) {
-                                    colorGradiant = generateColor('#000000', color, 5);
-                                    //console.log('<getColor> data', data);
-                                    for (var i = 0; i < response.data.length; i++) {
-                                        if (data >= response.data[i].min && data < response.data[i].max) {
-                                            break;
+                                        // list style types
+                                        var lookup = {};
+                                        var items = response.data;
+                                        var types = [];
+
+                                        for (var item, i = 0; item = items[i++];) {
+                                            var name = item.type;
+
+                                            if (!(name in lookup)) {
+                                                lookup[name] = 1;
+                                                types.push(name);
+                                            }
                                         }
-                                        ;
-                                        //console.log('<getColor> colorGradiant',i, colorGradiant[i]);
-                                        this.genColor = colorGradiant[i];
-                                        //console.log('<getColor> genColor', this.genColor);
+                                        // store each style conditions for each style type in localStorage
+                                        for (var type, i = 0; type = types[i++];) {
+                                            var typeData = items.filter(function (items) {
+                                                return items.type == type;
+                                            });
+                                            styleStorage.setItem(type, JSON.stringify(typeData));
+                                        }
                                     }
-                                })
+                                )
                                 .catch(function (error) {
                                     console.log('<getColor> Error', error);
                                 });
-                            console.log('color', data, genColor);
-                            return genColor;
+                        };
+
+                        storeStyles();
+
+                        function getColor(data, type, color) {
+                            // Apply color for each map object using style conditions and datas, color is the main color of the gradient
+                            var rendered_color = null;
+                            colorGradiant = generateColor(color, '#ffffff', 5);
+                            var styleCondition = JSON.parse(styleStorage.getItem(type));
+                            for (var i = 0; i < styleCondition.length; i++) {
+                                if (data >= styleCondition[i].min && data < styleCondition[i].max) {
+                                    rendered_color = '#' + colorGradiant[i];
+                                    return rendered_color;
+                                }
+                                ;
+                            }
                         };
 
 
@@ -66,16 +91,17 @@
                                     });
                                     situationObject.addTo(situationMap);
                                     situationMap.fitBounds(situationObject.getBounds());
-                                }).catch(function (error) {
-                                console.log('<getTerritoryArea> Error', error);
-                            });
+                                })
+                                .catch(function (error) {
+                                    console.log('<getTerritoryArea> Error', error);
+                                });
 
                         };
 
-                        function occtaxStyle(feature) {
+                        function occtaxStyle(feature, type, color) {
                             console.log('<occTaxStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'))
                             return {
-                                fillColor: getColor(feature.properties.count_occtax, 'occtax', '#0233d6'),
+                                fillColor: getColor(feature.properties.count_occtax, type, color),
                                 weight: 2,
                                 opacity: 1,
                                 color: 'white',
@@ -84,22 +110,35 @@
                             };
                         }
 
-                        function getGridArea() {
+                        function getGridArea(type, color) {
                             axios
                                 .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
                                 .then(function (response) {
-                                    var areaGrid = L.geoJson(response.data, {
-                                        style: occtaxStyle
-                                    });
-                                    areaGrid.addTo(situationMap);
-                                    situationMap.fitBounds(areaGrid.getBounds());
-                                }).catch(function (error) {
-                                console.log('<getTerritoryArea> Error', error);
-                            })
+                                        var areaGrid = L.geoJson(response.data, {
+                                            style: function (feature) {
+                                                return occtaxStyle(feature, type, color)
+                                            }, onEachFeature: function (f, l) {
+                                                l.bindPopup('test' + f.properties.count_occtax);
+                                            }
+                                        });
+                                        areaGrid.addTo(situationMap);
+                                        var legend = L.control();
+                                        legend.onAdd = function (situationMap) {
+                                            var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
+                                            div.innerHTML += '<h3>Légende</h3>';
+                                            return div
+                                        };
+                                        legend.addTo(situationMap);
+                                        situationMap.fitBounds(areaGrid.getBounds());
+                                    }
+                                )
+                                .catch(function (error) {
+                                    console.log('getTerritoryArea Error', error);
+                                })
                         };
 
                         getTerritoryArea();
-                        getGridArea();
+                        getGridArea('occtax', '#e5204e');
 
 
                     </script>
@@ -112,17 +151,6 @@
                 <script>
                     var ctx = document.getElementById('myChart').getContext('2d');
 
-                    {#var labels = data.customers[0].amounts.map(function (e) {#}
-                    {#    return e[0];#}
-                    {#})
-                    ;
-                    #}
-                    {##}
-                    {#var data = data.customers[0].amounts.map(function (e) {#}
-                    {#    return e[1];#}
-                    {#})
-                    ;
-                    #}
 
                     var myChart = new Chart(ctx, {
                         type: 'bar',
@@ -167,7 +195,6 @@
             </div>
         </div>
     </div>
-
 
     <script></script>
 {% endblock %}

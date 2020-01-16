@@ -205,3 +205,20 @@ def get_occtax_ntile(type):
     for r in ntiles:
         datas.append(r.as_dict())
     return jsonify(datas)
+
+
+@api.route("/territory/conf/ntile/", methods=["GET"])
+def get_ntile():
+    """
+
+    :param type:
+    :return:
+    """
+    query = MVAreaNtileLimit.query.order_by(MVAreaNtileLimit.type).order_by(
+        MVAreaNtileLimit.ntile
+    )
+    ntiles = query.all()
+    datas = []
+    for r in ntiles:
+        datas.append(r.as_dict())
+    return jsonify(datas)
