@@ -1,7 +1,11 @@
 {% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
 {% block head %} {{ super() }}
     <style type="text/css">
-
+        .selectonmap {
+            position: relative;
+            right: 5px;
+            top: 5px;
+        }
     </style>
 {% endblock %} {% block content %}
     <div id="situation" class="container-fluid">
@@ -18,131 +22,226 @@
         <div class="row mt-2">
             <div class="col">
                 <div id="situationMap" class="card">
-                    <script>
-                        var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
-
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        }).addTo(situationMap)
-
-                        var territoryStyle = {
-                            "color": "#ea09b9",
-                            "weight": 3,
-                            "opacity": 0.65,
-                            "fillOpacity": 0
-                        };
-
-                        var styleStorage = window.localStorage;
-
-                        function storeStyles() {
-                            axios
-                                .get('/api/territory/conf/ntile/')
-                                .then(function (response) {
-                                        // list style types
-                                        var lookup = {};
-                                        var items = response.data;
-                                        var types = [];
-
-                                        for (var item, i = 0; item = items[i++];) {
-                                            var name = item.type;
-
-                                            if (!(name in lookup)) {
-                                                lookup[name] = 1;
-                                                types.push(name);
-                                            }
-                                        }
-                                        // store each style conditions for each style type in localStorage
-                                        for (var type, i = 0; type = types[i++];) {
-                                            var typeData = items.filter(function (items) {
-                                                return items.type == type;
-                                            });
-                                            styleStorage.setItem(type, JSON.stringify(typeData));
-                                        }
-                                    }
-                                )
-                                .catch(function (error) {
-                                    console.log('<getColor> Error', error);
-                                });
-                        };
-
-                        storeStyles();
-
-                        function getColor(data, type, color) {
-                            // Apply color for each map object using style conditions and datas, color is the main color of the gradient
-                            var rendered_color = null;
-                            colorGradiant = generateColor(color, '#ffffff', 5);
-                            var styleCondition = JSON.parse(styleStorage.getItem(type));
-                            for (var i = 0; i < styleCondition.length; i++) {
-                                if (data >= styleCondition[i].min && data < styleCondition[i].max) {
-                                    rendered_color = '#' + colorGradiant[i];
-                                    return rendered_color;
-                                }
-                                ;
-                            }
-                        };
-
-
-                        function getTerritoryArea() {
-                            axios
-                                .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
-                                .then(function (response) {
-                                    var situationObject = L.geoJson(response.data, {
-                                        style: territoryStyle
-                                    });
-                                    situationObject.addTo(situationMap);
-                                    situationMap.fitBounds(situationObject.getBounds());
-                                })
-                                .catch(function (error) {
-                                    console.log('<getTerritoryArea> Error', error);
-                                });
-
-                        };
-
-                        function occtaxStyle(feature, type, color) {
-                            console.log('<occTaxStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'))
-                            return {
-                                fillColor: getColor(feature.properties.count_occtax, type, color),
-                                weight: 2,
-                                opacity: 1,
-                                color: 'white',
-                                dashArray: '3',
-                                fillOpacity: 0.7
-                            };
-                        }
-
-                        function getGridArea(type, color) {
-                            axios
-                                .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
-                                .then(function (response) {
-                                        var areaGrid = L.geoJson(response.data, {
-                                            style: function (feature) {
-                                                return occtaxStyle(feature, type, color)
-                                            }, onEachFeature: function (f, l) {
-                                                l.bindPopup('test' + f.properties.count_occtax);
-                                            }
-                                        });
-                                        areaGrid.addTo(situationMap);
-                                        var legend = L.control();
-                                        legend.onAdd = function (situationMap) {
-                                            var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
-                                            div.innerHTML += '<h3>Légende</h3>';
-                                            return div
-                                        };
-                                        legend.addTo(situationMap);
-                                        situationMap.fitBounds(areaGrid.getBounds());
-                                    }
-                                )
-                                .catch(function (error) {
-                                    console.log('getTerritoryArea Error', error);
-                                })
-                        };
-
-                        getTerritoryArea();
-                        getGridArea('occtax', '#e5204e');
-
-
-                    </script>
                 </div>
+                <script>
+
+
+                    var baseLayers = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    });
+
+                    var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
+
+                    var styleDesc = {
+                        'occtax': {
+                            'color': '#3e05fc',
+                            'desc': 'Nombre d\'observations'
+                        },
+                        'taxa': {
+                            'color': '#bf01a6',
+                            'desc': 'Nombre de taxons'
+                        },
+                        'threatened': {
+                            'color': '#db0205',
+                            'desc': 'Nombre de taxons menacés'
+                        },
+                        'observer': {
+                            'color': '#08aa03',
+                            'desc': 'Nombre d\'observateurs'
+                        },
+                        'date': {
+                            'color': '#e29002',
+                            'desc': 'Nombre de dates d\'observations'
+                        }
+                    };
+
+                    baseLayers.addTo(situationMap);
+
+                    var territoryStyle = {
+                        "color": "#ea09b9",
+                        "weight": 3,
+                        "opacity": 0.65,
+                        "fillOpacity": 0
+                    };
+
+                    var styleStorage = window.localStorage;
+
+                    function storeStyles() {
+                        axios
+                            .get('/api/territory/conf/ntile/')
+                            .then(function (response) {
+                                    // list style types
+                                    var lookup = {};
+                                    var items = response.data;
+                                    var types = [];
+
+                                    for (var item, i = 0; item = items[i++];) {
+                                        var name = item.type;
+
+                                        if (!(name in lookup)) {
+                                            lookup[name] = 1;
+                                            types.push(name);
+                                        }
+                                    }
+                                    // store each style conditions for each style type in localStorage
+                                    for (var type, i = 0; type = types[i++];) {
+                                        var typeData = items.filter(function (items) {
+                                            return items.type == type;
+                                        });
+                                        styleStorage.setItem(type, JSON.stringify(typeData));
+                                    }
+                                }
+                            )
+                            .catch(function (error) {
+                                console.log('<getColor> Error', error);
+                            });
+                    };
+
+                    storeStyles();
+
+                    function getColor(data, type, color) {
+                        // Apply color for each map object using style conditions and datas, color is the main color of the gradient
+                        var rendered_color = null;
+                        colorGradiant = generateColor(color, '#ffffff', 5);
+                        var styleCondition = JSON.parse(styleStorage.getItem(type));
+                        for (var i = 0; i < styleCondition.length; i++) {
+                            if (data >= styleCondition[i].min && data < styleCondition[i].max) {
+                                rendered_color = '#' + colorGradiant[i];
+                                return rendered_color;
+                            }
+                            ;
+                        }
+                    };
+
+                    function areaGridDatasGrades(type) {
+                        var styleData = JSON.parse(styleStorage.getItem(type));
+                        {#console.log('<Styledata>', styleData);#}
+                        grade = []
+                        for (var i = 0, size = styleData.length; i < size; i++) {
+                            var item = styleData[i];
+                            {#console.log('<item>',item)#}
+                            grade.push(item.min)
+                        }
+                        {#console.log('<grade>',grade);#}
+                        return grade
+                    }
+
+
+                    function getTerritoryArea() {
+                        axios
+                            .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
+                            .then(function (response) {
+                                var situationObject = L.geoJson(response.data, {
+                                    style: territoryStyle
+                                });
+                                situationObject.addTo(situationMap);
+                                situationMap.fitBounds(situationObject.getBounds());
+                            })
+                            .catch(function (error) {
+                                console.log('<getTerritoryArea> Error', error);
+                            });
+
+                    };
+
+                    function occtaxStyle(feature, type, color) {
+                        {#console.log('<occTaxStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
+                        var field = 'count_' + type
+                        return {
+                            fillColor: getColor(feature.properties[field], type, color),
+                            weight: 2,
+                            opacity: 1,
+                            color: 'white',
+                            dashArray: '3',
+                            fillOpacity: 0.7
+                        };
+                    }
+
+                    var areaGridDatas = null;
+                    var areaGridLegend = null;
+
+                    function areaGridPopup(feature, layer, type) {
+                        var keys = Object.keys(styleDesc);
+                        console.log(type);
+                        var dataResult = '';
+                        for (var i = 0; i < keys.length; i++) {
+                            {#console.log(f.properties['count_' + type]);#}
+                            dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
+                            {#console.log(dataResult);#}
+                        }
+                        layer.bindPopup(dataResult);
+                    }
+
+
+                    function getGridArea(type, color) {
+                        axios
+                            .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
+                            .then(function (response) {
+                                    if (areaGridDatas !== null) {
+                                        situationMap.removeLayer(areaGridDatas);
+                                        situationMap.removeControl(areaGridLegend);
+                                    }
+                                    areaGridDatas = L.geoJson(response.data, {
+                                        style: function (feature) {
+                                            return occtaxStyle(feature, type, styleDesc[type].color)
+                                        }, onEachFeature: function (feature, layer) {
+                                            areaGridPopup(feature, layer, type)
+                                        }
+                                    });
+                                    areaGridDatas.addTo(situationMap);
+                                    areaGridLegend = L.control({
+                                        position: 'bottomright'
+                                    });
+                                    areaGridLegend.onAdd = function () {
+                                        var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
+                                        var grades = areaGridDatasGrades(type);
+                                        div.innerHTML += '<strong>' + styleDesc[type].desc + '</strong><br/>';
+                                        for (var i = 0; i < grades.length; i++) {
+                                            div.innerHTML +=
+                                                '<canvas id="myCanvas" width="20" height="15" style="background-color: '
+                                                + getColor(grades[i], type, styleDesc[type].color)
+                                                + '"></canvas>\n' +
+                                                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                                        }
+                                        return div
+                                    };
+                                    areaGridLegend.addTo(situationMap);
+                                    situationMap.fitBounds(areaGridDatas.getBounds());
+                                }
+                            )
+                            .catch(function (error) {
+                                console.log('getTerritoryArea Error', error);
+                            })
+                    };
+                    var select = L.control({
+                        position: 'topright'
+                    });
+
+                    select.onAdd = function () {
+                        var div = L.DomUtil.create('div', 'form-group form-group-sm');
+                        var keys = Object.keys(styleDesc);
+                        console.log(keys);
+                        var options = '';
+                        for (var i = 0; i < keys.length; i++) {
+                            console.log(keys[i], styleDesc[keys[i]].desc);
+                            options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
+                        }
+                        console.log('<options>', options)
+                        div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="situationMapDatasSelect" name="title">'
+                            + options
+                            + '</select>';
+                        return div
+                    };
+                    select.addTo(situationMap);
+
+                    getTerritoryArea();
+                    getGridArea('occtax', '#e5204e');
+
+                    $(document).on('change', '#situationMapDatasSelect', function () {
+                        console.log(this.value);
+                        getGridArea(this.value, '#e5204e');
+                    });
+
+                </script>
             </div>
             <div class="col">
                 <div class="chart-container" style="position: relative; height:500px; width:50vw">

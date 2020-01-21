@@ -248,7 +248,7 @@ WITH
         SELECT
             id_area
           , type_code
-          , count_occtax
+          , count_occtax                          AS count
           , NTILE(5) OVER (ORDER BY count_occtax) AS ntile
         FROM
             gn_biodivterritory.mv_territory_general_stats)
@@ -256,22 +256,48 @@ WITH
     SELECT
         id_area
       , type_code
-      , count_taxa
+      , count_taxa                          AS count
       , NTILE(5) OVER (ORDER BY count_taxa) AS ntile
     FROM
         gn_biodivterritory.mv_territory_general_stats)
+  , observer AS (
+    SELECT
+        id_area
+      , type_code
+      , count_observer                          AS count
+      , NTILE(5) OVER (ORDER BY count_observer) AS ntile
+    FROM
+        gn_biodivterritory.mv_territory_general_stats)
+  , date AS (
+    SELECT
+        id_area
+      , type_code
+      , count_date                          AS count
+      , NTILE(5) OVER (ORDER BY count_date) AS ntile
+    FROM
+        gn_biodivterritory.mv_territory_general_stats)
   , u AS (
-    SELECT 'occtax' AS type, MIN(count_occtax) AS min, max(count_occtax) AS max, ntile
+    SELECT 'occtax' AS type, MIN(count) AS min, max(count) AS max, ntile
     FROM occtax
     GROUP BY
         ntile
     UNION
-    SELECT 'taxa', MIN(count_taxa), max(count_taxa), ntile
+    SELECT 'taxa', MIN(count), max(count), ntile
     FROM taxa
     GROUP BY
         ntile
+    UNION
+    SELECT 'observer', MIN(count), max(count), ntile
+    FROM observer
+    GROUP BY
+        ntile
+    UNION
+    SELECT 'date', MIN(count), max(count), ntile
+    FROM date
+    GROUP BY
+        ntile
 )
-SELECT row_number() OVER () as id, *
+SELECT row_number() OVER () AS id, *
 FROM u
 ORDER BY
     type
