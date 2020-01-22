@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, redirect, render_template
+from flask import Blueprint, redirect, render_template, url_for, flash
 from sqlalchemy import and_
 
 import config
@@ -55,38 +55,43 @@ def datas():
 def territory(type_code, area_code):
     """
     """
-    q_area_info = (
-        db.session.query(
-            BibAreasTypes.type_code,
-            BibAreasTypes.type_name,
-            BibAreasTypes.type_desc,
-            LAreas.id_area,
-            LAreas.area_name,
-            LAreas.area_code,
+    try:
+        q_area_info = (
+            db.session.query(
+                BibAreasTypes.type_code,
+                BibAreasTypes.type_name,
+                BibAreasTypes.type_desc,
+                LAreas.id_area,
+                LAreas.area_name,
+                LAreas.area_code,
+            )
+            .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+            .filter(
+                and_(BibAreasTypes.type_code == type_code.upper()),
+                LAreas.area_code == area_code,
+            )
         )
-        .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
-        .filter(
-            and_(BibAreasTypes.type_code == type_code.upper()),
-            LAreas.area_code == area_code,
+        area_info = q_area_info.one()
+
+        # Retrieve general stats
+        q_gen_stats = db.session.query(MVTerritoryGeneralStats).filter(
+            MVTerritoryGeneralStats.id_area == area_info.id_area
         )
-    )
-    area_info = q_area_info.one()
+        gen_stats = q_gen_stats.one()
 
-    # Retrieve general stats
-    q_gen_stats = db.session.query(MVTerritoryGeneralStats).filter(
-        MVTerritoryGeneralStats.id_area == area_info.id_area
-    )
-    gen_stats = q_gen_stats.one()
-
-    # generate Legend Dict
-    legend_dict = {}
-    for type in db.session.query(MVAreaNtileLimit.type).distinct():
-        legend_dict[type[0]] = get_legend_classes(type)
-    print("legend_dict", legend_dict)
-    print(gen_stats)
-    return render_template(
-        "territory/_main.html",
-        area_info=area_info,
-        gen_stats=gen_stats,
-        legend_dict=legend_dict,
-    )
+        # generate Legend Dict
+        legend_dict = {}
+        for type in db.session.query(MVAreaNtileLimit.type).distinct():
+            legend_dict[type[0]] = get_legend_classes(type)
+        print("legend_dict", legend_dict)
+        print(gen_stats)
+        return render_template(
+            "territory/_main.html",
+            area_info=area_info,
+            gen_stats=gen_stats,
+            legend_dict=legend_dict,
+        )
+    except Exception as e:
+        flash("Aucune donnée pour ce territoire")
+        print("<territory> ERROR: ", e)
+        return redirect(url_for("rendered.index"))
