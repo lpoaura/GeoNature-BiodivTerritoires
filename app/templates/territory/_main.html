@@ -20,15 +20,33 @@
             {% include "territory/gen_stats.html" %}
         </div>
         <div class="row mt-2">
-            <div class="col">
+            <div class="col col-md-6">
                 <div id="situationMap" class="card">
                 </div>
                 <script>
 
 
-                    var baseLayers = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    });
+                    var baseLayers = {
+                        //'carte': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
+                        'carte': L.tileLayer('https://wxs.ign.fr/' + 'pratique' + '/geoportail/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
+                            {
+                                minZoom: 0,
+                                maxZoom: 18,
+                                attribution: "IGN-F/Geoportail",
+                                tileSize: 256 // les tuiles du Géooportail font 256x256px
+                            }
+                        )
+                        ,
+                        'ortho': L.tileLayer('https://wxs.ign.fr/' + 'pratique' + '/geoportail/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}',
+                            {
+                                minZoom: 0,
+                                maxZoom: 18,
+                                attribution: "IGN-F/Geoportail",
+                                tileSize: 256 // les tuiles du Géooportail font 256x256px
+                            }
+                        )
+                    };
+
 
                     var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
 
@@ -55,7 +73,45 @@
                         }
                     };
 
-                    baseLayers.addTo(situationMap);
+                    var situationMapValues = {
+                        'baseLayerType': 'carte',
+                        'rendered_color': null,
+                        'areaGridDatas': null,
+                        'areaGridLegend': null
+                    };
+
+                    baseLayers[situationMapValues.baseLayerType].addTo(situationMap);
+
+
+                    baseLayerControl = L.control({position: 'bottomleft'});
+                    baseLayerControl.onAdd = function () {
+                        var div = L.DomUtil.create('div', 'base_layer_control');
+                        div.innerHTML += '<img class="map-icon" src="{{ url_for('static', filename='images/ortho.png' )}}" id="baseLayerControlImage" name="title"  width="50" height="50"/>';
+                        return div
+                    };
+
+                    baseLayerControl.addTo(situationMap);
+
+                    situationMap.on('baselayerchange', function (e) {
+                        console.log('<baselayerchange>', e.layer);
+
+
+                    });
+
+                    // [Carte d'état des connaissances du territoire] <FOND DE CARTE> : Switch du fond : carte vs ortho
+                    $(document).on('click', '.base_layer_control', function () {
+                        if (situationMapValues.baseLayerType == 'carte') {
+                            $("#baseLayerControlImage").attr('src', "{{url_for('static', filename='images/carte.png' )}}");
+                            situationMap.removeLayer(baseLayers[situationMapValues.baseLayerType]);
+                            situationMapValues.baseLayerType = 'ortho';
+                            baseLayers[situationMapValues.baseLayerType].addTo(situationMap);
+                        } else {
+                            $("#baseLayerControlImage").attr('src', "{{url_for('static', filename='images/ortho.png' )}}");
+                            situationMap.removeLayer(baseLayers[situationMapValues.baseLayerType])
+                            situationMapValues.baseLayerType = 'carte';
+                            baseLayers[situationMapValues.baseLayerType].addTo(situationMap);
+                        }
+                    });
 
                     var territoryStyle = {
                         "color": "#ea09b9",
@@ -101,21 +157,21 @@
 
                     function getColor(data, type, color) {
                         // Apply color for each map object using style conditions and datas, color is the main color of the gradient
-                        var rendered_color = null;
                         colorGradiant = generateColor(color, '#ffffff', 5);
                         var styleCondition = JSON.parse(styleStorage.getItem(type));
                         for (var i = 0; i < styleCondition.length; i++) {
                             if (data >= styleCondition[i].min && data < styleCondition[i].max) {
-                                rendered_color = '#' + colorGradiant[i];
-                                return rendered_color;
+                                situationMap.rendered_color = '#' + colorGradiant[i];
+                                return situationMap.rendered_color;
                             }
                             ;
                         }
                     };
 
+                    // [Carte d'état des connaissances du territoire] <LEGENDE> :  Génère la liste des valeurs palier utilisées pour les classes de la carte de restitution par mailles, par type de représentation
                     function areaGridDatasGrades(type) {
                         var styleData = JSON.parse(styleStorage.getItem(type));
-                        {#console.log('<Styledata>', styleData);#}
+                        console.log('<Styledata>', styleData);
                         grade = []
                         for (var i = 0, size = styleData.length; i < size; i++) {
                             var item = styleData[i];
@@ -126,7 +182,7 @@
                         return grade
                     }
 
-
+                    // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche le zonage du territoire
                     function getTerritoryArea() {
                         axios
                             .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
@@ -143,22 +199,20 @@
 
                     };
 
-                    function occtaxStyle(feature, type, color) {
-                        {#console.log('<occTaxStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
+                    // [Carte d'état des connaissances du territoire] <STYLE> :Styles des mailles
+                    function areaGridStyle(feature, type, color) {
+                        {#console.log('<areaGridStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
                         var field = 'count_' + type
                         return {
                             fillColor: getColor(feature.properties[field], type, color),
-                            weight: 2,
-                            opacity: 1,
+                            weight: 1,
+                            opacity: 0.7,
                             color: 'white',
-                            dashArray: '3',
                             fillOpacity: 0.7
                         };
                     }
 
-                    var areaGridDatas = null;
-                    var areaGridLegend = null;
-
+                    // [Carte d'état des connaissances du territoire] <POPUP> Affiche les données détaillées des mailles
                     function areaGridPopup(feature, layer, type) {
                         var keys = Object.keys(styleDesc);
                         console.log(type);
@@ -171,41 +225,47 @@
                         layer.bindPopup(dataResult);
                     }
 
-
-                    function getGridArea(type, color) {
+                    // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche les mailles du territoire sur un rayon défini 'default_buffer'
+                    function getGridArea(type) {
                         axios
                             .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
                             .then(function (response) {
-                                    if (areaGridDatas !== null) {
-                                        situationMap.removeLayer(areaGridDatas);
-                                        situationMap.removeControl(areaGridLegend);
+                                    if (situationMapValues.areaGridDatas !== null) {
+                                        situationMap.removeLayer(situationMapValues.areaGridDatas);
                                     }
-                                    areaGridDatas = L.geoJson(response.data, {
+                                    ;
+                                    if (situationMapValues.areaGridLegend !== null) {
+                                        situationMap.removeControl(situationMapValues.areaGridLegend);
+                                    }
+                                    ;
+                                    situationMapValues.areaGridDatas = L.geoJson(response.data, {
                                         style: function (feature) {
-                                            return occtaxStyle(feature, type, styleDesc[type].color)
+                                            return areaGridStyle(feature, type, styleDesc[type].color)
                                         }, onEachFeature: function (feature, layer) {
                                             areaGridPopup(feature, layer, type)
                                         }
                                     });
-                                    areaGridDatas.addTo(situationMap);
-                                    areaGridLegend = L.control({
+                                    situationMapValues.areaGridDatas.addTo(situationMap);
+                                    situationMapValues.areaGridLegend = L.control({
                                         position: 'bottomright'
                                     });
-                                    areaGridLegend.onAdd = function () {
+                                    situationMapValues.areaGridLegend.onAdd = function () {
                                         var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
                                         var grades = areaGridDatasGrades(type);
                                         div.innerHTML += '<strong>' + styleDesc[type].desc + '</strong><br/>';
                                         for (var i = 0; i < grades.length; i++) {
                                             div.innerHTML +=
-                                                '<canvas id="myCanvas" width="20" height="15" style="background-color: '
+                                                '<canvas width="20" height="15" style="background-color: '
                                                 + getColor(grades[i], type, styleDesc[type].color)
                                                 + '"></canvas>\n' +
                                                 grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
                                         }
                                         return div
                                     };
-                                    areaGridLegend.addTo(situationMap);
-                                    situationMap.fitBounds(areaGridDatas.getBounds());
+                                    situationMapValues.areaGridLegend.addTo(situationMap);
+                                    situationMap.invalidateSize();
+                                    situationMap.fitBounds(situationMapValues.areaGridDatas.getBounds());
+                                    situationMapValues.areaGridDatas.bringToFront();
                                 }
                             )
                             .catch(function (error) {
@@ -235,6 +295,7 @@
 
                     getTerritoryArea();
                     getGridArea('occtax', '#e5204e');
+                    situationMap.invalidateSize();
 
                     $(document).on('change', '#situationMapDatasSelect', function () {
                         console.log(this.value);
@@ -243,7 +304,7 @@
 
                 </script>
             </div>
-            <div class="col">
+            <div class="col col-md-6">
                 <div class="chart-container" style="position: relative; height:500px; width:50vw">
                     <canvas id="myChart"></canvas>
                 </div>
