@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, jsonify, redirect, render_template
+from flask import Blueprint, abort, jsonify, redirect, render_template, url_for
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from sqlalchemy import and_, or_
@@ -23,6 +23,7 @@ def find_area():
         search_term = "%{}%".format(request.args.get("q"))
         qarea = (
             db.session.query(
+                LAreas.id_area.label("id"),
                 BibAreasTypes.type_name,
                 BibAreasTypes.type_desc,
                 BibAreasTypes.type_code,
@@ -46,6 +47,28 @@ def find_area():
         return {"count": count, "datas": datas}, 200
     except Exception as e:
         return {"Error": str(e)}, 400
+
+
+@api.route("/area/<id_area>")
+def redirect_area(id_area):
+    """
+    redirect tu human readable territory url based on type_code and area_code from id_area, for select2 searches
+    :param id_area:
+    :return:
+    """
+    qarea = (
+        db.session.query(BibAreasTypes.type_code, LAreas.area_code,)
+        .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+        .filter(LAreas.id_area == id_area)
+    )
+    area = qarea.first()
+    return redirect(
+        url_for(
+            "rendered.territory",
+            type_code=area.type_code.lower(),
+            area_code=area.area_code.lower(),
+        )
+    )
 
 
 @api.route("/<type_code>/<area_code>")
@@ -190,21 +213,6 @@ def get_grid_datas(id_area, buffer, grid):
         return FeatureCollection(features)
     except Exception as e:
         return {"Error": str(e)}, 400
-
-
-@api.route("/territory/conf/ntile/<type>", methods=["GET"])
-def get_occtax_ntile(type):
-    """
-
-    :param type:
-    :return:
-    """
-    query = MVAreaNtileLimit.query.filter_by(type=type).order_by(MVAreaNtileLimit.ntile)
-    ntiles = query.all()
-    datas = []
-    for r in ntiles:
-        datas.append(r.as_dict())
-    return jsonify(datas)
 
 
 @api.route("/territory/conf/ntile/", methods=["GET"])

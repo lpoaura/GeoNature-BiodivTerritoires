@@ -1,7 +1,38 @@
-<select class="search-territory-select" type="text" placeholder="Rechercher un territoire" aria-label="Search" style="width:100%;"></select>
+<select class="search-territory-select" type="text" placeholder="Rechercher un territoire"
+        aria-label="Search"
+        style="width:100%;">
+</select>
 
 <script>
     // Select2 de Recherche de territoire 
+
+    $(".search-territory-select").select2({
+        ajax: {
+            url: "/api/find/area",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.datas,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Recherchez un territoire',
+        minimumInputLength: 3,
+        templateResult: formatArea,
+        templateSelection: formatAreaSelection
+    });
 
     function formatArea(area) {
         if (area.loading) {
@@ -26,39 +57,13 @@
     }
 
     function formatAreaSelection(area) {
-        return area.area_name;
+        return area.area_name ? '[' + area.type_name + '] ' + area.area_name + ' (' + area.area_code + ')' : 'Recherchez un territoire';
     }
 
-    $(".search-territory-select").select2({
-        ajax: {
-            url: "/api/find/area",
-            dataType: 'json',
-            delay: 250,
-            data: function(params) {
-                return {
-                    q: params.term, // search term
-                    page: params.page
-                };
-            },
-            processResults: function(data, params) {
-                // parse the results into the format expected by Select2
-                // since we are using custom formatting functions we do not need to
-                // alter the remote JSON data, except to indicate that infinite
-                // scrolling can be used
-                params.page = params.page || 1;
-
-                return {
-                    results: data.datas,
-                    pagination: {
-                        more: (params.page * 30) < data.total_count
-                    }
-                };
-            },
-            cache: true
-        },
-        placeholder: 'Recherchez un territoire',
-        minimumInputLength: 3,
-        templateResult: formatArea,
-        templateSelection: formatAreaSelection
+    $('.search-territory-select').change(function () {
+        var data = $(this).val();
+        location.href = '/api/area/' + data;
     });
+
+
 </script>
