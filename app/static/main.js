@@ -125,3 +125,7 @@ function generateColor(colorStart, colorEnd, colorCount) {
 //     $('#result_show').append("<div style='padding:8px;color:#FFF;background-color:#" + tmp[cor] + "'>COLOR " + cor + "° - #" + tmp[cor] + "</div>")
 //
 // }
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+});
