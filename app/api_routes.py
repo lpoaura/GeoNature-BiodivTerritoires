@@ -4,7 +4,7 @@ from geojson import Feature, FeatureCollection
 from sqlalchemy import and_, or_
 from app.utils import get_geojson_feature
 from app import db
-from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.datas import BibDatasTypes, TReleasedDatas, VListTaxa
 from app.models.ref_geo import BibAreasTypes, LAreas
 from sqlalchemy.sql import func
 from flask import request
@@ -228,5 +228,21 @@ def get_ntile():
     ntiles = query.all()
     datas = []
     for r in ntiles:
+        datas.append(r.as_dict())
+    return jsonify(datas)
+
+
+@api.route("/list_taxa/<int:id_area>", methods=["GET"])
+def get_taxa_list(id_area):
+    """
+
+    :param type:
+    :return:
+    """
+    query = VListTaxa.query.filter(VListTaxa.id_area == id_area)
+    list = query.all()
+    print("COUNT", len(list))
+    datas = []
+    for r in list:
         datas.append(r.as_dict())
     return jsonify(datas)

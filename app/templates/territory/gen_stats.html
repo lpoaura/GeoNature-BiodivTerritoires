@@ -1,7 +1,7 @@
 <div class="col">
     <div class="card text-white bg-info">
         <div class="card-body text-center">
-            <h2 class="count" data-count="{{ gen_stats.count_occtax }}">0</h2>
+            <div class="count" data-count="{{ gen_stats.count_occtax }}">0</div>
             <div class="subject">Observations</div>
         </div>
     </div>
@@ -9,7 +9,7 @@
 <div class="col">
     <div class="card text-white bg-info">
         <div class="card-body text-center">
-            <h2 class="count" data-count="{{ gen_stats.count_taxa }}">0</h2>
+            <div class="count" data-count="{{ gen_stats.count_taxa }}">0</div>
             <div class="subject">Espèces</div>
         </div>
     </div>
@@ -17,7 +17,15 @@
 <div class="col">
     <div class="card text-white bg-info">
         <div class="card-body text-center">
-            <h2 class="count" data-count="{{ gen_stats.count_observer }}">0</h2>
+            <div class="count" data-count="{{ gen_stats.count_taxa }}">0</div>
+            <div class="subject">Espèces menacées</div>
+        </div>
+    </div>
+</div>
+<div class="col">
+    <div class="card text-white bg-info">
+        <div class="card-body text-center">
+            <div class="count" data-count="{{ gen_stats.count_observer }}">0</div>
             <div class="subject">Observateurs</div>
         </div>
     </div>
@@ -25,7 +33,7 @@
 <div class="col">
     <div class="card text-white bg-info">
         <div class="card-body text-center">
-            <h2 class="count" data-count="{{ gen_stats.count_date }}">0</h2>
+            <div class="count" data-count="{{ gen_stats.count_date }}">0</div>
             <div class="subject">Dates</div>
         </div>
     </div>
@@ -33,7 +41,7 @@
 <div class="col">
     <div class="card text-white bg-info">
         <div class="card-body text-center">
-            <h2 class="count">{{ gen_stats.last_obs.strftime('%Y-%m-%d') }}</h2>
+            <div class="count">{{ gen_stats.last_obs.strftime('%Y-%m-%d') }}</div>
             <div class="subject">Dernière date</div>
         </div>
     </div>
@@ -41,7 +49,7 @@
 <div class="col">
     <div class="card text-white bg-info">
         <div class="card-body text-center">
-            <h2 class="count" data-count="{{ gen_stats.count_dataset }}">0</h2>
+            <div class="count" data-count="{{ gen_stats.count_dataset }}">0</div>
             <div class="subject">Jeux de données</div>
         </div>
     </div>

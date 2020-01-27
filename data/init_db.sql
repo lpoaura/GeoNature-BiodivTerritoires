@@ -181,6 +181,8 @@ FROM
 WHERE
         a.id_type = (SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code LIKE 'M0.5');
 
+
+
 DROP
     MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
 
@@ -302,3 +304,122 @@ FROM u
 ORDER BY
     type
   , ntile);
+
+
+/*******************************
+ *   Territory species list    *
+ *******************************/
+
+
+/* Création de la table de statuts BDC Statuts */
+DROP TABLE IF EXISTS taxonomie.bib_bdc_type_statut;
+CREATE TABLE taxonomie.bib_bdc_type_statut (
+    id_type_statut    VARCHAR(50) PRIMARY KEY NOT NULL,
+    cd_type_statut    VARCHAR(50),
+    lb_type_statut    VARCHAR(254),
+    regroupement_type VARCHAR(254),
+    thematique        VARCHAR(50),
+    type_value        VARCHAR(20)
+);
+
+
+CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
+    id_taxref_bdc     SERIAL PRIMARY KEY,
+    cd_nom            INTEGER REFERENCES taxonomie.taxref(cd_nom),
+    cd_ref            INTEGER REFERENCES taxonomie.taxref(cd_nom),
+    cd_sup            INTEGER REFERENCES taxonomie.taxref(cd_nom),
+    cd_type_statut    VARCHAR(50) REFERENCES taxonomie.bib_bdc_type_statut(id_type_statut),
+    lb_type_statut    VARCHAR(254),
+    regroupement_type VARCHAR(100),
+    code_statut       VARCHAR(10),
+    label_statut      VARCHAR(50),
+    rq_statut         VARCHAR(1000),
+    cd_sig            VARCHAR(50),
+    cd_doc            INTEGER,
+    lb_nom            VARCHAR(50),
+    lb_auteur         VARCHAR(254),
+    nom_complet_html  VARCHAR(254),
+    nom_valide_html   VARCHAR(254),
+    regne             VARCHAR(50),
+    phylum            VARCHAR(50),
+    classe            VARCHAR(50),
+    ordre             VARCHAR(50),
+    famille           VARCHAR(50),
+    group1_inpn       VARCHAR(50),
+    group2_inpn       VARCHAR(50),
+    lb_adm_tr         VARCHAR(50),
+    niveau_admin      VARCHAR(50),
+    cd_iso3166_1      VARCHAR(50),
+    cd_iso3166_2      VARCHAR(50),
+    full_citation     VARCHAR(50),
+    doc_url           VARCHAR(254),
+    thematique        VARCHAR(50),
+    type_value        VARCHAR(50),
+    id_area           INTEGER REFERENCES ref_geo.l_areas(id_area)
+);
+
+
+CREATE TABLE taxonomie.liste_rouge_locale (
+    id_lrl                SERIAL  NOT NULL
+        CONSTRAINT pk_taxref_liste_rouge_fr
+            PRIMARY KEY,
+    ordre_statut          INTEGER,
+    cd_nom                INTEGER,
+    cd_ref                INTEGER,
+    rang                  CHAR(4),
+    endemisme             VARCHAR(255),
+    population            VARCHAR(255),
+    commentaire           TEXT,
+    id_categorie_france   CHAR(2) NOT NULL
+        CONSTRAINT fk_taxref_lr_bib_taxref_categories
+            REFERENCES bib_taxref_categories_lr
+            ON UPDATE CASCADE,
+    criteres_france       VARCHAR(255),
+    liste_rouge           VARCHAR(255),
+    liste_rouge_source    VARCHAR(255),
+    annee_publication     INTEGER,
+    categorie_lr_europe   VARCHAR(2),
+    categorie_lr_mondiale VARCHAR(5)
+);
+
+DROP VIEW IF EXISTS gn_biodivterritory.v_list_taxa;
+
+CREATE VIEW gn_biodivterritory.v_list_taxa AS
+(
+SELECT
+    row_number() OVER ()                                                                        AS id
+  , la.id_area
+  , la.area_code
+  , tx.cd_ref
+  , tx.nom_vern
+  , tx.nom_valide
+  , tx.group1_inpn
+  , tx.group2_inpn
+  , count(sy.*)                                                                                 AS count_occtax
+  , count(DISTINCT sy.date_min)                                                                 AS count_date
+  , count(DISTINCT sy.observers)                                                                AS count_observer
+  , count(DISTINCT sy.id_dataset)                                                               AS count_dataset
+  , bool_or(CASE WHEN sy.id_nomenclature_bio_status = ref_nomenclatures.get_id_nomenclature('STATUT_BIO', '3')
+                     THEN TRUE
+                 ELSE FALSE END)                                                                AS Reproduction
+  , array_agg(DISTINCT ref_nomenclatures.get_nomenclature_label(sy.id_nomenclature_bio_status)) AS statuts_bio
+  , FALSE::BOOL                                                                                 AS threatened
+  , FALSE::BOOL                                                                                 AS protected
+FROM
+    gn_synthese.cor_area_synthese cas
+        JOIN gn_synthese.synthese sy
+             ON cas.id_synthese = sy.id_synthese
+        JOIN taxonomie.taxref tx ON sy.cd_nom = tx.cd_nom
+        LEFT JOIN taxonomie.taxref_protection_especes ON tx.cd_nom = taxref_protection_especes.cd_nom
+        LEFT JOIN taxonomie.taxref_liste_rouge_fr ON taxref_liste_rouge_fr.cd_nom = tx.cd_nom
+        JOIN ref_geo.l_areas la ON cas.id_area = la.id_area
+GROUP BY
+    la.id_area
+  , la.area_code
+  , tx.cd_ref
+  , tx.nom_vern
+  , tx.nom_valide
+  , tx.group1_inpn
+  , tx.group2_inpn);
+
+
