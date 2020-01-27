@@ -1,7 +1,11 @@
 {% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
 {% block head %} {{ super() }}
     <style type="text/css">
-
+        .selectonmap {
+            position: relative;
+            right: 5px;
+            top: 5px;
+        }
     </style>
 {% endblock %} {% block content %}
     <div id="situation" class="container-fluid">
@@ -12,117 +16,23 @@
                 <span>{{ area_info.id_area }}</span>
             </div>
         </div>
-
         <div id="genstats" class="row mt-2">
             {% include "territory/gen_stats.html" %}
         </div>
         <div class="row mt-2">
-            <div class="col">
-                <div id="situationMap" class="card">
-                    <script>
-                        var situationMap = L.map('situationMap').setView([51.505, -0.09], 13);
-
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        }).addTo(situationMap)
-
-                        var territoryStyle = {
-                            "color": "#ea09b9",
-                            "weight": 3,
-                            "opacity": 0.65,
-                            "fillOpacity": 0
-                        };
-
-                        function getColor(data, type, color) {
-                            var genColor = null;
-                            axios
-                                .get('/api/territory/conf/ntile/' + type)
-                                .then(function (response) {
-                                    colorGradiant = generateColor('#000000', color, 5);
-                                    //console.log('<getColor> data', data);
-                                    for (var i = 0; i < response.data.length; i++) {
-                                        if (data >= response.data[i].min && data < response.data[i].max) {
-                                            break;
-                                        };
-                                        //console.log('<getColor> colorGradiant',i, colorGradiant[i]);
-                                        this.genColor = colorGradiant[i];
-                                        //console.log('<getColor> genColor', this.genColor);
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log('<getColor> Error', error);
-                                });
-                            console.log('color', data, genColor);
-                            return genColor;
-                        };
-
-
-                        function getTerritoryArea() {
-                            axios
-                                .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
-                                .then(function (response) {
-                                    var situationObject = L.geoJson(response.data, {
-                                        style: territoryStyle
-                                    });
-                                    situationObject.addTo(situationMap);
-                                    situationMap.fitBounds(situationObject.getBounds());
-                                }).catch(function (error) {
-                                console.log('<getTerritoryArea> Error', error);
-                            });
-
-                        };
-
-                        function occtaxStyle(feature) {
-                            console.log('<occTaxStyle>',feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'))
-                            return {
-                                fillColor: getColor(feature.properties.count_occtax, 'occtax', '#0233d6'),
-                                weight: 2,
-                                opacity: 1,
-                                color: 'white',
-                                dashArray: '3',
-                                fillOpacity: 0.7
-                            };
-                        }
-
-                        function getGridArea() {
-                            axios
-                                .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
-                                .then(function (response) {
-                                    var areaGrid = L.geoJson(response.data, {
-                                        style: occtaxStyle
-                                    });
-                                    areaGrid.addTo(situationMap);
-                                    situationMap.fitBounds(areaGrid.getBounds());
-                                }).catch(function (error) {
-                                console.log('<getTerritoryArea> Error', error);
-                            })
-                        };
-
-                        getTerritoryArea();
-                        getGridArea();
-
-
-                    </script>
-                </div>
+            <div class="col-lg-12">
+                <h2><i class="glyphicon-facetime-video"></i> Etat des connaissances</h2>
             </div>
-            <div class="col">
+            <div class="col col-md-6">
+                {% include "territory/situation_map.html" %}
+            </div>
+            <div class="col col-md-6">
                 <div class="chart-container" style="position: relative; height:500px; width:50vw">
                     <canvas id="myChart"></canvas>
                 </div>
                 <script>
                     var ctx = document.getElementById('myChart').getContext('2d');
 
-                    {#var labels = data.customers[0].amounts.map(function (e) {#}
-                    {#    return e[0];#}
-                    {#})
-                    ;
-                    #}
-                    {##}
-                    {#var data = data.customers[0].amounts.map(function (e) {#}
-                    {#    return e[1];#}
-                    {#})
-                    ;
-                    #}
 
                     var myChart = new Chart(ctx, {
                         type: 'bar',
@@ -166,8 +76,12 @@
 
             </div>
         </div>
+        <div class="row mt-2">
+            <div class="col col-md-12">
+                {% include "territory/list_species.html" %}
+            </div>
+        </div>
     </div>
-
 
     <script></script>
 {% endblock %}

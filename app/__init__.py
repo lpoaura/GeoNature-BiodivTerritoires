@@ -70,7 +70,6 @@ create_schemas(db)
 db.create_all()
 
 
-
 # Register blueprint(s)
 app.register_blueprint(rendered)
 app.register_blueprint(api, url_prefix="/api")

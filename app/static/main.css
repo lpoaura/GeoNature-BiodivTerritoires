@@ -7,6 +7,10 @@
 #situationMap {
     min-height: 500px;
     height: 500px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-radius: 0px;
 }
 
 #genstats .count {
@@ -15,4 +19,33 @@
 
 #genstats .subject {
     font-size: 1rem;
+}
+
+.leaflet-popup-content-wrapper {
+    border-left: 10px solid #17a2b8;
+    border-radius: 0;
+}
+
+.leaflet-popup-content-wrapper .leaflet-popup-content {
+
+}
+
+.leaflet-popup-tip-container {
+
+}
+
+#home-info h1, h2, h3, h4, h5 {
+    border: none;
+}
+
+h1 {
+    border-left: 50px solid var(--success);
+    padding-left: 10px ;
+    backgound-color: rgba(28, 216, 243, 0.37);
+}
+
+
+h2 {
+    border-left: 40px solid var(--success);
+    padding-left: 10px;
 }
