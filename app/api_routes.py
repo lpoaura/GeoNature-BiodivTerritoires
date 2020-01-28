@@ -1,14 +1,17 @@
-from flask import Blueprint, abort, jsonify, redirect, render_template, url_for
+from flask import Blueprint, jsonify, redirect, url_for
+from flask import request
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
-from sqlalchemy import and_, or_
-from app.utils import get_geojson_feature
-from app import db
-from app.models.datas import BibDatasTypes, TReleasedDatas, VListTaxa
-from app.models.ref_geo import BibAreasTypes, LAreas
+from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
+from sqlalchemy import and_, or_, distinct
 from sqlalchemy.sql import func
-from flask import request
+
+from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.ref_geo import BibAreasTypes, LAreas
+from app.models.synthese import Synthese, CorAreaSynthese
+from app.models.taxonomy import Taxref
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
+from app.utils import get_geojson_feature, DB
 
 api = Blueprint("api", __name__)
 
@@ -22,7 +25,7 @@ def find_area():
     try:
         search_term = "%{}%".format(request.args.get("q"))
         qarea = (
-            db.session.query(
+            DB.session.query(
                 LAreas.id_area.label("id"),
                 BibAreasTypes.type_name,
                 BibAreasTypes.type_desc,
@@ -57,7 +60,7 @@ def redirect_area(id_area):
     :return:
     """
     qarea = (
-        db.session.query(BibAreasTypes.type_code, LAreas.area_code,)
+        DB.session.query(BibAreasTypes.type_code, LAreas.area_code,)
         .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
         .filter(LAreas.id_area == id_area)
     )
@@ -78,7 +81,7 @@ def main_area_info(type_code, area_code):
     """
     try:
         query = (
-            db.session.query(
+            DB.session.query(
                 BibAreasTypes.type_name,
                 BibAreasTypes.type_desc,
                 LAreas.area_name,
@@ -103,7 +106,7 @@ def datas_types():
     
     """
     try:
-        query = db.session.query(
+        query = DB.session.query(
             BibDatasTypes.type_protocol,
             BibDatasTypes.type_name,
             TReleasedDatas.data_name,
@@ -147,7 +150,7 @@ def get_geojson_area(type_code, area_code):
         """
     try:
         query = (
-            db.session.query(
+            DB.session.query(
                 BibAreasTypes.type_desc,
                 LAreas.area_name,
                 LAreas.area_code,
@@ -239,10 +242,67 @@ def get_taxa_list(id_area):
     :param type:
     :return:
     """
-    query = VListTaxa.query.filter(VListTaxa.id_area == id_area)
-    list = query.all()
-    print("COUNT", len(list))
-    datas = []
-    for r in list:
-        datas.append(r.as_dict())
-    return jsonify(datas)
+    try:
+        reproduction_id = (
+            DB.session.query(TNomenclatures.id_nomenclature)
+            .join(
+                BibNomenclaturesTypes,
+                TNomenclatures.id_type == BibNomenclaturesTypes.id_type,
+            )
+            .filter(
+                and_(
+                    BibNomenclaturesTypes.mnemonique.like("STATUT_BIO"),
+                    TNomenclatures.cd_nomenclature.like("3"),
+                )
+            )
+        ).first()
+
+        query_territory = (
+            DB.session.query(
+                Taxref.cd_ref.label("id"),
+                LAreas.id_area,
+                LAreas.area_code,
+                Taxref.cd_ref,
+                func.split_part(Taxref.nom_vern, ",", 1).label("nom_vern"),
+                Taxref.nom_valide,
+                Taxref.group1_inpn,
+                Taxref.group2_inpn,
+                func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+                func.count(distinct(Synthese.observers)).label("count_observer"),
+                func.count(distinct(Synthese.date_min)).label("count_date"),
+                func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+                func.max(distinct(func.extract("year", Synthese.date_min))).label(
+                    "last_year"
+                ),
+                func.bool_or(
+                    Synthese.id_nomenclature_bio_status == reproduction_id
+                ).label("reproduction"),
+                func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
+                    "bio_status"
+                ),
+            )
+            .select_from(CorAreaSynthese)
+            .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
+            .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
+            .filter(LAreas.id_area == id_area)
+            .group_by(
+                LAreas.id_area,
+                LAreas.area_code,
+                Taxref.cd_ref,
+                Taxref.nom_vern,
+                Taxref.nom_valide,
+                Taxref.group1_inpn,
+                Taxref.group2_inpn,
+            )
+            .order_by(Taxref.group1_inpn, Taxref.group2_inpn, Taxref.nom_valide)
+        )
+        result = query_territory.all()
+        count = len(result)
+        datas = []
+        for r in result:
+            datas.append(r._asdict())
+        return jsonify({"count": count, "datas": datas}), 200
+
+    except Exception as e:
+        return {"Error": str(e)}, 400

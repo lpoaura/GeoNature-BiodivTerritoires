@@ -382,9 +382,9 @@ CREATE TABLE taxonomie.liste_rouge_locale (
     categorie_lr_mondiale VARCHAR(5)
 );
 
-DROP VIEW IF EXISTS gn_biodivterritory.v_list_taxa;
+DROP VIEW IF EXISTS gn_biodivterritory.mv_list_taxa;
 
-CREATE VIEW gn_biodivterritory.v_list_taxa AS
+CREATE VIEW gn_biodivterritory.mv_list_taxa AS
 (
 SELECT
     row_number() OVER ()                                                                        AS id
@@ -421,5 +421,7 @@ GROUP BY
   , tx.nom_valide
   , tx.group1_inpn
   , tx.group2_inpn);
+
+create index on gn_biodivterritory.mv_list_taxa (id_area)
 
 

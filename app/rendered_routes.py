@@ -2,10 +2,10 @@ from flask import Blueprint, redirect, render_template, url_for, flash
 from sqlalchemy import and_
 
 import config
-from app import db
-from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
+from app.utils import DB
 
 rendered = Blueprint("rendered", __name__)
 
@@ -37,7 +37,7 @@ def index():
 
 @rendered.route("/datas")
 def datas():
-    qdatas = db.session.query(
+    qdatas = DB.session.query(
         BibDatasTypes.type_desc,
         BibDatasTypes.type_name,
         BibDatasTypes.type_protocol,
@@ -57,7 +57,7 @@ def territory(type_code, area_code):
     """
     try:
         q_area_info = (
-            db.session.query(
+            DB.session.query(
                 BibAreasTypes.type_code,
                 BibAreasTypes.type_name,
                 BibAreasTypes.type_desc,
@@ -74,14 +74,14 @@ def territory(type_code, area_code):
         area_info = q_area_info.one()
 
         # Retrieve general stats
-        q_gen_stats = db.session.query(MVTerritoryGeneralStats).filter(
+        q_gen_stats = DB.session.query(MVTerritoryGeneralStats).filter(
             MVTerritoryGeneralStats.id_area == area_info.id_area
         )
         gen_stats = q_gen_stats.one()
 
         # generate Legend Dict
         legend_dict = {}
-        for type in db.session.query(MVAreaNtileLimit.type).distinct():
+        for type in DB.session.query(MVAreaNtileLimit.type).distinct():
             legend_dict[type[0]] = get_legend_classes(type)
         print("legend_dict", legend_dict)
         print(gen_stats)

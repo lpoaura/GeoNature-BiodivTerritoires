@@ -1,16 +1,17 @@
-import json
-from functools import wraps
-
-from flask import Response, current_app
+from flask import current_app
+from flask_admin import Admin
+from flask_assets import Environment, Bundle
+from flask_sqlalchemy import SQLAlchemy
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
 from shapely.geometry import asShape
+from sqlalchemy import String
+from sqlalchemy import func, select
 from sqlalchemy.sql.functions import GenericFunction
-from sqlalchemy import String, Table, Column, MetaData, event, DDL
-from sqlalchemy.sql.expression import func, select
-from sqlalchemy.ext import compiler
-from sqlalchemy.schema import DDLElement
 
+DB = SQLAlchemy()
+admin = Admin(name="GnBT", template_mode="bootstrap3")
+assets = Environment()
 
 def create_schemas(db):
     """create db schemas at first launch
@@ -66,3 +67,16 @@ def get_geojson_feature(wkb):
                 str(e)
             )
         )
+
+
+class RefNomenclatureGetIdNomenclature(GenericFunction):
+    __function_args__ = {"schema": "ref_nomenclatures"}
+    type = String
+    package = "nomenclature"
+    name = "get_id_nomenclature"
+    identifier = "get_id_nomenclature"
+    schema_name = "ref_nomenclatures"
+
+
+print('TEST FUNCTION', select([func.nomenclature.get_id_nomenclature()]))
+print('TEST FUNCTION RESULT', select([func.nomenclature.get_id_nomenclature('STATUT_BIO', '3')]))

@@ -3,13 +3,12 @@ from geoalchemy2 import Geometry
 from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, DateTime, Float
 from sqlalchemy.orm import relationship
 import config
-from app import db
+from app.utils import DB
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
-
 @serializable
-class BibAreasTypes(db.Model):
+class BibAreasTypes(DB.Model):
     __tablename__ = "bib_areas_types"
     __table_args__ = {"schema": "ref_geo"}
     id_type = Column(Integer, primary_key=True)
@@ -22,7 +21,7 @@ class BibAreasTypes(db.Model):
 
 
 @geoserializable
-class LAreas(db.Model):
+class LAreas(DB.Model):
     __tablename__ = "l_areas"
     __table_args__ = {"schema": "ref_geo"}
     id_area = Column(Integer, primary_key=True)
@@ -38,7 +37,7 @@ class LAreas(db.Model):
 
 
 @serializable
-class LiMunicipalities(db.Model):
+class LiMunicipalities(DB.Model):
     __tablename__ = "li_municipalities"
     __table_args__ = {"schema": "ref_geo"}
     id_municipality = Column(Integer, primary_key=True)

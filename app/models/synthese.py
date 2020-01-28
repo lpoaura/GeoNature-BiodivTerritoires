@@ -3,12 +3,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
-from app import db
+from app.utils import DB
 import config
 
-
 @serializable
-class VSyntheseDecodeNomenclatures(db.Model):
+class VSyntheseDecodeNomenclatures(DB.Model):
     __tablename__ = "v_synthese_decode_nomenclatures"
     __table_args__ = {"schema": "gn_synthese"}
     id_synthese = Column(Integer, primary_key=True)
@@ -34,7 +33,7 @@ class VSyntheseDecodeNomenclatures(db.Model):
 
 @serializable
 @geoserializable
-class Synthese(db.Model):
+class Synthese(DB.Model):
     __tablename__ = "synthese"
     __table_args__ = {"schema": "gn_synthese"}
     id_synthese = Column(Integer, primary_key=True)
@@ -96,7 +95,7 @@ class Synthese(db.Model):
 
 
 @serializable
-class CorAreaSynthese(db.Model):
+class CorAreaSynthese(DB.Model):
     __tablename__ = "cor_area_synthese"
     __table_args__ = {"schema": "gn_synthese"}
     id_synthese = Column(Integer, primary_key=True)
