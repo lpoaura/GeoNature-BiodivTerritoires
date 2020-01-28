@@ -49,3 +49,16 @@ h2 {
     border-left: 40px solid var(--success);
     padding-left: 10px;
 }
+
+
+/* UICN Colors */
+:root {
+  --ex-color: #101210;
+  --ew-color: #582440;
+  --cr-color: #d3101c;
+  --en-color: #ef7c38;
+  --vu-color: #fbe500;
+  --nt-color: #d5d700;
+  --lc-color: #70b546;
+  --dd-color: #dad7cb;
+}
