@@ -6,6 +6,7 @@ from utils_flask_sqla_geo.serializers import geoserializable
 from app.utils import DB
 import config
 
+
 @serializable
 class VSyntheseDecodeNomenclatures(DB.Model):
     __tablename__ = "v_synthese_decode_nomenclatures"

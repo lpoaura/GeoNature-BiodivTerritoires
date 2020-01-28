@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.synthese import Synthese, CorAreaSynthese
-from app.models.taxonomy import Taxref
+from app.models.taxonomy import Taxref, TaxrefLR
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 from app.utils import get_geojson_feature, DB
 
@@ -244,18 +244,22 @@ def get_taxa_list(id_area):
     """
     try:
         reproduction_id = (
-            DB.session.query(TNomenclatures.id_nomenclature)
-            .join(
-                BibNomenclaturesTypes,
-                TNomenclatures.id_type == BibNomenclaturesTypes.id_type,
-            )
-            .filter(
-                and_(
-                    BibNomenclaturesTypes.mnemonique.like("STATUT_BIO"),
-                    TNomenclatures.cd_nomenclature.like("3"),
+            (
+                DB.session.query(TNomenclatures.id_nomenclature)
+                .join(
+                    BibNomenclaturesTypes,
+                    TNomenclatures.id_type == BibNomenclaturesTypes.id_type,
+                )
+                .filter(
+                    and_(
+                        BibNomenclaturesTypes.mnemonique.like("STATUT_BIO"),
+                        TNomenclatures.cd_nomenclature.like("3"),
+                    )
                 )
             )
-        ).first()
+            .first()
+            .id_nomenclature
+        )
 
         query_territory = (
             DB.session.query(
@@ -280,11 +284,13 @@ def get_taxa_list(id_area):
                 func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
                     "bio_status"
                 ),
+                TaxrefLR.id_categorie_france.label("redlist_nat"),
             )
             .select_from(CorAreaSynthese)
             .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
             .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
             .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
+            .join(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
             .filter(LAreas.id_area == id_area)
             .group_by(
                 LAreas.id_area,
@@ -294,6 +300,7 @@ def get_taxa_list(id_area):
                 Taxref.nom_valide,
                 Taxref.group1_inpn,
                 Taxref.group2_inpn,
+                TaxrefLR.id_categorie_france,
             )
             .order_by(Taxref.group1_inpn, Taxref.group2_inpn, Taxref.nom_valide)
         )

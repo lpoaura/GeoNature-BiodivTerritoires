@@ -7,6 +7,7 @@ from app.utils import DB
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
+
 @serializable
 class BibAreasTypes(DB.Model):
     __tablename__ = "bib_areas_types"

@@ -382,46 +382,28 @@ CREATE TABLE taxonomie.liste_rouge_locale (
     categorie_lr_mondiale VARCHAR(5)
 );
 
-DROP VIEW IF EXISTS gn_biodivterritory.mv_list_taxa;
+DROP TABLE IF EXISTS taxonomie.bib_redlist_threatened;
+CREATE TABLE taxonomie.bib_redlist_threatened (
+    code_category  VARCHAR(2) PRIMARY KEY,
+    sup_category   VARCHAR(15),
+    priority_order INT
+);
 
-CREATE VIEW gn_biodivterritory.mv_list_taxa AS
-(
-SELECT
-    row_number() OVER ()                                                                        AS id
-  , la.id_area
-  , la.area_code
-  , tx.cd_ref
-  , tx.nom_vern
-  , tx.nom_valide
-  , tx.group1_inpn
-  , tx.group2_inpn
-  , count(sy.*)                                                                                 AS count_occtax
-  , count(DISTINCT sy.date_min)                                                                 AS count_date
-  , count(DISTINCT sy.observers)                                                                AS count_observer
-  , count(DISTINCT sy.id_dataset)                                                               AS count_dataset
-  , bool_or(CASE WHEN sy.id_nomenclature_bio_status = ref_nomenclatures.get_id_nomenclature('STATUT_BIO', '3')
-                     THEN TRUE
-                 ELSE FALSE END)                                                                AS Reproduction
-  , array_agg(DISTINCT ref_nomenclatures.get_nomenclature_label(sy.id_nomenclature_bio_status)) AS statuts_bio
-  , FALSE::BOOL                                                                                 AS threatened
-  , FALSE::BOOL                                                                                 AS protected
-FROM
-    gn_synthese.cor_area_synthese cas
-        JOIN gn_synthese.synthese sy
-             ON cas.id_synthese = sy.id_synthese
-        JOIN taxonomie.taxref tx ON sy.cd_nom = tx.cd_nom
-        LEFT JOIN taxonomie.taxref_protection_especes ON tx.cd_nom = taxref_protection_especes.cd_nom
-        LEFT JOIN taxonomie.taxref_liste_rouge_fr ON taxref_liste_rouge_fr.cd_nom = tx.cd_nom
-        JOIN ref_geo.l_areas la ON cas.id_area = la.id_area
-GROUP BY
-    la.id_area
-  , la.area_code
-  , tx.cd_ref
-  , tx.nom_vern
-  , tx.nom_valide
-  , tx.group1_inpn
-  , tx.group2_inpn);
 
-create index on gn_biodivterritory.mv_list_taxa (id_area)
+INSERT INTO
+    taxonomie.bib_redlist_threatened(code_category, sup_category, priority_order)
+SELECT DISTINCT
+    id_categorie_france AS code_category
+  , CASE WHEN id_categorie_france IN ('EX', 'EW', 'RE')
+             THEN 'extinct'
+         WHEN id_categorie_france IN ('CR', 'EN', 'VU')
+             THEN 'threatened'
+         ELSE NULL END  AS sup_category
+  , CASE id_categorie_france WHEN 'EX'
+                                 THEN 1
+                             WHEN 'EX'
+                                 THEN 2
+        END             AS priority_order
+FROM taxonomie.taxref_liste_rouge_fr;
 
 

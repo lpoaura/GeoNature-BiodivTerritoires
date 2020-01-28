@@ -4,6 +4,7 @@
            width="100%">
         <thead class="thead-dark">
         <tr>
+            <th><i class="fas fa-plus-circle"></i></th>
             <th>group1_inpn</th>
             <th>group2_inpn</th>
             <th>CD Ref</th>
@@ -16,6 +17,7 @@
             <th>Reproduction</th>
             <th>Dernière observation</th>
             <th>Status biologiques</th>
+            <th>Liste rouge France</th>
         </tr>
         </thead>
     </table>
@@ -25,16 +27,54 @@
     var listSpecieTableDatas = '/api/list_taxa/{{ area_info.id_area }}';
 
     $(document).ready(function () {
+        function format(d) {
+            var dataArray = [];
+            if (d.properties.last_session != null) {
+                dataArray.push('<strong>Dernière session</strong>&nbsp;:&nbsp;' + d.properties.last_session.date_start__max)
+            }
+            if (d.properties.contact != null) {
+                dataArray.push('<strong>Types d&quot;observations</strong>&nbsp;:&nbsp;' + d.properties.contact.contacts)
+            }
+            if (d.properties.comment != null) {
+                dataArray.push('<strong>Commentaire</strong>&nbsp;:&nbsp;' + d.properties.comment)
+            }
+            if (d.properties.is_managed != null) {
+                dataArray.push('<strong>Site géré</strong>')
+            }
+            if (d.properties.convention != null) {
+                dataArray.push('<strong>Convention refuge</strong>')
+            }
+            return dataArray.join('<br />')
+        }
+
         var listSpeciesTable = $('#listSpeciesTable').DataTable({
             ajax: {
                 url: listSpecieTableDatas,
                 dataSrc: "datas"
             },
             dom: 'Bfrtip',
-            buttons: [
-                'copy', 'csv', 'excel', 'pdf'
+            buttons: {
+                buttons: [
+                    {extend: 'copy', className: 'btn btn-info'},
+                    {
+                        extend: 'csvHtml5', className: 'btn btn-info', customize: function (csv) {
+                            return "Liste des espèces de {{  area_info.area_name }} ({{ area_info.area_code }})\n\n" + csv;
+                        }
+                    },
+                    {extend: 'pdf', className: 'btn btn-info'},
+                ]
+            },
+
+            "columnDefs": [
+                {className: "text-center", "targets": [0, 3, 6, 7, 8, 9, 10, 11, 12]}
             ],
             columns: [
+                {
+                    "class": "details-control",
+                    "orderable": false,
+                    "data": "",
+                    "defaultContent": '<a><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
+                },
                 {data: "group1_inpn"},
                 {data: "group2_inpn"},
                 {data: "cd_ref"},
@@ -44,13 +84,23 @@
                 {data: "count_observer"},
                 {data: "count_date"},
                 {data: "count_dataset"},
-                {data: "reproduction"},
+                {
+                    data: function (row) {
+                        var data = null;
+                        if (row.reproduction == true) {
+                            data = `<i class="fas fa-check-circle text-success"></i><span class="invisible">Oui</span>`;
+                        } else (
+                            data = ''
+                        )
+                        ;
+                        return data;
+                    }
+                },
                 {data: "last_year"},
                 {data: "bio_status"},
+                {data: "redlist_nat"},
             ]
         });
-
-        listSpeciesTable.buttons().container()
-            .appendTo('btn-success');
+        $('.dt-buttons').addClass('btn-group-sm');
     });
 </script>

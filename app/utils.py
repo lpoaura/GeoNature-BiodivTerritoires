@@ -13,6 +13,7 @@ DB = SQLAlchemy()
 admin = Admin(name="GnBT", template_mode="bootstrap3")
 assets = Environment()
 
+
 def create_schemas(db):
     """create db schemas at first launch
 
@@ -78,5 +79,8 @@ class RefNomenclatureGetIdNomenclature(GenericFunction):
     schema_name = "ref_nomenclatures"
 
 
-print('TEST FUNCTION', select([func.nomenclature.get_id_nomenclature()]))
-print('TEST FUNCTION RESULT', select([func.nomenclature.get_id_nomenclature('STATUT_BIO', '3')]))
+print("TEST FUNCTION", select([func.nomenclature.get_id_nomenclature()]))
+print(
+    "TEST FUNCTION RESULT",
+    select([func.nomenclature.get_id_nomenclature("STATUT_BIO", "3")]),
+)

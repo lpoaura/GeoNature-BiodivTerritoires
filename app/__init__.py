@@ -35,8 +35,6 @@ def create_app():
     # pass parameters to the usershub authenfication sub-module, DONT CHANGE THIS
     app.config["DB"] = DB
 
-
-
     # Sample HTTP error handling
     @app.errorhandler(404)
     def not_found(error):
@@ -54,6 +52,3 @@ def create_app():
         app.register_blueprint(api, url_prefix="/api")
 
         return app
-
-
-
