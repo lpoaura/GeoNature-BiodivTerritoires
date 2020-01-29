@@ -3,7 +3,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, DateTime, Float
 from sqlalchemy.orm import relationship
 import config
-from app.utils import DB
+from app.core.env import DB
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 

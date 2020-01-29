@@ -1,4 +1,4 @@
-from app.utils import DB
+from app.core.env import DB
 from sqlalchemy import Column, Integer, String, Date
 from geoalchemy2 import Geometry
 import config

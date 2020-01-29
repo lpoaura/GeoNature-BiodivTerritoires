@@ -1,9 +1,8 @@
 # Import flask and template operators
 from flask import Flask, render_template
-from flask_assets import Bundle
 
 import config
-from app.utils import create_schemas, DB, assets, admin
+from app.core.env import create_schemas, DB, assets, admin
 
 
 # Import SQLAlchemy
@@ -41,8 +40,8 @@ def create_app():
         return render_template("404.html"), 404
 
     with app.app_context():
-        from app.api_routes import api
-        from app.rendered_routes import rendered
+        from app.core.api.routes import api
+        from app.core.frontend.routes import rendered
         from pypnusershub.routes import routes as users_routes
         from pypnnomenclature.routes import routes as nom_routes
 

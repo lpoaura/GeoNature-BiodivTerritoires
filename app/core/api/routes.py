@@ -1,34 +1,25 @@
-from flask import Blueprint, jsonify, redirect, url_for
-from flask import request
+from flask import Blueprint, jsonify, redirect, url_for, request, current_app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
-from sqlalchemy import and_, or_, distinct
-from sqlalchemy.sql import func
+from sqlalchemy import and_, or_, distinct, literal_column, select
+from sqlalchemy.sql import func, case
+from sqlalchemy.dialects.postgresql import aggregate_order_by
 
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.synthese import Synthese, CorAreaSynthese
-from app.models.taxonomy import Taxref, TaxrefLR, BibRedlistCategories
+from app.models.taxonomy import (
+    Taxref,
+    TaxrefLR,
+    BibRedlistCategories,
+    TaxrefProtectionEspeces,
+)
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
-from app.utils import get_geojson_feature, DB
+from app.core.env import DB
+from app.core.utils import get_nomenclature
 
 api = Blueprint("api", __name__)
-
-
-def lists_nomenclatures(nomenclatures_list):
-    try:
-        nomenclatures = (
-            DB.session.query(TNomenclatures.mnemonique)
-            .filter(TNomenclatures.id_nomenclature._in(nomenclatures_list))
-            .all()
-        )
-        mnemoniques = []
-        for n in nomenclatures:
-            mnemoniques.append(n.mnemonique)
-        return mnemoniques
-    except Exception as e:
-        flash(e)
 
 
 @api.route("/find/area")
@@ -64,6 +55,7 @@ def find_area():
             datas.append(r._asdict())
         return {"count": count, "datas": datas}, 200
     except Exception as e:
+        current_app.logger.error("<find_area> ERROR:", e)
         return {"Error": str(e)}, 400
 
 
@@ -74,19 +66,22 @@ def redirect_area(id_area):
     :param id_area:
     :return:
     """
-    qarea = (
-        DB.session.query(BibAreasTypes.type_code, LAreas.area_code,)
-        .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
-        .filter(LAreas.id_area == id_area)
-    )
-    area = qarea.first()
-    return redirect(
-        url_for(
-            "rendered.territory",
-            type_code=area.type_code.lower(),
-            area_code=area.area_code.lower(),
+    try:
+        qarea = (
+            DB.session.query(BibAreasTypes.type_code, LAreas.area_code,)
+            .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+            .filter(LAreas.id_area == id_area)
         )
-    )
+        area = qarea.first()
+        return redirect(
+            url_for(
+                "rendered.territory",
+                type_code=area.type_code.lower(),
+                area_code=area.area_code.lower(),
+            )
+        )
+    except Exception as e:
+        current_app.logger.error("<redirect_area> ERROR:", e)
 
 
 @api.route("/<type_code>/<area_code>")
@@ -112,6 +107,7 @@ def main_area_info(type_code, area_code):
         data = result._asdict()
         return jsonify(data)
     except Exception as e:
+        current_app.logger.error("<main_area_info> ERROR:", e)
         return {"Error": str(e)}, 400
 
 
@@ -135,6 +131,7 @@ def datas_types():
         data = result._asdict()
         return jsonify(data)
     except Exception as e:
+        current_app.logger.error("<datas_types> ERROR:", e)
         return {"Error": str(e)}, 400
 
 
@@ -178,12 +175,12 @@ def get_geojson_area(type_code, area_code):
             )
         ).limit(1)
         result = query.one()
-        geometry = get_geojson_feature(result.geom)
         feature = Feature(geometry=to_shape(result.geom))
         feature["properties"]["area_name"] = result.area_name
         feature["properties"]["area_code"] = result.area_code
         return feature
     except Exception as e:
+        current_app.logger.error("<get_geojson_area> ERROR:", e)
         return {"Error": str(e)}, 400
 
 
@@ -222,14 +219,13 @@ def get_grid_datas(id_area, buffer, grid):
                 MVTerritoryGeneralStats.geom_local, func.ST_Buffer(area.geom, buffer),
             )
         )
-        print("get_grid_datas Query:", qgrid)
         datas = qgrid.all()
-        print("RESULT", datas)
         features = []
         for d in datas:
             features.append(d.as_geofeature("geom_4326", "id_area"))
         return FeatureCollection(features)
     except Exception as e:
+        current_app.logger.error("<get_grid_datas> ERROR:", e)
         return {"Error": str(e)}, 400
 
 
@@ -240,26 +236,18 @@ def get_ntile():
     :param type:
     :return:
     """
-    query = MVAreaNtileLimit.query.order_by(MVAreaNtileLimit.type).order_by(
-        MVAreaNtileLimit.ntile
-    )
-    ntiles = query.all()
-    datas = []
-    for r in ntiles:
-        datas.append(r.as_dict())
-    return jsonify(datas)
-
-
-def lists_nomenclatures(nomenclatures_list):
-    nomenclatures = (
-        DB.session.query(TNomenclatures.mnemonique)
-        .filter(TNomenclatures.id_nomenclature._in(nomenclatures_list))
-        .all()
-    )
-    mnemoniques = []
-    for n in nomenclatures:
-        mnemoniques.append(n.mnemonique)
-    return mnemoniques
+    try:
+        query = MVAreaNtileLimit.query.order_by(MVAreaNtileLimit.type).order_by(
+            MVAreaNtileLimit.ntile
+        )
+        ntiles = query.all()
+        datas = []
+        for r in ntiles:
+            datas.append(r.as_dict())
+        return jsonify(datas)
+    except Exception as e:
+        current_app.logger.error("<get_ntile> ERROR:", e)
+        return {"Error": str(e)}, 400
 
 
 @api.route("/list_taxa/<int:id_area>", methods=["GET"])
@@ -288,9 +276,6 @@ def get_taxa_list(id_area):
             .id_nomenclature
         )
 
-        test = BibRedlistCategories.query.all()
-        print("TEST", test)
-
         query_territory = (
             DB.session.query(
                 Taxref.cd_ref.label("id"),
@@ -308,22 +293,44 @@ def get_taxa_list(id_area):
                 func.max(distinct(func.extract("year", Synthese.date_min))).label(
                     "last_year"
                 ),
+                func.array_agg(
+                    aggregate_order_by(
+                        distinct(func.extract("year", Synthese.date_min)),
+                        func.extract("year", Synthese.date_min).desc(),
+                    )
+                ).label("list_years"),
+                func.array_agg(
+                    aggregate_order_by(
+                        distinct(func.extract("month", Synthese.date_min)),
+                        func.extract("month", Synthese.date_min).asc(),
+                    )
+                ).label("list_months"),
                 func.bool_or(
                     Synthese.id_nomenclature_bio_status == reproduction_id
                 ).label("reproduction"),
+                func.max(distinct(func.extract("year", Synthese.date_min)))
+                .filter(Synthese.id_nomenclature_bio_status == reproduction_id)
+                .label("last_year_reproduction"),
                 func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
                     "bio_status_id"
                 ),
                 TaxrefLR.id_categorie_france.label("redlist_nat"),
+                case(
+                    [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
+                    else_=False,
+                ).label("protection"),
             )
             .select_from(CorAreaSynthese)
             .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
             .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
             .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
-            .join(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
-            .join(
+            .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
+            .outerjoin(
                 BibRedlistCategories,
                 TaxrefLR.id_categorie_france == BibRedlistCategories.code_category,
+            )
+            .outerjoin(
+                TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
             )
             .filter(LAreas.id_area == id_area)
             .group_by(
@@ -339,20 +346,26 @@ def get_taxa_list(id_area):
             )
             .order_by(
                 BibRedlistCategories.priority_order,
+                func.count(distinct(Synthese.id_synthese)).desc(),
                 Taxref.group1_inpn,
                 Taxref.group2_inpn,
                 Taxref.nom_valide,
             )
         )
+        print(query_territory)
         result = query_territory.all()
         count = len(result)
         datas = []
         for r in result:
             dict = r._asdict()
-            dict["statuts_bio"] = lists_nomenclatures(dict["bio_status_id"])
-            datas.append(dict)
+            bio_status = []
+            for s in r.bio_status_id:
+                bio_status.append(get_nomenclature(s))
+                dict["bio_status"] = bio_status
+                datas.append(dict)
 
         return jsonify({"count": count, "datas": datas}), 200
 
     except Exception as e:
+        current_app.logger.error("<get_taxa_list> ERROR: {}".format(e))
         return {"Error": str(e)}, 400

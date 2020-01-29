@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text
 from utils_flask_sqla.serializers import serializable
 
-from app.utils import DB
+from app.core.env import DB
 
 
 @serializable

@@ -1,9 +1,9 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger, DateTime, Float
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from geoalchemy2 import Geometry
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
-from app.utils import DB
+from app.core.env import DB
 import config
 
 

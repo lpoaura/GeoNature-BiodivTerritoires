@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from utils_flask_sqla.serializers import serializable
 
 from app import admin
-from app.utils import DB
+from app.core.env import DB
 
 
 @serializable

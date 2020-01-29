@@ -126,6 +126,6 @@ function generateColor(colorStart, colorEnd, colorCount) {
 //
 // }
 
-$(document).ready(function(){
-  $('[data-toggle="tooltip"]').tooltip();
+$(document).tooltip({
+    selector: '[data-toggle="tooltip"]'
 });

@@ -1,26 +1,10 @@
 from flask import current_app, flash
-from flask_admin import Admin
-from flask_assets import Environment
-from flask_sqlalchemy import SQLAlchemy
+
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
 from shapely.geometry import asShape
-
-DB = SQLAlchemy()
-admin = Admin(name="GnBT", template_mode="bootstrap3")
-assets = Environment()
-
-
-def create_schemas(db):
-    """create db schemas at first launch
-
-    :param db: db connection
-    """
-    schemas = ["gn_biodivterritory"]
-    for schema in schemas:
-        print("create DB schema {}".format(schema))
-        db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
-    db.session.commit()
+from app.core.env import DB
+from pypnnomenclature.models import TNomenclatures
 
 
 def geom_from_geojson(data):
@@ -65,3 +49,20 @@ def get_geojson_feature(wkb):
                 str(e)
             )
         )
+
+
+def get_nomenclature(id_nomenclature):
+    try:
+        query = (
+            DB.session.query(
+                TNomenclatures.cd_nomenclature,
+                TNomenclatures.mnemonique,
+                TNomenclatures.definition_fr,
+            )
+            .filter(TNomenclatures.id_nomenclature == id_nomenclature)
+            .first()
+        )
+        nomenclature = query._asdict()
+        return nomenclature
+    except Exception as e:
+        current_app.logger.error("<get_nomenclature> ERROR: ", e)

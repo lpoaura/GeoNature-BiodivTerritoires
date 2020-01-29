@@ -5,7 +5,7 @@ import config
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
-from app.utils import DB
+from app.core.env import DB
 
 rendered = Blueprint("rendered", __name__)
 

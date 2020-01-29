@@ -7,54 +7,86 @@
                 <th><i class="fas fa-plus-circle"></i></th>
                 <th>group1_inpn</th>
                 <th>group2_inpn</th>
-                <th>CD Ref</th>
+                <th>Identifiant TaxRef</th>
                 <th>Nom vernaculaire</th>
                 <th>Nom scientifique</th>
                 <th>Liste rouge France</th>
+                <th>Espèce réglementée</th>
                 <th>Nombre d'occurences</th>
                 <th>Nombre d'observateurs</th>
                 <th>Nombre de dates</th>
                 <th>Nombre de jeux de données</th>
                 <th>Reproduction</th>
                 <th>Dernière observation</th>
-                <th>Status biologiques</th>
-
+                <th>Statuts biologiques</th>
             </tr>
             </thead>
         </table>
     </div>
 </div>
+<div id="modalInfo" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalInfoTitle" class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div id="modalInfoBody" class="modal-body">
+            </div>
+            <div id="modalInfoFooter" class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
+    $(document.body).on('click', "#protectionDetails", function () {
+        var cdref = $(this).data("cdref");
+        axios.get('https://geonature.fauneauvergnerhonealpes.org/taxhub/api/taxref/' + cdref)
+            .then(function (response) {
+                    $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
+                    var tableContent = '';
+
+                    var items = response.data.statuts_protection;
+                    console.log('isArray', Array.isArray(items));
+                    var itemsLength = items.length;
+                    if (itemsLength == 0) {
+                        $('#modalInfoBody').html('Aucune protection');
+                    } else {
+                        for (var i = 0; i < itemsLength; i++) {
+                            tableContent += '<td><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
+                        }
+                        $('#modalInfoBody').html('<table class="table table-striped">' + tableContent + '</table>');
+                    }
+
+                    // show modal
+                    $('#modalInfo').modal('show');
+                    // store each style conditions for each style type in localStorage
+                }
+            )
+            .catch(function (error) {
+                console.log('<protectionDetails> Error', error);
+            });
+    });
+
     var listSpecieTableDatas = '/api/list_taxa/{{ area_info.id_area }}';
 
     $(document).ready(function () {
         function format(d) {
             var dataArray = [];
-            if (d.properties.last_session != null) {
-                dataArray.push('<strong>Dernière session</strong>&nbsp;:&nbsp;' + d.properties.last_session.date_start__max)
-            }
-            if (d.properties.contact != null) {
-                dataArray.push('<strong>Types d&quot;observations</strong>&nbsp;:&nbsp;' + d.properties.contact.contacts)
-            }
-            if (d.properties.comment != null) {
-                dataArray.push('<strong>Commentaire</strong>&nbsp;:&nbsp;' + d.properties.comment)
-            }
-            if (d.properties.is_managed != null) {
-                dataArray.push('<strong>Site géré</strong>')
-            }
-            if (d.properties.convention != null) {
-                dataArray.push('<strong>Convention refuge</strong>')
-            }
+            dataArray.push('Années d\'observation : '+ d.list_years);
+            dataArray.push('Mois d\'observations : '+d.list_months);
             return dataArray.join('<br />')
         }
 
         var listSpeciesTable = $('#listSpeciesTable').DataTable({
+            processing: true,
+            serverSide: true,
             ajax: {
                 url: listSpecieTableDatas,
                 dataSrc: "datas"
             },
-            scrollY: "500px",
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
             dom: 'Brlftp',
             buttons: {
                 buttons: [
@@ -68,11 +100,12 @@
                 ]
             },
             columnDefs: [
-
                 {className: "text-center align-middle", targets: '_all'},
                 {
                     "createdCell": function (td, cellData, rowData, row, col) {
-                        $(td).css('background-color', 'var(--' + cellData.toLowerCase() + '-color)')
+                        if (!!cellData) {
+                            $(td).css('background-color', 'var(--' + cellData.toLowerCase() + '-color)')
+                        }
                     }, targets: [6,]
                 }
             ],
@@ -96,28 +129,85 @@
                     }
                 },
                 {data: "nom_vern"},
-                {data: "nom_valide"},
+                {
+                    data: function (row) {
+                        return '<i>' + row.nom_valide + '</i>';
+                    }
+                },
                 {data: "redlist_nat"},
+                {
+                    data: function (row) {
+                        var protection = '';
+                        if (row.protection == true) {
+                            protection = '<i id="protectionDetails" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
+                            console.log('protection', protection)
+                        }
+                        return protection;
+                    }
+                },
                 {data: "count_occtax"},
                 {data: "count_observer"},
                 {data: "count_date"},
                 {data: "count_dataset"},
                 {
                     data: function (row) {
-                        var data = null;
+                        var data = '';
                         if (row.reproduction == true) {
-                            data = `<i class="fas fa-check-circle text-success"></i><span class="invisible">Oui</span>`;
-                        } else (
-                            data = ''
-                        )
+                            data = '<i class="fas fa-check-circle text-success"></i>&nbsp;<span data-toggle="tooltip" title="Dernière année d\'observation en reproduction">' + row.last_year_reproduction + '</span>';
+                        }
                         ;
                         return data;
                     }
                 },
                 {data: "last_year"},
-                {data: "bio_status"},
+                {
+                    data: function (row) {
+                        var data = '';
+                        if (row.bio_status.length > 0) {
+                            for (var i = 0; i < row.bio_status.length; i++) {
+                                data += '<span class="badge badge-info" data-toggle="tooltip" title="' + row.bio_status[i].definition_fr + '">' + row.bio_status[i].mnemonique + '</span>';
+                            }
+                        } else {
+                            data = ''
+                        }
+                        ;
+                        return data;
+                    }
+                },
             ]
         });
+
+        var detailRows = [];
+
+        $('#listSpeciesTable tbody').on('click', 'tr td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = listSpeciesTable.row(tr);
+            var idx = $.inArray(tr.attr('id'), detailRows);
+
+            if (row.child.isShown()) {
+                tr.removeClass('details');
+                row.child.hide();
+
+                // Remove from the 'open' array
+                detailRows.splice(idx, 1);
+            } else {
+                tr.addClass('details');
+                row.child(format(row.data())).show();
+
+                // Add to the 'open' array
+                if (idx === -1) {
+                    detailRows.push(tr.attr('id'));
+                }
+            }
+        });
+
+        // On each draw, loop over the `detailRows` array and show any child rows
+        listSpeciesTable.on('draw', function () {
+            $.each(detailRows, function (i, id) {
+                $('#' + id + ' td.details-control').trigger('click');
+            });
+        });
+
         $('.dt-buttons').addClass('btn-group-sm');
     });
 </script>
