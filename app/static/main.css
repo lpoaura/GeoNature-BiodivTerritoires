@@ -40,7 +40,7 @@
 
 h1 {
     border-left: 50px solid var(--success);
-    padding-left: 10px ;
+    padding-left: 10px;
     backgound-color: rgba(28, 216, 243, 0.37);
 }
 
@@ -53,12 +53,38 @@ h2 {
 
 /* UICN Colors */
 :root {
-  --ex-color: #101210;
-  --ew-color: #582440;
-  --cr-color: #d3101c;
-  --en-color: #ef7c38;
-  --vu-color: #fbe500;
-  --nt-color: #d5d700;
-  --lc-color: #70b546;
-  --dd-color: #dad7cb;
+    --ex-color: #101210;
+    --ew-color: #582440;
+    --cr-color: #d3101c;
+    --en-color: #ef7c38;
+    --vu-color: #fbe500;
+    --nt-color: #d5d700;
+    --lc-color: #70b546;
+    --dd-color: #dad7cb;
+}
+
+
+@media (min-width: 768px) {
+    .seven-cols .col-md-1,
+    .seven-cols .col-sm-1,
+    .seven-cols .col-lg-1 {
+        width: 100%;
+        *width: 100%;
+    }
+}
+
+
+@media (min-width: 992px) {
+    #genstats .col-lg-1 {
+        width: 14.285714285714285714285714285714%;
+        *width: 14.285714285714285714285714285714%;
+    }
+}
+
+
+@media (min-width: 1200px) {
+    #genstats .col-lg-1 {
+        width: 14.285714285714285714285714285714%;
+        *width: 14.285714285714285714285714285714%;
+    }
 }

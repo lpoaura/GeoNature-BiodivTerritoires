@@ -9,11 +9,26 @@ from sqlalchemy.sql import func
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.synthese import Synthese, CorAreaSynthese
-from app.models.taxonomy import Taxref, TaxrefLR
+from app.models.taxonomy import Taxref, TaxrefLR, BibRedlistCategories
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 from app.utils import get_geojson_feature, DB
 
 api = Blueprint("api", __name__)
+
+
+def lists_nomenclatures(nomenclatures_list):
+    try:
+        nomenclatures = (
+            DB.session.query(TNomenclatures.mnemonique)
+            .filter(TNomenclatures.id_nomenclature._in(nomenclatures_list))
+            .all()
+        )
+        mnemoniques = []
+        for n in nomenclatures:
+            mnemoniques.append(n.mnemonique)
+        return mnemoniques
+    except Exception as e:
+        flash(e)
 
 
 @api.route("/find/area")
@@ -235,6 +250,18 @@ def get_ntile():
     return jsonify(datas)
 
 
+def lists_nomenclatures(nomenclatures_list):
+    nomenclatures = (
+        DB.session.query(TNomenclatures.mnemonique)
+        .filter(TNomenclatures.id_nomenclature._in(nomenclatures_list))
+        .all()
+    )
+    mnemoniques = []
+    for n in nomenclatures:
+        mnemoniques.append(n.mnemonique)
+    return mnemoniques
+
+
 @api.route("/list_taxa/<int:id_area>", methods=["GET"])
 def get_taxa_list(id_area):
     """
@@ -261,6 +288,9 @@ def get_taxa_list(id_area):
             .id_nomenclature
         )
 
+        test = BibRedlistCategories.query.all()
+        print("TEST", test)
+
         query_territory = (
             DB.session.query(
                 Taxref.cd_ref.label("id"),
@@ -282,7 +312,7 @@ def get_taxa_list(id_area):
                     Synthese.id_nomenclature_bio_status == reproduction_id
                 ).label("reproduction"),
                 func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
-                    "bio_status"
+                    "bio_status_id"
                 ),
                 TaxrefLR.id_categorie_france.label("redlist_nat"),
             )
@@ -291,8 +321,13 @@ def get_taxa_list(id_area):
             .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
             .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
             .join(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
+            .join(
+                BibRedlistCategories,
+                TaxrefLR.id_categorie_france == BibRedlistCategories.code_category,
+            )
             .filter(LAreas.id_area == id_area)
             .group_by(
+                BibRedlistCategories.priority_order,
                 LAreas.id_area,
                 LAreas.area_code,
                 Taxref.cd_ref,
@@ -302,13 +337,21 @@ def get_taxa_list(id_area):
                 Taxref.group2_inpn,
                 TaxrefLR.id_categorie_france,
             )
-            .order_by(Taxref.group1_inpn, Taxref.group2_inpn, Taxref.nom_valide)
+            .order_by(
+                BibRedlistCategories.priority_order,
+                Taxref.group1_inpn,
+                Taxref.group2_inpn,
+                Taxref.nom_valide,
+            )
         )
         result = query_territory.all()
         count = len(result)
         datas = []
         for r in result:
-            datas.append(r._asdict())
+            dict = r._asdict()
+            dict["statuts_bio"] = lists_nomenclatures(dict["bio_status_id"])
+            datas.append(dict)
+
         return jsonify({"count": count, "datas": datas}), 200
 
     except Exception as e:

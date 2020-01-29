@@ -109,3 +109,12 @@ class TaxrefLR(DB.Model):
     annee_publication = Column(String)
     categorie_lr_europe = Column(String)
     categorie_lr_mondiale = Column(String)
+
+
+class BibRedlistCategories(DB.Model):
+    __tablename__ = "bib_redlist_categories"
+    __table_args__ = {"schema": "taxonomie"}
+    code_category = Column(String, primary_key=True)
+    threatened = Column(Boolean)
+    sup_category = Column(String)
+    priority_order = Column(Integer)

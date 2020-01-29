@@ -43,6 +43,8 @@ def create_app():
     with app.app_context():
         from app.api_routes import api
         from app.rendered_routes import rendered
+        from pypnusershub.routes import routes as users_routes
+        from pypnnomenclature.routes import routes as nom_routes
 
         create_schemas(DB)
         DB.create_all()
@@ -50,5 +52,7 @@ def create_app():
         # Register blueprint(s)
         app.register_blueprint(rendered)
         app.register_blueprint(api, url_prefix="/api")
+        app.register_blueprint(users_routes, url_prefix="/auth")
+        app.register_blueprint(nom_routes, url_prefix="/api/nomenclatures")
 
         return app
