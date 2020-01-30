@@ -38,16 +38,9 @@
     border: none;
 }
 
-h1 {
-    border-left: 50px solid var(--success);
-    padding-left: 10px;
-    backgound-color: rgba(28, 216, 243, 0.37);
-}
-
-
-h2 {
-    border-left: 40px solid var(--success);
-    padding-left: 10px;
+#territorySynthesis h2, h3, h4, h5 {
+    color: var(--info);
+    margin-top: 30px;
 }
 
 
@@ -88,3 +81,4 @@ h2 {
         *width: 14.285714285714285714285714285714%;
     }
 }
+

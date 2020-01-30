@@ -5,8 +5,8 @@
             <thead class="thead-dark">
             <tr>
                 <th><i class="fas fa-plus-circle"></i></th>
-                <th>group1_inpn</th>
-                <th>group2_inpn</th>
+                <th>Groupe 1 INPN</th>
+                <th>Groupe 2 INPN</th>
                 <th>Identifiant TaxRef</th>
                 <th>Nom vernaculaire</th>
                 <th>Nom scientifique</th>
@@ -19,7 +19,6 @@
                 <th>Nombre de jeux de données</th>
                 <th>Reproduction</th>
                 <th>Dernière observation</th>
-                <th>Statuts biologiques</th>
             </tr>
             </thead>
         </table>
@@ -74,7 +73,7 @@
         var cdref = $(this).data("cdref");
         axios.get('https://geonature.fauneauvergnerhonealpes.org/taxhub/api/taxref/' + cdref)
             .then(function (response) {
-                    $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
+                    $('#modalInfoTitle').html('Statuts de conservation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
                     var tableContent = '';
 
                     var items = response.data.statuts_protection;
@@ -104,9 +103,31 @@
     $(document).ready(function () {
         function format(d) {
             var dataArray = [];
-            dataArray.push('Années d\'observation : ' + d.list_years);
-            dataArray.push('Mois d\'observations : ' + d.list_months);
-            return dataArray.join('<br />')
+            // Années d'objservation
+            dataArray.push('<tr><td><b>Années d\'observation</b></td><td>' + d.list_years + '</td></tr>');
+            // Mois d'observation
+            var monthsArray = [];
+            d.list_months.forEach(getMonth);
+
+            function getMonth(value, index, array) {
+                monthsArray.push(months[value - 1]);
+            }
+
+            monthsAsText = monthsArray.join(', ');
+            dataArray.push('<tr><td><b>Mois d\'observations</b></td><td>' + monthsAsText + '</td></tr>');
+            // Statuts biologiques d'observation
+            var list_biostatus = '';
+            if (d.bio_status.length > 0) {
+                for (var i = 0; i < d.bio_status.length; i++) {
+                    list_biostatus += '<span class="badge badge-info" data-toggle="tooltip" title="' + d.bio_status[i].definition_fr + '">' + d.bio_status[i].mnemonique + '</span>&nbsp;';
+                }
+            } else {
+                list_biostatus = 'Aucun statut spécifié'
+            }
+            ;
+            dataArray.push('<tr><td><b>Statuts biologiques</b></td><td>' + list_biostatus + '</td></tr>');
+
+            return '<table>' + dataArray.join('') + '</table>'
         }
 
         var listSpeciesTable = $('#listSpeciesTable').DataTable({
@@ -116,8 +137,11 @@
                 url: listSpecieTableDatas,
                 dataSrc: "data"
             },
+            scrollY: "600px",
+            scrollCollapse: true,
+            paging: false,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
-            dom: 'Blftrp',
+            {#dom: 'fBtrp',#}
             buttons: {
                 buttons: [
                     {extend: 'copy', className: 'btn btn-info'},
@@ -138,15 +162,17 @@
                         }
                     }, targets: [7,]
                 },
-                {#{#}
-                {#    "targets": [6],#}
-                {#    "visible": false,#}
-                {#    "searchable": false#}
-                {#},#}
+                {
+                    "targets": [6],
+                    "visible": false,
+                    "searchable": false
+                },
             ],
-            createdRow: function (data, dataIndex) {
-                if (data[6] == 'true') {
-                    $(row).addClass('table-danger');
+            createdRow: function (row, data, dataIndex) {
+                if (data.redlist.length > 0) {
+                    if (!!data.redlist[0].threatened > 0) {
+                        $(row).addClass('table-danger');
+                    }
                 }
             },
             columns: [
@@ -210,21 +236,7 @@
                         return data;
                     }
                 },
-                {data: "last_year"},
-                {
-                    data: function (row) {
-                        var data = '';
-                        if (row.bio_status.length > 0) {
-                            for (var i = 0; i < row.bio_status.length; i++) {
-                                data += '<span class="badge badge-info" data-toggle="tooltip" title="' + row.bio_status[i].definition_fr + '">' + row.bio_status[i].mnemonique + '</span>';
-                            }
-                        } else {
-                            data = ''
-                        }
-                        ;
-                        return data;
-                    }
-                },
+                {data: "last_year"}
             ]
         });
 

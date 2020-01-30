@@ -65,3 +65,16 @@ class LiMunicipalities(DB.Model):
     insee_commune_nouvelle = Column(String)
     meta_create_date = Column(DateTime)
     meta_update_date = Column(DateTime)
+
+
+@serializable
+class MVLAreasAutocomplete(DB.Model):
+    __tablename__ = "mv_l_areas_autocomplete"
+    __table_args__ = {"schema": "ref_geo"}
+    id = Column(Integer, primary_key=True)
+    type_name = Column(String)
+    search_area_name = Column(String)
+    type_desc = Column(String)
+    type_code = Column(String)
+    area_name = Column(String)
+    area_code = Column(String)

@@ -30,11 +30,14 @@
 {#    }#}
 {#</style>#}
 
-
-<select class="search-territory-select form-control" type="text" placeholder="Rechercher un territoire"
-        aria-label="Search"
-        style="width:100%;">
-</select>
+<div class="input-group" data-toggle="tooltip" title="Recherchez un territorie (nom ou code INSEE)">
+    <div class="input-group-prepend">
+        <span class="input-group-text text-info"><i class="fa fa-search-location"></i></span>
+    </div>
+    <select class="search-territory-select form-control mr-sm-2" type="text" placeholder="Rechercher un territoire"
+            aria-label="Search" style="width:1%">
+    </select>
+</div>
 {#<input class="form-control" type="text" name="area" id="autocompleteArea" placeholder="Rechercher un territoire"/>#}
 
 
@@ -71,9 +74,11 @@
     {#    onSelect: function (suggestion) {#}
     {#        location.href = '/territory/' + suggestion.data;#}
     {#    }#}
-    {#});#}
+    {#})
+    ;
+    #}
 
-    // Select2 de Recherche de territoire 
+    // Select2 de Recherche de territoire
 
 
     $(".search-territory-select").select2({
@@ -128,7 +133,7 @@
     }
 
     function formatAreaSelection(area) {
-        return area.area_name ? '[' + area.type_name + '] ' + area.area_name + ' (' + area.area_code + ')' : 'Recherchez un territoire';
+        return area.area_name ? area.area_name : 'Recherchez un territoire';
     }
 
     $('.search-territory-select').change(function () {

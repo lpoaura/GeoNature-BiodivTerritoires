@@ -1,10 +1,9 @@
 <!doctype html>
 <html>
-
 <head>
     {% block head %}
 
-    <title>{% block title %}{% endblock %} {{site_name}}</title>
+        <title>{% block title %}{% endblock %} {{ site_name }}</title>
     {% endblock %} {% include "core/assets_css.html" %} {% include "core/assets_js.html" %}
     <style>
         body {
@@ -14,13 +13,28 @@
 </head>
 
 <body>
-    <header id="navbar">
-        {% include "core/navbar.html" %}
-    </header>
-    {% block content %}{% endblock %}
-    <footer id="footer">
-        {% include "core/footer.html" %}
-    </footer>
+<header id="navbar">
+    {% include "core/navbar.html" %}
+</header>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div id="message">
+                <div id="inner-message" class="alert alert-warning alert-dismissible fade show position-fixed right"
+                     role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+<footer id="footer">
+    {% include "core/footer.html" %}
+</footer>
 
 </body>
 

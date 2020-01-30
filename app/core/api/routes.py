@@ -14,7 +14,7 @@ from app.core.utils import (
     redlist_list_is_null,
 )
 from app.models.datas import BibDatasTypes, TReleasedDatas
-from app.models.ref_geo import BibAreasTypes, LAreas
+from app.models.ref_geo import BibAreasTypes, LAreas, MVLAreasAutocomplete
 from app.models.synthese import Synthese, CorAreaSynthese
 from app.models.taxonomy import (
     Taxref,
@@ -33,31 +33,35 @@ def find_area():
     :return:
     """
     try:
-        search_term = "%{}%".format(request.args.get("q"))
+        search_name = "%{}%".format(request.args.get("q"))
+        search_code = request.args.get("q")
         qarea = (
             DB.session.query(
-                LAreas.id_area.label("id"),
-                BibAreasTypes.type_name,
-                BibAreasTypes.type_desc,
-                BibAreasTypes.type_code,
-                LAreas.area_name,
-                LAreas.area_code,
+                MVLAreasAutocomplete.id,
+                MVLAreasAutocomplete.type_name,
+                MVLAreasAutocomplete.type_desc,
+                MVLAreasAutocomplete.type_code,
+                MVLAreasAutocomplete.area_name,
+                MVLAreasAutocomplete.area_code,
             )
-            .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
             .filter(
                 or_(
-                    func.unaccent(LAreas.area_name).ilike(func.unaccent(search_term)),
-                    func.unaccent(LAreas.area_code).ilike(func.unaccent(search_term)),
+                    MVLAreasAutocomplete.search_area_name.like(
+                        func.unaccent(search_name.lower())
+                    ),
+                    MVLAreasAutocomplete.area_code == search_code,
                 )
             )
             .limit(20)
         )
+        print(qarea)
         result = qarea.all()
         count = len(result)
         datas = []
         for r in result:
             datas.append(r._asdict())
         return {"count": count, "datas": datas}, 200
+
     except Exception as e:
         current_app.logger.error("<find_area> ERROR:", e)
         return {"Error": str(e)}, 400

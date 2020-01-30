@@ -4,59 +4,50 @@
          * Base structure
          */
 
-        .jumbotron {
-            text-align: center;
-            min-height: 100vh;
-            height: calc(100% - 65px);
-            height: -o-calc(100% - 65px);
-            /* opera */
-            height: -webkit-calc(100% - 65px);
-            /* google, safari */
-            height: -moz-calc(100% - 65px);
-            /* firefox */
-            position: relative;
-            background: url({{ url_for('static', filename='images/paysage_crollant.jpg')}});
-            background-repeat: no-repeat;
+        /* Header Parallax Element Style*/
+        .paral {
+            height: 600px;
+            background-position: 50% 50%;
+            background-attachment: fixed;
             background-size: cover;
-            color: white;
+            background: url({{ url_for('static', filename='custom/images/home-background.jpg')}});
         }
 
-        #home-info {
-            margin: auto;
-            top: 50%;
-            left: 50%;
-            margin: 0;
-            position: absolute;
-            transform: translate(-50%,
-            -50%);
+        /* Paragrapgh for Parallax Section */
+        .paral p {
+            font-size: 24px;
+            color: #f5f5f5;
+            text-align: center;
+            line-height: 60px;
         }
+
+        /* Heading for Parallax Section */
+        .paral h1 {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 60px;
+            text-align: center;
+            padding-top: 70px;
+            line-height: 70px;
+        }
+
+
+        .jumbotron {
+            margin-bottom: 0;
+            border-radius: 0;
+        }
+
+
     </style>
 {% endblock %} {% block content %}
-    <div class="container-fluid">
-        <div id="jumbotron" class="jumbotron">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        {% endfor %}
-                {% endif %}
-            {% endwith %}
-
-            <div id="home-info">
-                <h1>{{ site_name }}</h1>
-                <p class="lead">{{ site_desc|safe }}</p>
-                <div>
-                    {% include "core/search_territory.html" %}
-                </div>
-            </div>
+    <!-- First Parallax Section -->
+    <div class="jumbotron paral paralsec">
+        <div class="container">
+            <h1 class="display-3">{{ site_name }}</h1>
+            <p class="lead">{{ site_desc|safe }}</p>
+            <p class="lead">
+                {% include "core/search_territory.html" %}
             </p>
         </div>
     </div>
-
 
 {% endblock %}

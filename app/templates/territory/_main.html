@@ -1,19 +1,12 @@
 {% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
 {% block head %} {{ super() }}
-    <style type="text/css">
-        .selectonmap {
-            position: relative;
-            right: 5px;
-            top: 5px;
-        }
-    </style>
 {% endblock %} {% block content %}
-    <div id="situation" class="container-fluid">
+    <div id="territorySynthesis" class="container-fluid">
         <div class="row mt-2">
             <div class="col">
                 <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span
                     class="badge badge-primary align-top">{{ area_info.type_name }}</span>
-                <span>{{ area_info.id_area }}</span>
+                {#                <span>{{ area_info.id_area }}</span>#}
             </div>
         </div>
         <div id="genstats" class="row mt-2 text-center">
@@ -21,7 +14,7 @@
         </div>
         <div class="row mt-2">
             <div class="col-lg-12">
-                <h2><i class="glyphicon-facetime-video"></i> Etat des connaissances</h2>
+                <h2><span class="title"><i class="glyphicon-facetime-video"></i> Etat des connaissances</span></h2>
             </div>
             <div class="col col-md-6">
                 {% include "territory/situation_map.html" %}
@@ -83,5 +76,6 @@
         </div>
     </div>
 
-    <script></script>
+    <script>
+    </script>
 {% endblock %}

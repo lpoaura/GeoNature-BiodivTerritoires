@@ -119,6 +119,8 @@ function generateColor(colorStart, colorEnd, colorCount) {
 // Exemplo de como usar
 
 
+var months = ['jan', 'fév', 'mar', 'avr', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+
 // var tmp = generateColor('#000000', '#ff0ff0', 10);
 //
 // for (cor in tmp) {
