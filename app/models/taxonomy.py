@@ -82,6 +82,7 @@ class CorTaxonAttribut(DB.Model):
         return "<CorTaxonAttribut %r>" % self.valeur_attribut
 
 
+@serializable
 class TaxrefLR(DB.Model):
     __tablename__ = "taxref_liste_rouge_fr"
     __table_args__ = {"schema": "taxonomie"}
@@ -111,6 +112,7 @@ class TaxrefLR(DB.Model):
     categorie_lr_mondiale = Column(String)
 
 
+@serializable
 class BibRedlistCategories(DB.Model):
     __tablename__ = "bib_redlist_categories"
     __table_args__ = {"schema": "taxonomie"}
@@ -118,3 +120,31 @@ class BibRedlistCategories(DB.Model):
     threatened = Column(Boolean)
     sup_category = Column(String)
     priority_order = Column(Integer)
+    name_fr = Column(String)
+    desc_fr = Column(String)
+
+
+class BibRedlistSource(DB.Model):
+    __tablename__ = "bib_redlist_source"
+    __table_args__ = {"schema": "taxonomie"}
+    id_source = Column(Integer, primary_key=True)
+    name_source = Column(String)
+    desc_source = Column(String)
+    url_source = Column(String)
+    context = Column(String)
+    area_name = Column(String)
+    area_code = Column(String)
+    area_type = Column(String)
+    priority = Column(Integer)
+
+
+class TRedlist(DB.Model):
+    __tablename__ = "t_redlist"
+    __table_args__ = {"schema": "taxonomie"}
+    id_redlist = Column(Integer, primary_key=True)
+    status_order = Column(Integer)
+    cd_nom = Column(Integer)
+    cd_ref = Column(Integer)
+    category = Column(String)
+    criteria = Column(String)
+    id_source = Column(Integer)

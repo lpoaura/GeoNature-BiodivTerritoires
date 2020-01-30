@@ -10,6 +10,7 @@
                 <th>Identifiant TaxRef</th>
                 <th>Nom vernaculaire</th>
                 <th>Nom scientifique</th>
+                <th>Menace</th>
                 <th>Liste rouge France</th>
                 <th>Espèce réglementée</th>
                 <th>Nombre d'occurences</th>
@@ -69,25 +70,54 @@
             });
     });
 
+    $(document.body).on('click', "#redlistDetails", function () {
+        var cdref = $(this).data("cdref");
+        axios.get('https://geonature.fauneauvergnerhonealpes.org/taxhub/api/taxref/' + cdref)
+            .then(function (response) {
+                    $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
+                    var tableContent = '';
+
+                    var items = response.data.statuts_protection;
+                    console.log('isArray', Array.isArray(items));
+                    var itemsLength = items.length;
+                    if (itemsLength == 0) {
+                        $('#modalInfoBody').html('Aucune protection');
+                    } else {
+                        for (var i = 0; i < itemsLength; i++) {
+                            tableContent += '<td><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
+                        }
+                        $('#modalInfoBody').html('<table class="table table-striped">' + tableContent + '</table>');
+                    }
+
+                    // show modal
+                    $('#modalInfo').modal('show');
+                    // store each style conditions for each style type in localStorage
+                }
+            )
+            .catch(function (error) {
+                console.log('<protectionDetails> Error', error);
+            });
+    });
+
     var listSpecieTableDatas = '/api/list_taxa/{{ area_info.id_area }}';
 
     $(document).ready(function () {
         function format(d) {
             var dataArray = [];
-            dataArray.push('Années d\'observation : '+ d.list_years);
-            dataArray.push('Mois d\'observations : '+d.list_months);
+            dataArray.push('Années d\'observation : ' + d.list_years);
+            dataArray.push('Mois d\'observations : ' + d.list_months);
             return dataArray.join('<br />')
         }
 
         var listSpeciesTable = $('#listSpeciesTable').DataTable({
-            processing: true,
-            serverSide: true,
+            {#processing: true,#}
+            {#serverSide: true,#}
             ajax: {
                 url: listSpecieTableDatas,
-                dataSrc: "datas"
+                dataSrc: "data"
             },
-            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
-            dom: 'Brlftp',
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
+            dom: 'Blftrp',
             buttons: {
                 buttons: [
                     {extend: 'copy', className: 'btn btn-info'},
@@ -104,13 +134,18 @@
                 {
                     "createdCell": function (td, cellData, rowData, row, col) {
                         if (!!cellData) {
-                            $(td).css('background-color', 'var(--' + cellData.toLowerCase() + '-color)')
+                            $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')
                         }
-                    }, targets: [6,]
-                }
+                    }, targets: [7,]
+                },
+                {#{#}
+                {#    "targets": [6],#}
+                {#    "visible": false,#}
+                {#    "searchable": false#}
+                {#},#}
             ],
-            createdRow: function (row, data, dataIndex) {
-                if (["VU", 'EN', 'CR'].indexOf(data["redlist_nat"]) !== -1) {
+            createdRow: function (data, dataIndex) {
+                if (data[6] == 'true') {
                     $(row).addClass('table-danger');
                 }
             },
@@ -134,13 +169,29 @@
                         return '<i>' + row.nom_valide + '</i>';
                     }
                 },
-                {data: "redlist_nat"},
+                {
+                    data: function (row) {
+                        var threatened = null;
+                        if (row.redlist.length > 0) {
+                            threatened = row.redlist[0].threatened;
+                        }
+                        return threatened;
+                    }
+                },
+                {
+                    data: function (row) {
+                        var protection = null;
+                        if (row.redlist.length > 0) {
+                            protection = '<span id="redlistDetails" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation">' + row.redlist[0].category + '</span>';
+                        }
+                        return protection;
+                    }
+                },
                 {
                     data: function (row) {
                         var protection = '';
                         if (row.protection == true) {
                             protection = '<i id="protectionDetails" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
-                            console.log('protection', protection)
                         }
                         return protection;
                     }

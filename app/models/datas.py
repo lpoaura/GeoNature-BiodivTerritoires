@@ -35,28 +35,5 @@ class TReleasedDatas(DB.Model):
         return self.data_name
 
 
-@serializable
-class VListTaxa(DB.Model):
-    __tablename__ = "v_list_taxa"
-    __table_args__ = {"schema": "gn_biodivterritory"}
-
-    id = Column(Integer, primary_key=True)
-    id_area = Column(Integer, ForeignKey("ref_geo.l_areas.id_area"))
-    area_code = Column(String)
-    cd_ref = Column(Integer, ForeignKey("taxonomie.taxref.cd_nom"))
-    nom_vern = Column(String)
-    nom_valide = Column(String)
-    group1_inpn = Column(String)
-    group2_inpn = Column(String)
-    count_occtax = Column(Integer)
-    count_date = Column(Integer)
-    count_observer = Column(Integer)
-    count_dataset = Column(Integer)
-    reproduction = Column(Boolean)
-    statuts_bio = Column(ARRAY(String))
-    threatened = Column(Boolean)
-    protected = Column(Boolean)
-
-
 admin.add_view(ModelView(BibDatasTypes, DB.session))
 admin.add_view(ModelView(TReleasedDatas, DB.session))

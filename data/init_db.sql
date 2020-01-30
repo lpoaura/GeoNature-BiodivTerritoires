@@ -85,6 +85,12 @@ $BODY$ LANGUAGE plpgsql
 SELECT *
 FROM ref_geo.bib_areas_types;
 
+CREATE INDEX index_l_areas_area_name ON ref_geo.l_areas (area_name);
+CREATE INDEX index_l_areas_area_code ON ref_geo.l_areas (area_code);
+CREATE INDEX index_l_areas_id_type ON ref_geo.l_areas (id_type);
+
+
+
 INSERT INTO ref_geo.bib_areas_types(type_name, type_code, type_desc)
 VALUES ('Mailles0.5*0.5', 'M0.5', 'Mailles (non officielles de 500m basées sur le référentiel RGF93 - 2154)')
 
@@ -185,18 +191,24 @@ SELECT l_areas.id_area
      , bib_areas_types.type_code
      , l_areas.area_code
      , l_areas.area_name
-     , count(DISTINCT synthese.cd_nom)      AS count_taxa
-     , count(DISTINCT synthese.id_synthese) AS count_occtax
-     , count(DISTINCT synthese.id_dataset)  AS count_dataset
-     , count(DISTINCT synthese.date_min)    AS count_date
-     , count(DISTINCT synthese.observers)   AS count_observer
-     , max(date_min)                        AS last_obs
-     , l_areas.geom                         AS geom_local
-     , st_transform(l_areas.geom, 4326)     AS geom_4326
+     , count(DISTINCT synthese.cd_nom)                                                             AS count_taxa
+     , count(DISTINCT synthese.id_synthese)                                                        AS count_occtax
+     , count(DISTINCT synthese.cd_nom)
+       filter (where bib_redlist_categories.threatened and bib_redlist_source.area_code like 'FR') AS count_threatened
+     , count(DISTINCT synthese.id_dataset)                                                         AS count_dataset
+     , count(DISTINCT synthese.date_min)                                                           AS count_date
+     , count(DISTINCT synthese.observers)                                                          AS count_observer
+     , max(date_min)                                                                               AS last_obs
+     , l_areas.geom                                                                                AS geom_local
+     , st_transform(l_areas.geom, 4326)                                                            AS geom_4326
 FROM ref_geo.l_areas
          JOIN ref_geo.bib_areas_types ON l_areas.id_type = bib_areas_types.id_type
          JOIN gn_synthese.cor_area_synthese ON l_areas.id_area = cor_area_synthese.id_area
          JOIN gn_synthese.synthese ON cor_area_synthese.id_synthese = synthese.id_synthese
+         JOIN taxonomie.taxref on synthese.cd_nom = taxref.cd_nom
+         LEFT JOIN taxonomie.t_redlist on taxref.cd_nom = t_redlist.cd_nom
+         JOIN taxonomie.bib_redlist_categories on t_redlist.category = bib_redlist_categories.code_category
+         JOIN taxonomie.bib_redlist_source on t_redlist.id_source = bib_redlist_source.id_source
 --         JOIN observers ON observers.id_area = l_areas.id_area
 GROUP BY l_areas.id_area
        , bib_areas_types.type_code
@@ -236,6 +248,12 @@ WITH occtax AS (
          , count_taxa                          AS count
          , NTILE(5) OVER (ORDER BY count_taxa) AS ntile
     FROM gn_biodivterritory.mv_territory_general_stats)
+   , threatened AS (
+    SELECT id_area
+         , type_code
+         , count_taxa                                AS count
+         , NTILE(5) OVER (ORDER BY count_threatened) AS ntile
+    FROM gn_biodivterritory.mv_territory_general_stats)
    , observer AS (
     SELECT id_area
          , type_code
@@ -254,6 +272,10 @@ WITH occtax AS (
     GROUP BY ntile
     UNION
     SELECT 'taxa', MIN(count), max(count), ntile
+    FROM taxa
+    GROUP BY ntile
+    UNION
+    SELECT 'threatened', MIN(count), max(count), ntile
     FROM taxa
     GROUP BY ntile
     UNION
@@ -388,7 +410,7 @@ create table taxonomie.cor_redlist_source_area
     id_source                  integer references taxonomie.bib_redlist_source (id_source)
 );
 
-DROP TABLE IF EXISTS taxonomie.redlist;
+DROP TABLE IF EXISTS taxonomie.t_redlist;
 CREATE TABLE taxonomie.redlist
 (
     id_redlist   SERIAL  NOT NULL PRIMARY KEY,
@@ -407,17 +429,17 @@ insert into taxonomie.bib_redlist_source (name_source, area_code)
 select distinct liste_rouge_source, 'FR'
 from taxonomie.taxref_liste_rouge_fr;
 
-insert into taxonomie.bib_redlist_source(name_source, area_code)
-values ('Liste rouge mondiale des espèces menacées (2019.1)', 'WORLD'),
-       ('Liste rouge européenne des espèces menacées (2019.1)', 'EUROPE');
+insert into taxonomie.bib_redlist_source(name_source, area_code, area_name)
+values ('Liste rouge mondiale des espèces menacées (2019.1)', 'WORLD', 'Monde'),
+       ('Liste rouge européenne des espèces menacées (2019.1)', 'EUROPE', 'Europe');
 
-insert into taxonomie.redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
+insert into taxonomie.t_redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
 select ordre_statut, taxref.cd_nom, taxref.cd_ref, id_categorie_france, criteres_france, id_source
 from taxonomie.taxref_liste_rouge_fr
          join taxonomie.bib_redlist_source on liste_rouge_source = bib_redlist_source.name_source
          join taxonomie.taxref on taxref_liste_rouge_fr.cd_nom = taxref.cd_nom;
 
-insert into taxonomie.redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
+insert into taxonomie.t_redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
 select ordre_statut,
        taxref.cd_nom,
        taxref.cd_ref,
@@ -433,7 +455,7 @@ from taxonomie.taxref_liste_rouge_fr
 where length(categorie_lr_mondiale) > 0;
 
 
-insert into taxonomie.redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
+insert into taxonomie.t_redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
 select ordre_statut,
        taxref.cd_nom,
        taxref.cd_ref,

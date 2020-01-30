@@ -2,22 +2,26 @@ from flask import Blueprint, jsonify, redirect, url_for, request, current_app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
-from sqlalchemy import and_, or_, distinct, literal_column, select
-from sqlalchemy.sql import func, case
+from sqlalchemy import and_, or_, distinct
 from sqlalchemy.dialects.postgresql import aggregate_order_by
+from sqlalchemy.sql import func, case
 
+from app.core.env import DB
+from app.core.utils import (
+    get_nomenclature,
+    get_redlist_status,
+    redlist_is_not_null,
+    redlist_list_is_null,
+)
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.synthese import Synthese, CorAreaSynthese
 from app.models.taxonomy import (
     Taxref,
     TaxrefLR,
-    BibRedlistCategories,
     TaxrefProtectionEspeces,
 )
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
-from app.core.env import DB
-from app.core.utils import get_nomenclature
 
 api = Blueprint("api", __name__)
 
@@ -275,7 +279,7 @@ def get_taxa_list(id_area):
             .first()
             .id_nomenclature
         )
-
+        print("reproduction_id", reproduction_id)
         query_territory = (
             DB.session.query(
                 Taxref.cd_ref.label("id"),
@@ -314,7 +318,7 @@ def get_taxa_list(id_area):
                 func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
                     "bio_status_id"
                 ),
-                TaxrefLR.id_categorie_france.label("redlist_nat"),
+                # TaxrefLR.id_categorie_france.label("redlist_nat"),
                 case(
                     [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
                     else_=False,
@@ -325,16 +329,16 @@ def get_taxa_list(id_area):
             .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
             .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
             .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
-            .outerjoin(
-                BibRedlistCategories,
-                TaxrefLR.id_categorie_france == BibRedlistCategories.code_category,
-            )
+            # .outerjoin(
+            #     BibRedlistCategories,
+            #     TaxrefLR.id_categorie_france == BibRedlistCategories.code_category,
+            # )
             .outerjoin(
                 TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
             )
             .filter(LAreas.id_area == id_area)
             .group_by(
-                BibRedlistCategories.priority_order,
+                # BibRedlistCategories.priority_order,
                 LAreas.id_area,
                 LAreas.area_code,
                 Taxref.cd_ref,
@@ -342,29 +346,43 @@ def get_taxa_list(id_area):
                 Taxref.nom_valide,
                 Taxref.group1_inpn,
                 Taxref.group2_inpn,
-                TaxrefLR.id_categorie_france,
+                # TaxrefLR.id_categorie_france,
             )
             .order_by(
-                BibRedlistCategories.priority_order,
+                # BibRedlistCategories.priority_order,
                 func.count(distinct(Synthese.id_synthese)).desc(),
                 Taxref.group1_inpn,
                 Taxref.group2_inpn,
                 Taxref.nom_valide,
             )
         )
-        print(query_territory)
+        print("query_territory", query_territory)
         result = query_territory.all()
         count = len(result)
-        datas = []
+        data = []
         for r in result:
             dict = r._asdict()
             bio_status = []
             for s in r.bio_status_id:
                 bio_status.append(get_nomenclature(s))
                 dict["bio_status"] = bio_status
-                datas.append(dict)
+            redlist = get_redlist_status(r.cd_ref)
+            dict["redlist"] = redlist
+            data.append(dict)
 
-        return jsonify({"count": count, "datas": datas}), 200
+        redlistless_data = list(filter(redlist_list_is_null, data))
+        print("redlistless_data", len(redlistless_data))
+        redlist_data = list(filter(redlist_is_not_null, data))
+        print("redlist_data", len(redlist_data))
+        redlist_sorted_data = sorted(
+            redlist_data,
+            key=lambda k: (
+                k["redlist"][0]["priority_order"],
+                k["redlist"][0]["threatened"],
+            ),
+        )
+        sorted_data = redlist_sorted_data + list(redlistless_data)
+        return jsonify({"count": count, "data": sorted_data}), 200
 
     except Exception as e:
         current_app.logger.error("<get_taxa_list> ERROR: {}".format(e))

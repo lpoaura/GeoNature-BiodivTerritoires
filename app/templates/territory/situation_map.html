@@ -94,7 +94,7 @@
     // [Carte d'état des connaissances du territoire] <LEGENDE> :  Génère la liste des valeurs palier utilisées pour les classes de la carte de restitution par mailles, par type de représentation
     function areaGridDatasGrades(type) {
         var styleData = JSON.parse(styleStorage.getItem(type));
-        console.log('<Styledata>', styleData);
+        {#console.log('<Styledata>', styleData);#}
         grade = []
         for (var i = 0, size = styleData.length; i < size; i++) {
             var item = styleData[i];
@@ -137,7 +137,7 @@
     // [Carte d'état des connaissances du territoire] <POPUP> Affiche les données détaillées des mailles
     function areaGridPopup(feature, layer, type) {
         var keys = Object.keys(styleDesc);
-        console.log(type);
+        {#console.log(type);#}
         var dataResult = '';
         for (var i = 0; i < keys.length; i++) {
             dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
@@ -203,13 +203,13 @@
     select.onAdd = function () {
         var div = L.DomUtil.create('div', 'form-group form-group-sm');
         var keys = Object.keys(styleDesc);
-        console.log(keys);
+        {#console.log(keys);#}
         var options = '';
         for (var i = 0; i < keys.length; i++) {
-            console.log(keys[i], styleDesc[keys[i]].desc);
+            {#console.log(keys[i], styleDesc[keys[i]].desc);#}
             options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
         }
-        console.log('<options>', options)
+        {#console.log('<options>', options)#}
         div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="situationMapDatasSelect" name="title">'
             + options
             + '</select>';
@@ -222,7 +222,7 @@
     situationMap.invalidateSize();
 
     $(document).on('change', '#situationMapDatasSelect', function () {
-        console.log(this.value);
+        {#console.log(this.value);#}
         getGridArea(this.value, '#e5204e');
     });
 

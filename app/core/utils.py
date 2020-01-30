@@ -1,10 +1,11 @@
-from flask import current_app, flash
-
+from flask import current_app
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
-from shapely.geometry import asShape
-from app.core.env import DB
 from pypnnomenclature.models import TNomenclatures
+from shapely.geometry import asShape
+
+from app.core.env import DB
+from app.models.taxonomy import TRedlist, BibRedlistSource, BibRedlistCategories
 
 
 def geom_from_geojson(data):
@@ -66,3 +67,43 @@ def get_nomenclature(id_nomenclature):
         return nomenclature
     except Exception as e:
         current_app.logger.error("<get_nomenclature> ERROR: ", e)
+
+
+def get_redlist_status(cdref):
+    query = (
+        DB.session.query(
+            TRedlist.category,
+            TRedlist.criteria,
+            BibRedlistSource.context,
+            BibRedlistSource.area_name,
+            BibRedlistCategories.priority_order,
+            BibRedlistCategories.threatened,
+        )
+        .distinct()
+        .filter(TRedlist.cd_ref == cdref)
+        .join(BibRedlistSource, BibRedlistSource.id_source == TRedlist.id_source)
+        .join(
+            BibRedlistCategories,
+            BibRedlistCategories.code_category == TRedlist.category,
+        )
+        .order_by(BibRedlistSource.priority, BibRedlistCategories.priority_order)
+        .all()
+    )
+    list = []
+    for r in query:
+        list.append(r._asdict())
+    return list
+
+
+def redlist_list_is_null(item):
+    if len(item["redlist"]) == 0:
+        return True
+    else:
+        return False
+
+
+def redlist_is_not_null(item):
+    if len(item["redlist"]) > 0:
+        return True
+    else:
+        return False

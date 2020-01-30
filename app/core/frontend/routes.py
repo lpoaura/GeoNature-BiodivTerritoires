@@ -2,10 +2,10 @@ from flask import Blueprint, redirect, render_template, url_for, flash
 from sqlalchemy import and_
 
 import config
+from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
-from app.core.env import DB
 
 rendered = Blueprint("rendered", __name__)
 
