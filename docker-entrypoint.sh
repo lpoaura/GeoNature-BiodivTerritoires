@@ -42,4 +42,4 @@ sleep 2
 
 cd /app
 
-python -m run
+python -m wsgi
