@@ -6,13 +6,13 @@
     var situationMap = baseMap('situationMap');
 
     var styleDesc = {
-        'occtax': {
-            'color': '#3e05fc',
-            'desc': 'Nombre d\'observations'
-        },
         'taxa': {
             'color': '#bf01a6',
             'desc': 'Nombre de taxons'
+        },
+        'occtax': {
+            'color': '#3e05fc',
+            'desc': 'Nombre d\'observations'
         },
         'threatened': {
             'color': '#db0205',
@@ -218,14 +218,12 @@
     select.addTo(situationMap);
 
     getTerritoryArea();
-    getGridArea('occtax', '#e5204e');
+    getGridArea('taxa', '#bf01a6');
     situationMap.invalidateSize();
 
     $(document).on('change', '#situationMapDatasSelect', function () {
-        {#console.log(this.value);#}
-        getGridArea(this.value, '#e5204e');
+        getGridArea(this.value, '#bf01a6');
     });
-
 
 
 </script>

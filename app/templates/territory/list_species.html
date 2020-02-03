@@ -33,8 +33,6 @@
             </div>
             <div id="modalInfoBody" class="modal-body">
             </div>
-            <div id="modalInfoFooter" class="modal-footer">
-            </div>
         </div>
     </div>
 </div>
@@ -54,9 +52,14 @@
                         $('#modalInfoBody').html('Aucune protection');
                     } else {
                         for (var i = 0; i < itemsLength; i++) {
-                            tableContent += '<td><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
+                            tableContent += '<tr><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
                         }
-                        $('#modalInfoBody').html('<table class="table table-striped">' + tableContent + '</table>');
+                        $('#modalInfoBody').html('<table class="table table-striped table-hover"><thead class="thead-dark">'
+                            + '<tr>'
+                            + '<th>Statut</th>'
+                            + '<th>Article/Annexe</th>'
+                            + '</tr>'
+                            + '</thead>' + tableContent + '</table>');
                     }
 
                     // show modal
@@ -71,21 +74,31 @@
 
     $(document.body).on('click', "#redlistDetails", function () {
         var cdref = $(this).data("cdref");
-        axios.get('https://geonature.fauneauvergnerhonealpes.org/taxhub/api/taxref/' + cdref)
+        var nom_valide = $(this).data("nomvalide");
+        console.log('DAATTAA', $(this).data);
+        axios.get('/api/statut/taxa/' + cdref + '/redlist')
             .then(function (response) {
-                    $('#modalInfoTitle').html('Statuts de conservation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
+                    $('#modalInfoTitle').html('Statuts de conservation pour&nbsp;:&nbsp;<i>' + nom_valide);
                     var tableContent = '';
 
-                    var items = response.data.statuts_protection;
-                    console.log('isArray', Array.isArray(items));
+                    var items = response.data;
                     var itemsLength = items.length;
                     if (itemsLength == 0) {
                         $('#modalInfoBody').html('Aucune protection');
                     } else {
                         for (var i = 0; i < itemsLength; i++) {
-                            tableContent += '<td><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
+                            tableContent += '<tr ' + (items[i].threatened ? 'class="table-danger"' : '') + '>'
+                                + '<td>' + items[i].area_name + '</td>'
+                                + '<td class="text-center" style="background-color:var(--' + items[i].category.toLowerCase() + '-color)">' + items[i].category + (items[i].criteria ? '<br/><small><samp>' + items[i].criteria + '</samp></small>' : '') + '</td>'
+                                + '<td>' + (items[i].context ? items[i].context : '') + '</td></tr>';
                         }
-                        $('#modalInfoBody').html('<table class="table table-striped">' + tableContent + '</table>');
+                        $('#modalInfoBody').html('<table class="table table-striped table-hover"><thead class="thead-dark">'
+                            + '<tr>'
+                            + '<th>Emprise des statuts</th>'
+                            + '<th>Statut de conservation et critères</th>'
+                            + '<th>Contexte</th>'
+                            + '</tr>'
+                            + '</thead>' + tableContent + '</table>');
                     }
 
                     // show modal
@@ -131,8 +144,6 @@
         }
 
         var listSpeciesTable = $('#listSpeciesTable').DataTable({
-            {#processing: true,#}
-            {#serverSide: true,#}
             ajax: {
                 url: listSpecieTableDatas,
                 dataSrc: "data"
@@ -208,7 +219,7 @@
                     data: function (row) {
                         var protection = null;
                         if (row.redlist.length > 0) {
-                            protection = '<span id="redlistDetails" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation">' + row.redlist[0].category + '</span>';
+                            protection = '<span id="redlistDetails" data-nomvalide="' + row.nom_valide + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation">' + row.redlist[0].category + '</span>';
                         }
                         return protection;
                     }
@@ -217,7 +228,7 @@
                     data: function (row) {
                         var protection = '';
                         if (row.protection == true) {
-                            protection = '<i id="protectionDetails" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
+                            protection = '<i id="protectionDetails" data-nomvalide="' + row.nom_valide + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
                         }
                         return protection;
                     }

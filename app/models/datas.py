@@ -30,10 +30,11 @@ class TReleasedDatas(DB.Model):
     data_name = Column(String)
     data_type = relationship(BibDatasTypes, lazy="select")
     data_desc = Column(Text)
+    data_url = Column(String)
 
     def __str__():
         return self.data_name
 
 
-admin.add_view(ModelView(BibDatasTypes, DB.session))
-admin.add_view(ModelView(TReleasedDatas, DB.session))
+admin.add_view(ModelView(BibDatasTypes, DB.session, category="Données"))
+admin.add_view(ModelView(TReleasedDatas, DB.session, category="Données"))

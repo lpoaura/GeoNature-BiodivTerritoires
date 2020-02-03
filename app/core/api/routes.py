@@ -322,7 +322,6 @@ def get_taxa_list(id_area):
                 func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
                     "bio_status_id"
                 ),
-                # TaxrefLR.id_categorie_france.label("redlist_nat"),
                 case(
                     [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
                     else_=False,
@@ -333,16 +332,11 @@ def get_taxa_list(id_area):
             .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
             .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
             .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
-            # .outerjoin(
-            #     BibRedlistCategories,
-            #     TaxrefLR.id_categorie_france == BibRedlistCategories.code_category,
-            # )
             .outerjoin(
                 TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
             )
             .filter(LAreas.id_area == id_area)
             .group_by(
-                # BibRedlistCategories.priority_order,
                 LAreas.id_area,
                 LAreas.area_code,
                 Taxref.cd_ref,
@@ -350,10 +344,8 @@ def get_taxa_list(id_area):
                 Taxref.nom_valide,
                 Taxref.group1_inpn,
                 Taxref.group2_inpn,
-                # TaxrefLR.id_categorie_france,
             )
             .order_by(
-                # BibRedlistCategories.priority_order,
                 func.count(distinct(Synthese.id_synthese)).desc(),
                 Taxref.group1_inpn,
                 Taxref.group2_inpn,
@@ -389,5 +381,22 @@ def get_taxa_list(id_area):
         return jsonify({"count": count, "data": sorted_data}), 200
 
     except Exception as e:
-        current_app.logger.error("<get_taxa_list> ERROR: {}".format(e))
-        return {"Error": str(e)}, 400
+        error = "<get_taxa_list> ERROR: {}".format(e)
+        current_app.logger.error(error)
+        return {"Error": error}, 400
+
+
+@api.route("/statut/taxa/<int:cd_nom>/redlist", methods=["GET"])
+def get_redlist_taxa_status(cd_nom):
+    """
+
+    :param type:
+    :return:
+    """
+    try:
+        return jsonify(get_redlist_status(cd_nom))
+
+    except Exception as e:
+        error = "<get_redlist_taxa_status> ERROR: {}".format(e)
+        current_app.logger.error(error)
+        return {"Error": error}, 400

@@ -4,6 +4,7 @@ from sqlalchemy import and_
 import config
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.dynamic_content import TDynamicPages, BibDynamicPagesCategory
 from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 
@@ -26,13 +27,37 @@ def global_variables():
     values["site_desc"] = config.SITE_DESC
     values["default_grid"] = config.DEFAULT_GRID
     values["default_buffer"] = config.DEFAULT_BUFFER
-
+    values["special_pages"] = (
+        DB.session.query(TDynamicPages.link_name, TDynamicPages.url)
+        .filter(TDynamicPages.is_active == True)
+        .filter(TDynamicPages.url != None)
+        .all()
+    )
+    values["dynamic_pages"] = (
+        DB.session.query(TDynamicPages.link_name, TDynamicPages.id_page)
+        .filter(TDynamicPages.is_active == True)
+        .join(
+            BibDynamicPagesCategory,
+            BibDynamicPagesCategory.id_category == TDynamicPages.id_category,
+        )
+        .all()
+    )
     return values
 
 
 @rendered.route("/")
 def index():
     return render_template("home.html", name=config.SITE_NAME)
+
+
+@rendered.route("/<string:url>")
+def special_pages(url):
+    """
+
+    :return:
+    """
+    page = TDynamicPages.query.filter(TDynamicPages.url == url).one()
+    return render_template("dynamic_page.html", page=page)
 
 
 @rendered.route("/datas")
@@ -44,6 +69,7 @@ def datas():
         TReleasedDatas.data_desc,
         TReleasedDatas.data_name,
         TReleasedDatas.data_type,
+        TReleasedDatas.data_url,
     ).join(
         TReleasedDatas, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True
     )

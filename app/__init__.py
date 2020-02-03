@@ -2,7 +2,7 @@
 from flask import Flask, render_template
 
 import config
-from app.core.env import create_schemas, DB, assets, admin
+from app.core.env import create_schemas, DB, assets, admin, ckeditor
 
 
 # Import SQLAlchemy
@@ -16,7 +16,7 @@ def create_app():
         static_folder="static",
         template_folder="templates",
     )
-
+    app.secret_key = config.SECRET_KEY
     # Configurations
     try:
         app.config.from_object(config)
@@ -30,6 +30,7 @@ def create_app():
     DB.init_app(app)
     assets.init_app(app)
     admin.init_app(app)
+    ckeditor.init_app(app)
 
     # pass parameters to the usershub authenfication sub-module, DONT CHANGE THIS
     app.config["DB"] = DB
