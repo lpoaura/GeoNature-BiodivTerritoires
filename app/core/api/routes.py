@@ -452,9 +452,22 @@ def get_data_over_year(id_area):
         for r in results:
             years.append(r.year)
         print("YEARS", years)
-        years = list(set(years)).sort()
+        years = list(set(years))
+        years.sort()
         for year in years:
             print(year)
+            dataset = {}
+            for r in results:
+                print(r)
+                print(r.year == year)
+                if r.year == year:
+                    print()
+                    dataset[r.group2_inpn] = []
+                    dataset[r.group2_inpn].append(r.count_occtax)
+            data.append(dataset)
+
+        print(data)
+        return jsonify(data)
 
     except Exception as e:
         error = "<get_data_over_year> ERROR: {}".format(e)
