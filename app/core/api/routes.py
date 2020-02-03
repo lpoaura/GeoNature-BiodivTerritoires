@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, redirect, url_for, request, current_app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
-from sqlalchemy import and_, or_, distinct, extract
+from sqlalchemy import and_, or_, distinct
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.sql import func, case
 
@@ -90,6 +90,26 @@ def redirect_area(id_area):
         )
     except Exception as e:
         current_app.logger.error("<redirect_area> ERROR:", e)
+
+
+@api.route("/homestats")
+def home_stats():
+    """
+
+    :return:
+    """
+    try:
+        query = DB.session.query(
+            func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+            func.count(Synthese.id_synthese).label("count_occtax"),
+            func.count(distinct(Synthese.cd_nom)).label("count_taxa"),
+            func.count(distinct(Synthese.observers)).label("count_observers"),
+        )
+        result = query.one()
+        return jsonify(result._asdict())
+    except Exception as e:
+        current_app.logger.error("<main_area_info> ERROR:", e)
+        return {"Error": str(e)}, 400
 
 
 @api.route("/<type_code>/<area_code>")

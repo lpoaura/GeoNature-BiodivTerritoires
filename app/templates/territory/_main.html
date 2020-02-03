@@ -6,33 +6,35 @@
     <div id="territorySynthesis" class="container-fluid">
         <div class="row mt-2">
             <div class="col">
-                <h1 class="d-inline-block">{{ area_info.area_name }} ({{ area_info.area_code }})</h1><span
+                <h1 class="d-inline-block"><i class="fas fa-map-marked-alt fa-fw"></i>{{ area_info.area_name }}
+                    ({{ area_info.area_code }})</h1><span
                     class="badge badge-primary align-top">{{ area_info.type_name }}</span>
                 {#                <span>{{ area_info.id_area }}</span>#}
             </div>
         </div>
-        <div id="genstats" class="row mt-2 text-center">
+        <div id="genstats" class="row mt-2 text-center bg-info text-white">
             {% include "territory/gen_stats.html" %}
         </div>
         <div class="row mt-2">
-            <div class="col-lg-12">
-                <h2><span class="title"><i class="fa fa-list"></i> Territoires associés (recouvrement ou limitrophes)</span></h2>
+            <div class="col">
+                <h2><i class="fa fa-map-signs fa-fw"></i> Territoires associés (recouvrement ou limitrophes)
+                </h2>
             </div>
             {% include "territory/surrounding_areas.html" %}
         </div>
-        <div class="row mt-2">
-            <div class="col-lg-12">
-                <h2><span class="title"><i class="glyphicon-facetime-video"></i> Etat des connaissances</span></h2>
+        <div class="row mt-2 mb-2">
+            <div class="col col-lg-12">
+                <h2><span class="title"><i class="fa fa-chart-line fa-fw"></i> Etat des connaissances</span></h2>
             </div>
-            <div class="col col-md-6">
+            <div class="col col-md-6 col-sm-12">
                 {% include "territory/situation_map.html" %}
             </div>
-            <div class="col col-md-6">
+            <div class="col col-md-6 col-sm-12">
                 {% include "territory/charts.html" %}
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col col-md-12">
+            <div class="col">
                 {% include "territory/list_species.html" %}
             </div>
         </div>

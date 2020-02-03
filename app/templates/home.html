@@ -1,4 +1,6 @@
 {% extends "core/layout.html" %} {% block title %}Accueil{% endblock %} {% block head %} {{ super() }}
+
+{% endblock %} {% block content %}
     <style type="text/css">
         /*
          * Base structure
@@ -10,10 +12,18 @@
             background-position: 50% 50%;
             background-attachment: fixed;
             background-size: cover;
-            background: url({{ url_for('static', filename='custom/images/home-background.jpg')}});
         }
 
-        /* Paragrapgh for Parallax Section */
+        /* Header Parallax Element Style*/
+        .paral {
+            min-height: 600px;
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: 50% 50%;
+        }
+
+
+        /* Paragraph for Parallax Section */
         .paral p {
             font-size: 24px;
             color: #f5f5f5;
@@ -26,19 +36,33 @@
             color: rgba(255, 255, 255, 0.8);
             font-size: 60px;
             text-align: center;
-            padding-top: 70px;
-            line-height: 70px;
+            padding-top: 60px;
+            line-height: 100px;
         }
 
-
+        /* Remove Bottom Margin from Jumbotron */
         .jumbotron {
-            margin-bottom: 0;
-            border-radius: 0;
+            margin-bottom: 0px;
+            border-radius: 0px;
         }
 
 
+        .paralsec {
+            background-image: url({{ url_for('static', filename='custom/images/home-background.jpg')}});
+        }
+
+        .paralsec1 {
+            background-image: url("https://img.webnots.com/2017/05/parallax1.jpg");
+        }
+
+        .paralsec2 {
+            background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
+        }
+
+        #homeStats{
+            color: rgba(255, 255, 255, 0.8);
+        }
     </style>
-{% endblock %} {% block content %}
     <!-- First Parallax Section -->
     <div class="jumbotron paral paralsec">
         <div class="container">
@@ -49,5 +73,60 @@
             </p>
         </div>
     </div>
+    <div class="jumbotron paral paralsec1">
+        <div class="container">
+            <h1 class="display-3">Données de la plateforme</h1>
+            <div id="homeStats" class="row text-center lead">
+                <div class="col">
+                    <div class="count" id="countOcctax">0</div>
+                    <div class="subject">Observations</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countTaxa">0</div>
+                    <div class="subject">Taxons</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countObservers">0</div>
+                    <div class="subject">Observateurs</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countDatasets">0</div>
+                    <div class="subject">Jeux de données</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="jumbotron paral paralsec2">
+        <div class="container">
+            <h1 class="display-3">Partenaires</h1>
+            <p class="lead">{{ site_desc|safe }}</p>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        var countUpUpdate = function (element, data) {
+            {#new CountUp('element', data);#}
+            console.log(element, data);
+            document.getElementById(element).innerText = data
+        };
+
+
+        var getStats = function () {
+            axios.get('/api/homestats')
+                .then(function (response) {
+                    console.log(response);
+                    countUpUpdate('countOcctax', response.data['count_occtax']);
+                    countUpUpdate('countDatasets', response.data['count_dataset']);
+                    countUpUpdate('countObservers', response.data['count_observers']);
+                    countUpUpdate('countTaxa', response.data['count_taxa']);
+                })
+                .catch(function (error) {
+                    console.log('<get GenStats error>', error);
+                })
+        };
+        getStats()
+
+    </script>
 
 {% endblock %}
