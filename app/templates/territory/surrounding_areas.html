@@ -1,0 +1,67 @@
+<div class="col col-md-12">
+
+    <div class="table-responsive table-responsive-sm">
+        <table id="surroundingAreasTable" class="table table-striped table-hover table-sm">
+            <thead class="thead-dark">
+            <tr>
+                <th><i class="fas fa-plus-circle"></i></th>
+                <th>Type</th>
+                <th>Code</th>
+                <th>Nom</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for a in surrounding_areas %}
+                <tr data-typecode="{{ a.type_code.lower() }}" data-areacode="{{ a.area_code }}">
+                    <td>
+                        <a data-toggle="tooltip" href="{{ url_for('rendered.territory', type_code=a.type_code.lower(), area_code=a.area_code ) }}" title="Voir la fiche de ce territoire"><i
+                                class="fa fa-link"></i></a></td>
+                    <td>{{ a.type_name }}</td>
+                    <td><strong>{{ a.area_code }}</strong></td>
+                    <td>{{ a.area_name }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{#<div class="col col-md-6">#}
+{#    <div id="surroundingAreasMap" class="card"></div>#}
+{#</div>#}
+<script>
+    var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
+        scrollY: '300px',
+        scrollCollapse: true,
+        paging: false,
+    });
+    var surroundingAreasMap = baseMap('surroundingAreasMap');
+
+    var surroundingArea = null;
+    {##}
+    {#$('#surroundingAreasTable').on('click', 'tr', function () {#}
+    {#    type_code = $(this).data("typecode");#}
+    {#    area_code = $(this).data("areacode");#}
+    {#    console.log(surroundingAreasMap.hasLayer(surroundingArea));#}
+    {#    if (surroundingAreasMap.hasLayer(surroundingArea)) {#}
+    {#        console.log('removeLayer');#}
+    {#        surroundingAreasMap.removeLayer(surroundingArea);#}
+    {#    };#}
+    {#    axios#}
+    {#        .get('/api/geom/' + type_code + '/' + area_code)#}
+    {#        .then(function (response) {#}
+    {#            var surroundingArea = L.geoJson(response.data, {#}
+    {#                style: territoryStyle#}
+    {#            });#}
+    {#            surroundingAreasMap.addLayer(surroundingArea);#}
+    {#            surroundingAreasMap.flyToBounds(surroundingArea.getBounds());#}
+    {##}
+    {#        })#}
+    {#        .catch(function (error) {#}
+    {#            console.log('<getTerritoryArea> Error', error);#}
+    {#        });#}
+    {#})
+    ;
+    #}
+
+
+</script>

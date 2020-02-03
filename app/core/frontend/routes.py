@@ -1,12 +1,15 @@
 from flask import Blueprint, redirect, render_template, url_for, flash
-from sqlalchemy import and_
+from sqlalchemy import and_, not_
+from sqlalchemy.sql import func, case
 
 import config
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import TDynamicPages, BibDynamicPagesCategory
-from app.models.ref_geo import BibAreasTypes, LAreas
+from app.models.ref_geo import BibAreasTypes, LAreas, LAreasTypeSelection
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
+import re
+
 
 rendered = Blueprint("rendered", __name__)
 
@@ -30,18 +33,40 @@ def global_variables():
     values["special_pages"] = (
         DB.session.query(TDynamicPages.link_name, TDynamicPages.url)
         .filter(TDynamicPages.is_active == True)
+        .filter(TDynamicPages.navbar_link == True)
         .filter(TDynamicPages.url != None)
+        .order_by(TDynamicPages.navbar_link_order.asc())
         .all()
     )
-    values["dynamic_pages"] = (
-        DB.session.query(TDynamicPages.link_name, TDynamicPages.id_page)
-        .filter(TDynamicPages.is_active == True)
+
+    categories = (
+        DB.session.query(
+            BibDynamicPagesCategory.category_name, BibDynamicPagesCategory.category_desc
+        )
         .join(
-            BibDynamicPagesCategory,
-            BibDynamicPagesCategory.id_category == TDynamicPages.id_category,
+            TDynamicPages,
+            TDynamicPages.id_category == BibDynamicPagesCategory.id_category,
         )
         .all()
     )
+
+    dynamic_pages = []
+    for c in categories:
+        c_content = c._asdict()
+        c_content["pages"] = []
+        pages = (
+            DB.session.query(
+                TDynamicPages.link_name,
+                TDynamicPages.id_category,
+                TDynamicPages.link_name,
+            )
+            .filter(TDynamicPages.id_category == c.id_category)
+            .all()
+        )
+        for p in pages:
+            c_content["pages"].append(p._asdict())
+
+    values["dynamic_pages"] = dynamic_pages
     return values
 
 
@@ -56,7 +81,7 @@ def special_pages(url):
 
     :return:
     """
-    page = TDynamicPages.query.filter(TDynamicPages.url == url).one()
+    page = TDynamicPages.query.filter(TDynamicPages.url == url).first()
     return render_template("dynamic_page.html", page=page)
 
 
@@ -77,7 +102,7 @@ def datas():
     return render_template("datas.html", datas=datas)
 
 
-@rendered.route("/territory/<type_code>/<area_code>")
+@rendered.route("/territory/<string:type_code>/<string:area_code>")
 def territory(type_code, area_code):
     """
     """
@@ -109,15 +134,47 @@ def territory(type_code, area_code):
         legend_dict = {}
         for type in DB.session.query(MVAreaNtileLimit.type).distinct():
             legend_dict[type[0]] = get_legend_classes(type)
-        print("legend_dict", legend_dict)
-        print(gen_stats)
+
+        geom_area = (
+            DB.session.query(func.ST_Buffer(LAreas.geom, 1000).label("geom"))
+            .filter(LAreas.id_area == area_info.id_area)
+            .first()
+        )
+        # re_grid_codes = r"M(\d+)"
+
+        q_surrouding_areas = (
+            DB.session.query(
+                BibAreasTypes.type_code,
+                BibAreasTypes.type_name,
+                BibAreasTypes.type_desc,
+                LAreas.id_area,
+                LAreas.area_name,
+                LAreas.area_code,
+            )
+            .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+            .join(
+                LAreasTypeSelection,
+                LAreasTypeSelection.id_type == BibAreasTypes.id_type,
+            )
+            .filter(
+                and_(
+                    LAreas.geom.ST_Intersects(geom_area.geom),
+                    LAreas.id_area != area_info.id_area,
+                )
+            )
+        )
+        print(q_surrouding_areas)
+        surrounding_areas = q_surrouding_areas.all()
+
         return render_template(
             "territory/_main.html",
             area_info=area_info,
             gen_stats=gen_stats,
             legend_dict=legend_dict,
+            surrounding_areas=surrounding_areas,
         )
+
     except Exception as e:
-        flash("Aucune donnée pour ce territoire")
+        flash("Erreur: {}".format(e))
         print("<territory> ERROR: ", e)
         return redirect(url_for("rendered.index"))

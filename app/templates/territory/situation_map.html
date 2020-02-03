@@ -1,9 +1,8 @@
-<div id="situationMap" class="card">
+<div id="datasMap" class="card">
 </div>
-<script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
 <script>
 
-    var situationMap = baseMap('situationMap');
+    var datasMap = baseMap('datasMap');
 
     var styleDesc = {
         'taxa': {
@@ -28,20 +27,13 @@
         }
     };
 
-    var situationMapValues = {
+    var datasMapValues = {
         'baseLayerType': 'carte',
         'rendered_color': null,
         'areaGridDatas': null,
         'areaGridLegend': null
     };
 
-
-    var territoryStyle = {
-        "color": "#ea09b9",
-        "weight": 3,
-        "opacity": 0.65,
-        "fillOpacity": 0
-    };
 
     var styleStorage = window.localStorage;
 
@@ -84,8 +76,8 @@
         var styleCondition = JSON.parse(styleStorage.getItem(type));
         for (var i = 0; i < styleCondition.length; i++) {
             if (data >= styleCondition[i].min && data < styleCondition[i].max) {
-                situationMap.rendered_color = '#' + colorGradiant[i];
-                return situationMap.rendered_color;
+                datasMap.rendered_color = '#' + colorGradiant[i];
+                return datasMap.rendered_color;
             }
             ;
         }
@@ -113,7 +105,7 @@
                 var situationObject = L.geoJson(response.data, {
                     style: territoryStyle
                 });
-                situationObject.addTo(situationMap).bringToBack();
+                situationObject.addTo(datasMap).bringToBack();
             })
             .catch(function (error) {
                 console.log('<getTerritoryArea> Error', error);
@@ -151,26 +143,26 @@
         axios
             .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
             .then(function (response) {
-                    if (situationMapValues.areaGridDatas !== null) {
-                        situationMap.removeLayer(situationMapValues.areaGridDatas);
+                    if (datasMapValues.areaGridDatas !== null) {
+                        datasMap.removeLayer(datasMapValues.areaGridDatas);
                     }
                     ;
-                    if (situationMapValues.areaGridLegend !== null) {
-                        situationMap.removeControl(situationMapValues.areaGridLegend);
+                    if (datasMapValues.areaGridLegend !== null) {
+                        datasMap.removeControl(datasMapValues.areaGridLegend);
                     }
                     ;
-                    situationMapValues.areaGridDatas = L.geoJson(response.data, {
+                    datasMapValues.areaGridDatas = L.geoJson(response.data, {
                         style: function (feature) {
                             return areaGridStyle(feature, type, styleDesc[type].color)
                         }, onEachFeature: function (feature, layer) {
                             areaGridPopup(feature, layer, type)
                         }
                     });
-                    situationMapValues.areaGridDatas.addTo(situationMap);
-                    situationMapValues.areaGridLegend = L.control({
+                    datasMapValues.areaGridDatas.addTo(datasMap);
+                    datasMapValues.areaGridLegend = L.control({
                         position: 'bottomright'
                     });
-                    situationMapValues.areaGridLegend.onAdd = function () {
+                    datasMapValues.areaGridLegend.onAdd = function () {
                         var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
                         var grades = areaGridDatasGrades(type);
                         div.innerHTML += '<strong>' + styleDesc[type].desc + '</strong><br/>';
@@ -183,11 +175,11 @@
                         }
                         return div
                     };
-                    situationMapValues.areaGridLegend.addTo(situationMap);
-                    situationMap.invalidateSize();
-                    situationMap.fitBounds(situationMapValues.areaGridDatas.getBounds());
-                    situationMap.setMaxBounds(situationMapValues.areaGridDatas.getBounds());
-                    situationMapValues.areaGridDatas.bringToFront();
+                    datasMapValues.areaGridLegend.addTo(datasMap);
+                    datasMap.invalidateSize();
+                    datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
+                    datasMap.setMaxBounds(datasMapValues.areaGridDatas.getBounds());
+                    datasMapValues.areaGridDatas.bringToFront();
                 }
             )
             .catch(function (error) {
@@ -210,18 +202,18 @@
             options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
         }
         {#console.log('<options>', options)#}
-        div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="situationMapDatasSelect" name="title">'
+        div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="datasMapDatasSelect" name="title">'
             + options
             + '</select>';
         return div
     };
-    select.addTo(situationMap);
+    select.addTo(datasMap);
 
     getTerritoryArea();
     getGridArea('taxa', '#bf01a6');
-    situationMap.invalidateSize();
+    datasMap.invalidateSize();
 
-    $(document).on('change', '#situationMapDatasSelect', function () {
+    $(document).on('change', '#datasMapDatasSelect', function () {
         getGridArea(this.value, '#bf01a6');
     });
 

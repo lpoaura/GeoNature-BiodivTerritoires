@@ -45,9 +45,12 @@ def create_app():
         from app.core.frontend.routes import rendered
         from pypnusershub.routes import routes as users_routes
         from pypnnomenclature.routes import routes as nom_routes
+        from app.core.utils import create_special_pages
 
         create_schemas(DB)
         DB.create_all()
+
+        create_special_pages()
 
         # Register blueprint(s)
         app.register_blueprint(rendered)

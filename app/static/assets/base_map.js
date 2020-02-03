@@ -22,7 +22,7 @@ var baseLayers = {
                 tileSize: 256 // les tuiles du Géooportail font 256x256px
             }
         ), image: '/static/images/ortho.png'
-        , title: 'Orthopotographie'
+        , title: 'Orthophotographie'
     },
     'polllum': {
         layer: L.tileLayer.wms('https://bdd.fauneauvergnerhonealpes.org/geoserver/opendata/wms?',
@@ -63,7 +63,7 @@ baseLayerControl = L.control({position: 'bottomleft'});
 baseLayerControl.onAdd = function () {
     var div = L.DomUtil.create('div', 'base_layer_control');
     keys = Object.keys(baseLayers);
-    options =  '';
+    options = '';
     for (var i = 0; i < keys.length; i++) {
         console.log(keys[i], baseLayers[keys[i]].desc);
         options = options + '<option value="' + keys[i] + '">' + baseLayers[keys[i]].title + '</option>'
@@ -74,7 +74,6 @@ baseLayerControl.onAdd = function () {
         + '</select>';
     return div
 };
-
 
 
 // [Carte d'état des connaissances du territoire] <FOND DE CARTE> : Switch du fond : carte vs ortho
@@ -116,5 +115,12 @@ function baseMap(idAttr) {
 
     return map
 
-
 }
+
+
+var territoryStyle = {
+    "color": "#ea09b9",
+    "weight": 3,
+    "opacity": 0.65,
+    "fillOpacity": 0
+};

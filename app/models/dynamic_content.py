@@ -1,6 +1,6 @@
 # coding: utf-8
 from datetime import datetime
-
+from flask import current_app
 from flask_admin.contrib.sqla import ModelView
 from flask_ckeditor import CKEditorField
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime, Boolean
@@ -13,7 +13,7 @@ from app.core.env import DB
 @serializable
 class BibDynamicPagesCategory(DB.Model):
     __tablename__ = "bib_dynamic_pages_category"
-    __table_args__ = {"schema": "gn_biodivterritory"}
+    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
 
     id_category = Column(Integer, primary_key=True)
     category_name = Column(String)
@@ -23,7 +23,7 @@ class BibDynamicPagesCategory(DB.Model):
 @serializable
 class TDynamicPages(DB.Model):
     __tablename__ = "t_dynamic_pages"
-    __table_args__ = {"schema": "gn_biodivterritory"}
+    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
 
     id_page = Column(Integer, primary_key=True)
     id_category = Column(
@@ -31,6 +31,8 @@ class TDynamicPages(DB.Model):
     )
     title = Column(String)
     link_name = Column(String, unique=True)
+    navbar_link = Column(Boolean)
+    navbar_link_order = Column(Integer)
     url = Column(String, unique=True)
     short_desc = Column(String)
     ts_create = Column(DateTime, default=datetime.now())

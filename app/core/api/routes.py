@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, redirect, url_for, request, current_app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
-from sqlalchemy import and_, or_, distinct
+from sqlalchemy import and_, or_, distinct, extract
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.sql import func, case
 
@@ -398,5 +398,70 @@ def get_redlist_taxa_status(cd_nom):
 
     except Exception as e:
         error = "<get_redlist_taxa_status> ERROR: {}".format(e)
+        current_app.logger.error(error)
+        return {"Error": error}, 400
+
+
+#
+# @api.route("/charts/synthesis/spatial/<int:id_area>")
+# def get_territory_spatial_synthesis(id_area):
+#     """
+#
+#     :param id_area:
+#     :return:
+#     """
+#     pass
+
+
+@api.route("/charts/synthesis/spatial/<int:id_area>")
+def get_data_over_year(id_area):
+    """
+
+    :param id_area:
+    :return:
+    """
+    try:
+        # q_taxo_group = (
+        #     DB.session.query(Taxref.group2_inpn.distinct())
+        #     .select_from(CorAreaSynthese)
+        #     .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+        #     .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
+        #     .filter(CorAreaSynthese.id_area == id_area)
+        # )
+        # for g in q_taxo_group.all():
+
+        query = (
+            DB.session.query(
+                Taxref.group2_inpn,
+                func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+                func.extract("year", Synthese.date_min).label("year"),
+                func.count(distinct(Synthese.date_min)).label("count_date"),
+                func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+            )
+            .select_from(CorAreaSynthese)
+            .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
+            .filter(CorAreaSynthese.id_area == id_area)
+            .group_by(Taxref.group2_inpn, func.extract("year", Synthese.date_min))
+            .order_by(func.extract("year", Synthese.date_min), Taxref.group2_inpn,)
+        )
+        print("QUERY", query)
+        results = query.all()
+        data = []
+        years = []
+        for r in results:
+            years.append(results.year)
+        years = list(set(years)).sort()
+        for year in years:
+            dataset = {}
+            for r in results:
+                if r.year == year:
+                    dataset[r.group2_inpn] = r.count_occtax
+
+        print(data)
+        return jsonify(data)
+
+    except Exception as e:
+        error = "<get_data_over_year> ERROR: {}".format(e)
         current_app.logger.error(error)
         return {"Error": error}, 400

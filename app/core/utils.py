@@ -6,6 +6,7 @@ from shapely.geometry import asShape
 
 from app.core.env import DB
 from app.models.taxonomy import TRedlist, BibRedlistSource, BibRedlistCategories
+from app.models.dynamic_content import TDynamicPages
 
 
 def geom_from_geojson(data):
@@ -107,3 +108,41 @@ def redlist_is_not_null(item):
         return True
     else:
         return False
+
+
+def create_special_pages():
+    pages = [
+        {
+            "url": "about",
+            "link_name": "A propos",
+            "navbar_link": True,
+            "navbar_link_order": 1,
+            "is_active": True,
+        },
+        {
+            "url": "contact",
+            "link_name": "Contact",
+            "navbar_link": True,
+            "navbar_link_order": 2,
+            "is_active": True,
+        },
+        {
+            "url": "credits",
+            "link_name": "Crédits",
+            "navbar_link": False,
+            "is_active": True,
+        },
+        {
+            "url": "mentions-legales",
+            "link_name": "Mentions légales",
+            "navbar_link": False,
+            "is_active": True,
+        },
+    ]
+
+    for p in pages:
+        if len(TDynamicPages.query.filter(TDynamicPages.url == p["url"]).all()) == 0:
+            page = TDynamicPages(**p)
+            DB.session.add(page)
+
+    DB.session.commit()

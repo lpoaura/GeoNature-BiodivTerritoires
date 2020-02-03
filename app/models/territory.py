@@ -1,4 +1,5 @@
 from app.core.env import DB
+from flask import current_app
 from sqlalchemy import Column, Integer, String, Date
 from geoalchemy2 import Geometry
 import config
@@ -10,7 +11,7 @@ from utils_flask_sqla_geo.serializers import geoserializable
 @geoserializable
 class MVTerritoryGeneralStats(DB.Model):
     __tablename__ = "mv_territory_general_stats"
-    __table_args__ = {"schema": "gn_biodivterritory"}
+    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
     id_area = Column(Integer, primary_key=True)
     type_code = Column(String, nullable=False)
     area_code = Column(String)
@@ -34,7 +35,7 @@ class MVTerritoryGeneralStats(DB.Model):
 @serializable
 class MVAreaNtileLimit(DB.Model):
     __tablename__ = "mv_area_ntile_limit"
-    __table_args__ = {"schema": "gn_biodivterritory"}
+    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
     id = Column(Integer, unique=True, primary_key=True)
     type = Column(String, nullable=False)
     min = Column(Integer, nullable=False)
