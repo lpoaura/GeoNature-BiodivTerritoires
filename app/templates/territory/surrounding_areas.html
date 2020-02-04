@@ -49,6 +49,14 @@
                     "sSortDescending": ": activer pour trier la colonne par ordre décroissant"
                 },
             },
+            dom: 'Bftrp',
+            buttons: {
+                buttons: [
+                    {extend: 'copy', className: 'btn btn-info'},
+                    {extend: 'csvHtml5', className: 'btn btn-info'},
+                    {extend: 'pdf', className: 'btn btn-info'},
+                ]
+            },
             columns: [
                 {
                     data: function (row) {
