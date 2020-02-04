@@ -3,18 +3,15 @@
 {% endblock %} {% block content %}
 
     <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
-    <div id="territorySynthesis" class="container-fluid">
-        <div class="row mt-2">
-            <div class="col">
-                <h1 class="d-inline-block"><i class="fas fa-map-marked-alt fa-fw"></i>{{ area_info.area_name }}
-                    ({{ area_info.area_code }})</h1><span
-                    class="badge badge-primary align-top">{{ area_info.type_name }}</span>
-                {#                <span>{{ area_info.id_area }}</span>#}
+    <div class="jumbotron paral paralsec">
+        <div class="container-fluid">
+            <h1 class="display-3">{{ area_info.type_name }} : {{ area_info.area_name }} ({{ area_info.area_code }})</h1>
+            <div id="homeStats" class="row text-center lead">
+                {% include "territory/gen_stats.html" %}
             </div>
         </div>
-        <div id="genstats" class="row mt-2 text-center bg-info text-white">
-            {% include "territory/gen_stats.html" %}
-        </div>
+    </div>
+    <div id="territorySynthesis" class="container-fluid">
         <div class="row mt-2">
             <div class="col">
                 <h2><i class="fa fa-map-signs fa-fw"></i> Territoires associés (recouvrement ou limitrophes)

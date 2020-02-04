@@ -4,6 +4,58 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
+/*
+ * Base structure
+ */
+
+/* Header Parallax Element Style*/
+.paral {
+    height: 600px;
+    background-position: 50% 50%;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+
+/* Paragraph for Parallax Section */
+.paral p {
+    font-size: 24px;
+    color: #f5f5f5;
+    text-align: center;
+    line-height: 60px;
+}
+
+/* Heading for Parallax Section */
+.paral h1 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 60px;
+    text-align: center;
+    padding-top: 60px;
+    line-height: 100px;
+}
+
+/* Remove Bottom Margin from Jumbotron */
+.jumbotron {
+    margin-bottom: 0px;
+    border-radius: 0px;
+}
+
+.paralsec {
+    background-image: url('/static/custom/images/home-background.jpg');
+}
+
+.paralsec1 {
+    background-image: url("https://img.webnots.com/2017/05/parallax1.jpg");
+}
+
+.paralsec2 {
+    background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
+}
+
+#homeStats {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 #surroundingAreasMap {
     min-height: 400px;
     height: 400px;
@@ -27,7 +79,7 @@
 }
 
 #genstats .subject {
-    font-size: 1rem;
+    font-size: 0.8rem;
 }
 
 #homeStats .count {
