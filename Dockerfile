@@ -11,7 +11,7 @@ RUN apt-get update && apt-get -y upgrade && \
 
 
 RUN apt-get update && \
-        apt-get install -y postgresql-client gcc libgeos-dev 
+        apt-get install -y postgresql-client gcc libgeos-dev git libpq-dev python-dev build-essential
 
 COPY requirements.txt /app
 

@@ -1,13 +1,19 @@
 {% extends "core/layout.html" %} {% block title %}Territoire{% endblock %} {% block head %} {{ super() }}
-<style type="text/css">
 
-</style>
 {% endblock %} {% block content %}
-<div class="container">
-    <div class="row">
-        <h1>Erreur 404</h1>
-        <h2>page non trouvée</h2>
+    <style type="text/css">
+    .paral {
+        height: 100vh;
+    }
+</style>
+        <div class="jumbotron paral paralsec">
+        <div class="container">
+            <h1 class="display-3">Erreur 404</h1>
+            <p class="lead">page non trouvée</p>
+            <p class="lead">
+                {% include "core/search_territory.html" %}
+            </p>
+        </div>
     </div>
-</div>
 
 {% endblock %}

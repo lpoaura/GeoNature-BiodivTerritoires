@@ -1,3 +1,4 @@
 #!/bin/bash
+echo "$(pwd)"
 source venv/bin/activate
-gunicorn app:app
+python -m wsgi

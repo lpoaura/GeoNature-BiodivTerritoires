@@ -9,13 +9,23 @@
  */
 
 /* Header Parallax Element Style*/
-.paral {
-    height: 600px;
-    background-position: 50% 50%;
-    background-attachment: fixed;
-    background-size: cover;
+@media (max-width: 768px) {
+    .paral {
+        height: 100vh;
+        background-position: 50% 50%;
+        background-attachment: fixed;
+        background-size: cover;
+    }
 }
 
+@media (min-width: 768px) {
+    .paral {
+        height: 600px;
+        background-position: 50% 50%;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+}
 
 /* Paragraph for Parallax Section */
 .paral p {
@@ -155,3 +165,80 @@
     }
 }
 
+#loading {
+    color: transparent;
+}
+
+.loading-text {
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5%;
+    color: var(--light);
+}
+
+.loader-1 {
+    /* border: 1px solid #eeeeee; */
+    border-top: 1px solid var(--info);
+    border-radius: 50%;
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+    margin-top: -40px;
+    margin-left: -40px;
+    width: 80px;
+    height: 80px;
+    animation: spin 5s linear infinite;
+    z-index: 999;
+}
+
+.loader-2 {
+    /* border: 1px solid #eeeeee; */
+    border-top: 1px solid var(--info);
+    border-radius: 50%;
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+    margin-top: -30px;
+    margin-left: -30px;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+    animation-direction: reverse;
+    z-index: 999;
+}
+
+.loader-3 {
+    /* border: 1px solid #eeeeee; */
+    border-top: 1px solid var(--info);
+    border-radius: 50%;
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+    margin-top: -20px;
+    margin-left: -20px;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    z-index: 999;
+}
+
+.loader-icon {
+    color: var(--primary);
+    /* position: absolute !important; */
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

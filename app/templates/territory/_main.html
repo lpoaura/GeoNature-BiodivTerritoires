@@ -1,11 +1,10 @@
 {% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
 {% block head %} {{ super() }}
 {% endblock %} {% block content %}
-
     <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
     <div class="jumbotron paral paralsec">
         <div class="container-fluid">
-            <h1 class="display-3">{{ area_info.type_name }} : {{ area_info.area_name }} ({{ area_info.area_code }})</h1>
+            <h1 class="display-3">{{ area_info.area_name }}</h1>
             <div id="homeStats" class="row text-center lead">
                 {% include "territory/gen_stats.html" %}
             </div>
@@ -19,6 +18,15 @@
             </div>
             {% include "territory/surrounding_areas.html" %}
         </div>
+        <div class="row mt-2">
+            <div class="col">
+                <h2><i class="fa fa-info fa-fw"></i> Espèces menacées du territoire</h2>
+            </div>
+            <div class="row">
+                {% include "territory/threatenedSpecies.html" %}
+            </div>
+        </div>
+
         <div class="row mt-2 mb-2">
             <div class="col col-lg-12">
                 <h2><span class="title"><i class="fa fa-chart-line fa-fw"></i> Etat des connaissances</span></h2>
