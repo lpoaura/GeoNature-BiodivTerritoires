@@ -8,22 +8,15 @@
                 <th>Type</th>
                 <th>Code</th>
                 <th>Nom</th>
+                <th>Nombre d'observations</th>
+                <th>Nombre de taxons</th>
+                <th>Nombre de taxons menacés</th>
+                <th>Nombre d'observateurs</th>
+                <th>Nombre de dates</th>
+                <th>Dernière observation</th>
+                <th>Nombre de jeux de données</th>
             </tr>
             </thead>
-            <tbody>
-            {% for a in surrounding_areas %}
-                <tr data-typecode="{{ a.type_code.lower() }}" data-areacode="{{ a.area_code }}">
-                    <td>
-                        <a data-toggle="tooltip"
-                           href="{{ url_for('rendered.territory', type_code=a.type_code.lower(), area_code=a.area_code ) }}"
-                           title="Voir la fiche de ce territoire"><i
-                                class="fa fa-link"></i></a></td>
-                    <td>{{ a.type_name }}</td>
-                    <td><strong>{{ a.area_code }}</strong></td>
-                    <td>{{ a.area_name }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
         </table>
     </div>
 </div>
@@ -32,30 +25,56 @@
 {#</div>#}
 <script>
     var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
-        scrollY: '300px',
-        scrollCollapse: true,
-        paging: false,
-        language: {
-            "sEmptyTable": "Aucune donnée disponible dans le tableau",
-            "sInfo": "Affichage de l'élément _START_ à _END_ sur _TOTAL_ éléments",
-            "sInfoEmpty": "Affichage de l'élément 0 à 0 sur 0 élément",
-            "sInfoFiltered": "(filtré à partir de _MAX_ éléments au total)",
-            "sInfoPostFix": "",
-            "sInfoThousands": ",",
-            "sLengthMenu": "Afficher _MENU_ éléments",
-            "sLoadingRecords": "Chargement...",
-            "sProcessing": "Traitement...",
-            "sSearch": "Rechercher :",
-            "sZeroRecords": "Aucun élément correspondant trouvé",
-            "oAria": {
-                "sSortAscending": ": activer pour trier la colonne par ordre croissant",
-                "sSortDescending": ": activer pour trier la colonne par ordre décroissant"
+            ajax: {
+                url: '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}',
+                dataSrc: ""
             },
-        },
-    });
-    var surroundingAreasMap = baseMap('surroundingAreasMap');
-
-    var surroundingArea = null;
+            scrollY: '300px',
+            scrollCollapse: true,
+            paging: false,
+            language: {
+                "sEmptyTable": "Aucune donnée disponible dans le tableau",
+                "sInfo": "Affichage de l'élément _START_ à _END_ sur _TOTAL_ éléments",
+                "sInfoEmpty": "Affichage de l'élément 0 à 0 sur 0 élément",
+                "sInfoFiltered": "(filtré à partir de _MAX_ éléments au total)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ",",
+                "sLengthMenu": "Afficher _MENU_ éléments",
+                "sLoadingRecords": "Chargement...",
+                "sProcessing": "Traitement...",
+                "sSearch": "Rechercher :",
+                "sZeroRecords": "Aucun élément correspondant trouvé",
+                "oAria": {
+                    "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                    "sSortDescending": ": activer pour trier la colonne par ordre décroissant"
+                },
+            },
+            columns: [
+                {
+                    data: function (row) {
+                        return '<a href="/territory/' + row.type_code + '/' + row.area_code + '" target="_blank" title="Voir la fiche de ' + row.area_name + '" data-toogle="tooltips"><i class="fa fa-fw fa-link text-info"></i></a>'
+                    }
+                },
+                {data: "type_desc"},
+                {data: "area_code"},
+                {data: "area_name"},
+                {data: "count_occtax"},
+                {data: "count_taxa"},
+                {data: "count_threatened"},
+                {data: "count_observer"},
+                {data: "count_date"},
+                {
+                    data: function (row) {
+                        return new Date(row.last_obs).toLocaleDateString();
+                    }
+                },
+                {data: "count_dataset"},
+            ],
+        })
+    ;
+    {#var surroundingAreasMap = baseMap('surroundingAreasMap');#}
+    {##}
+    {#var surroundingArea = null;#}
     {##}
     {#$('#surroundingAreasTable').on('click', 'tr', function () {#}
     {#    type_code = $(this).data("typecode");#}

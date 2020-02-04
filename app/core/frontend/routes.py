@@ -142,36 +142,11 @@ def territory(type_code, area_code):
         )
         # re_grid_codes = r"M(\d+)"
 
-        q_surrouding_areas = (
-            DB.session.query(
-                BibAreasTypes.type_code,
-                BibAreasTypes.type_name,
-                BibAreasTypes.type_desc,
-                LAreas.id_area,
-                LAreas.area_name,
-                LAreas.area_code,
-            )
-            .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
-            .join(
-                LAreasTypeSelection,
-                LAreasTypeSelection.id_type == BibAreasTypes.id_type,
-            )
-            .filter(
-                and_(
-                    LAreas.geom.ST_Intersects(geom_area.geom),
-                    LAreas.id_area != area_info.id_area,
-                )
-            )
-        )
-        print(q_surrouding_areas)
-        surrounding_areas = q_surrouding_areas.all()
-
         return render_template(
             "territory/_main.html",
             area_info=area_info,
             gen_stats=gen_stats,
             legend_dict=legend_dict,
-            surrounding_areas=surrounding_areas,
         )
 
     except Exception as e:

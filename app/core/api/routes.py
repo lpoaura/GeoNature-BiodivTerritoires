@@ -14,7 +14,12 @@ from app.core.utils import (
     redlist_list_is_null,
 )
 from app.models.datas import BibDatasTypes, TReleasedDatas
-from app.models.ref_geo import BibAreasTypes, LAreas, MVLAreasAutocomplete
+from app.models.ref_geo import (
+    BibAreasTypes,
+    LAreas,
+    MVLAreasAutocomplete,
+    LAreasTypeSelection,
+)
 from app.models.synthese import Synthese, CorAreaSynthese
 from app.models.taxonomy import (
     Taxref,
@@ -137,6 +142,60 @@ def main_area_info(type_code, area_code):
     except Exception as e:
         current_app.logger.error("<main_area_info> ERROR:", e)
         return {"Error": str(e)}, 400
+
+
+@api.route("/surrounding_areas/<string:type_code>/<string:area_code>")
+def get_surrounding_area(type_code, area_code):
+    """
+
+    :param type_code:
+    :param area_code:
+    :return:
+    """
+
+    area = (
+        DB.session.query(LAreas.id_area, LAreas.geom).filter(
+            LAreas.area_code == area_code, BibAreasTypes.type_code == type_code
+        )
+    ).first()
+
+    selected_type_codes = DB.session.query(LAreasTypeSelection.id_type).all()
+    select = []
+    for s in selected_type_codes:
+        select.append(s[0])
+
+    q_gen_stats = (
+        DB.session.query(
+            BibAreasTypes.type_name,
+            BibAreasTypes.type_desc,
+            BibAreasTypes.type_code,
+            MVTerritoryGeneralStats.area_code,
+            MVTerritoryGeneralStats.area_name,
+            MVTerritoryGeneralStats.id_area,
+            MVTerritoryGeneralStats.count_dataset,
+            MVTerritoryGeneralStats.count_observer,
+            MVTerritoryGeneralStats.count_date,
+            MVTerritoryGeneralStats.count_taxa,
+            MVTerritoryGeneralStats.last_obs,
+            MVTerritoryGeneralStats.count_threatened,
+            MVTerritoryGeneralStats.count_occtax,
+        )
+        .join(
+            BibAreasTypes, BibAreasTypes.type_code == MVTerritoryGeneralStats.type_code
+        )
+        .filter(
+            and_(
+                MVTerritoryGeneralStats.geom_local.ST_Intersects(area.geom),
+                BibAreasTypes.id_type.in_(select),
+                MVTerritoryGeneralStats.id_area != area.id_area,
+            )
+        )
+    )
+    results = q_gen_stats.all()
+    data = []
+    for r in results:
+        data.append(r._asdict())
+    return jsonify(data)
 
 
 @api.route("/type")
