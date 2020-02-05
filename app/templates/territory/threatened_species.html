@@ -70,6 +70,7 @@
                 threatenedSpeciesGlobalChart.data.datasets[0].data = [response.data['territory']['threatened'].reduce(add), response.data['surrounding']['threatened'].reduce(add)];
                 threatenedSpeciesGlobalChart.data.datasets[1].data = [response.data['territory']['not_threatened'].reduce(add), response.data['surrounding']['not_threatened'].reduce(add)];
                 threatenedSpeciesGlobalChart.data.labels[1] = 'Autour du territoire sur ' + buffer / 1000 + 'km';
+                threatenedSpeciesGlobalChart.options.title.text = ["Nombre d'espèces observées par catégories de menaces","sur le territoire et sur une zone de "+buffer/1000+"km autour du territoire"];
                 threatenedSpeciesGlobalChart.update();
                 $('#threatenedSpeciesGlobalSpinner').hide();
             }).catch(function (error) {
@@ -156,6 +157,7 @@
         threatenedSpeciesByTaxoGroupChart.data.datasets[0].borderColor = [];
         threatenedSpeciesByTaxoGroupChart.data.datasets[1].backgroundColor = [];
         threatenedSpeciesByTaxoGroupChart.data.datasets[1].borderColor = [];
+        threatenedSpeciesByTaxoGroupChart.options.title.text = ["Nombre d'espèces observées par catégories de menaces et par groupe taxonomique","sur une zone de "+buffer/1000+"km autour du territoire"];
         for (var i = 0; i < threatenedSpeciesByTaxoGroupDatas['labels'].length; i++) {
             threatenedSpeciesByTaxoGroupChart.data.datasets[0].backgroundColor.push(threatenedDataColors.threatened.background);
             threatenedSpeciesByTaxoGroupChart.data.datasets[0].borderColor.push(threatenedDataColors.threatened.border);

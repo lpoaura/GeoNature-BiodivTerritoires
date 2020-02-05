@@ -1,35 +1,3 @@
-{#<style>#}
-{#    .autocomplete-suggestions {#}
-{#        border: 1px solid #999;#}
-{#        background: #FFF;#}
-{#        overflow: auto;#}
-{#    }#}
-{##}
-{#    .autocomplete-suggestion {#}
-{#        padding: 2px 5px;#}
-{#        white-space: nowrap;#}
-{#        overflow: hidden;#}
-{#    }#}
-{##}
-{#    .autocomplete-selected {#}
-{#        background: #F0F0F0;#}
-{#    }#}
-{##}
-{#    .autocomplete-suggestions strong {#}
-{#        font-weight: normal;#}
-{#        color: #3399FF;#}
-{#    }#}
-{##}
-{#    .autocomplete-group {#}
-{#        padding: 2px 5px;#}
-{#    }#}
-{##}
-{#    .autocomplete-group strong {#}
-{#        display: block;#}
-{#        border-bottom: 1px solid #000;#}
-{#    }#}
-{#</style>#}
-
 <div class="input-group" data-toggle="tooltip"  data-placement="left" title="Recherchez un territorie (nom ou code INSEE)">
     <div class="input-group-prepend">
         <span class="input-group-text text-info"><i class="fa fa-search-location"></i></span>
@@ -38,45 +6,11 @@
             aria-label="Search" style="width:1%">
     </select>
 </div>
-{#<input class="form-control" type="text" name="area" id="autocompleteArea" placeholder="Rechercher un territoire"/>#}
+
 
 
 <script>
-    // jqueryAutocomplete
-    {#$('#autocompleteArea').autocomplete({#}
-    {#    serviceUrl: '/api/find/area',#}
-    {#    dataType: 'json',#}
-    {#    minChars: 3,#}
-    {#    deferRequestBy: 250,#}
-    {#    paramName: 'q',#}
-    {#    groupBy: 'category',#}
-    {#    transformResult: function (response) {#}
-    {#        return {#}
-    {#            suggestions: $.map(response.datas, function (dataItem) {#}
-    {#                return {#}
-    {#                    value: dataItem.area_name,#}
-    {#                    data: dataItem.type_code + '/' + dataItem.area_code,#}
-    {#                    datas: dataItem#}
-    {#                };#}
-    {#            })#}
-    {#        };#}
-    {#    },#}
-    {#    formatResult: function (suggestion) {#}
-    {#        var container = '<div><strong>'#}
-    {#            + suggestion.datas.area_name#}
-    {#            + '&nbsp;('#}
-    {#            + suggestion.datas.area_code#}
-    {#            + ')&nbsp;<span class="badge badge-sm badge-primary text-right">'#}
-    {#            + suggestion.datas.type_name#}
-    {#            + '</span></div>';#}
-    {#        return container;#}
-    {#    },#}
-    {#    onSelect: function (suggestion) {#}
-    {#        location.href = '/territory/' + suggestion.data;#}
-    {#    }#}
-    {#})
-    ;
-    #}
+
 
     // Select2 de Recherche de territoire
 
@@ -103,6 +37,14 @@
             },
             cache: true
         },
+        language: {
+            // You can find all of the options in the language files provided in the
+            // build. They all must be functions that return the string that should be
+            // displayed.
+            inputTooShort: function () {
+              return "Veuillez saisir plus de 3 caractères...";
+            }
+          },
         theme: 'bootstrap4',
         placeholder: 'Recherchez un territoire',
         minimumInputLength: 3,

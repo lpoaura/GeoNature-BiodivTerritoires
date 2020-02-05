@@ -62,6 +62,11 @@
     background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
 }
 
+#territorySynthesis .paral h1 {
+    padding-top: 30px;
+    line-height: 50px;
+}
+
 #homeStats {
     color: rgba(255, 255, 255, 0.8);
 }
