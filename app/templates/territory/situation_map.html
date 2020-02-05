@@ -1,4 +1,9 @@
 <div id="datasMap" class="card">
+        <div id="mapSpinner">
+        <div class="loader-1"></div>
+        <div class="loader-2"></div>
+        <div class="loader-3"></div>
+    </div>
 </div>
 <script>
 
@@ -140,8 +145,9 @@
 
     // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche les mailles du territoire sur un rayon défini 'default_buffer'
     function getGridArea(type) {
+        $('#mapSpinner').show();
         axios
-            .get('/api/grid_data/{{ area_info.id_area }}/{{default_buffer}}/{{default_grid}}')
+            .get('/api/grid_data/{{ area_info.id_area }}/'+buffer+'/'+grid)
             .then(function (response) {
                     if (datasMapValues.areaGridDatas !== null) {
                         datasMap.removeLayer(datasMapValues.areaGridDatas);
@@ -180,6 +186,7 @@
                     datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
                     datasMap.setMaxBounds(datasMapValues.areaGridDatas.getBounds());
                     datasMapValues.areaGridDatas.bringToFront();
+                    $('#mapSpinner').hide();
                 }
             )
             .catch(function (error) {

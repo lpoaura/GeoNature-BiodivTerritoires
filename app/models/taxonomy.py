@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text
+from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey
 from utils_flask_sqla.serializers import serializable
+import config
 
 from app.core.env import DB
 
@@ -148,3 +149,13 @@ class TRedlist(DB.Model):
     category = Column(String)
     criteria = Column(String)
     id_source = Column(Integer)
+
+
+class TMaxThreatenedStatus(DB.Model):
+    __tablename__ = "t_max_threatened_status"
+    __table_args__ = {"schema": config.APP_SCHEMA_NAME}
+    cd_nom = Column(Integer, primary_key=True)
+    threatened = Column(Boolean, default=False, nullable=False)
+    redlist_statut = Column(String)
+    redlist_context = Column(String)
+    id_source = Column(Integer, ForeignKey("taxonomie.bib_redlist_source.id_source"))

@@ -4,7 +4,7 @@ from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 from sqlalchemy import and_, or_, distinct
 from sqlalchemy.dialects.postgresql import aggregate_order_by
-from sqlalchemy.sql import func, case
+from sqlalchemy.sql import func, case, funcfilter
 
 from app.core.env import DB
 from app.core.utils import (
@@ -25,6 +25,7 @@ from app.models.taxonomy import (
     Taxref,
     TaxrefLR,
     TaxrefProtectionEspeces,
+    TMaxThreatenedStatus,
 )
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 
@@ -493,9 +494,10 @@ def get_redlist_taxa_status(cd_nom):
 #     :return:
 #     """
 #     pass
+from sqlalchemy.orm import aliased
 
 
-@api.route("/charts/synthesis/spatial/<int:id_area>")
+@api.route("/charts/synthesis/yearly/<int:id_area>")
 def get_data_over_year(id_area):
     """
 
@@ -503,139 +505,68 @@ def get_data_over_year(id_area):
     :return:
     """
     try:
-        # q_taxo_group = (
-        #     DB.session.query(Taxref.group2_inpn.distinct())
-        #     .select_from(CorAreaSynthese)
-        #     .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
-        #     .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
-        #     .filter(CorAreaSynthese.id_area == id_area)
-        # )
-        # for g in q_taxo_group.all():
-
         query = (
             DB.session.query(
+                func.extract("year", Synthese.date_min).label("year"),
                 Taxref.group2_inpn,
                 func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
-                func.extract("year", Synthese.date_min).label("year"),
                 func.count(distinct(Synthese.date_min)).label("count_date"),
                 func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
             )
-            .select_from(CorAreaSynthese)
-            .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
-            .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
+            .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .filter(Synthese.cd_nom == Taxref.cd_nom)
             .filter(CorAreaSynthese.id_area == id_area)
-            .group_by(Taxref.group2_inpn, func.extract("year", Synthese.date_min))
+            .group_by(func.extract("year", Synthese.date_min), Taxref.group2_inpn,)
             .order_by(func.extract("year", Synthese.date_min), Taxref.group2_inpn,)
         )
-        print("QUERY", query)
-        results = query.all()
-        data = []
-        years = []
-        for r in results:
-            years.append(r.year)
-        print("YEARS", years)
-        years = list(set(years))
-        years.sort()
-        for year in years:
-            print(year)
-            dataset = {}
-            for r in results:
-                print(r)
-                print(r.year == year)
-                if r.year == year:
-                    print()
-                    dataset[r.group2_inpn] = []
-                    dataset[r.group2_inpn].append(r.count_occtax)
-            data.append(dataset)
 
-        print(data)
-        return jsonify(data)
+        results = query.all()
+        taxo_groups = list(set(r.group2_inpn for r in results)).sort()
+        years = list(set(r.year for r in results)).sort()
+        datasets = []
+        for t in taxo_groups:
+            label_dataset = {}
+            label_dataset["label"] = t
+            datasets.append(label_dataset)
+        for y in years:
+            for r in results:
+                for d in datasets:
+                    d["countocctax"] = []
+                    if d["label"] == r.group2_inpn:
+                        d["countocctax"].append(r.count_occtax)
+
+        # labels = years
+        # print(years, taxo_groups)
+        # datasets = []
+        # datasets[0].label
+        # years = []
+        # for r in results:
+        #     if r.year in years:
+        #         if r.group2_inpn in taxo_groups:
+        #             data
+        #     years.append(r.year)
+        # print("YEARS", years)
+        # years = list(set(years))
+        # years.sort()
+        # for year in years:
+        #     print(year)
+        #     dataset = {}
+        #     for r in results:
+        #         print(r)
+        #         print(r.year == year)
+        #         if r.year == year:
+        #             print()
+        #             dataset[r.group2_inpn] = []
+        #             dataset[r.group2_inpn].append(r.count_occtax)
+        #     data.append(dataset)
+        #
+        # print(data)
+        return jsonify(datasets)
 
     except Exception as e:
         error = "<get_data_over_year> ERROR: {}".format(e)
         current_app.logger.error(error)
         return {"Error": error}, 400
-
-
-@api.route("/charts/synthesis/threatened/<int:id_area>/<int:buffer>")
-@api.route("/charts/synthesis/threatened/<int:id_area>")
-def get_count_threatened_species(id_area, buffer=10000):
-    """
-
-    :param id_area:
-    :return:
-    """
-    # try:
-    query_territory = (
-        DB.session.query(LAreas.id_area, LAreas.area_code, Taxref.cd_ref)
-        .distinct()
-        .join(CorAreaSynthese, LAreas.id_area == CorAreaSynthese.id_area)
-        .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
-        .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
-        .filter(LAreas.id_area == id_area)
-    )
-    print("query_territory", query_territory)
-    result = query_territory.all()
-    data = []
-    for r in result:
-        dict = r._asdict()
-        redlist = get_redlist_status(r.cd_ref)
-        if len(redlist) > 0:
-            dict["threatened"] = redlist[0]["threatened"]
-        else:
-            dict["threatened"] = False
-        data.append(dict)
-    count_threatened = sum(1 for x in data if x["threatened"])
-    count_not_threatened = sum(1 for x in data if not x["threatened"])
-    print(count_threatened)
-
-    territory_result = {}
-    # result["territory"] = {}
-    territory_result["not_threatened"] = count_not_threatened
-    territory_result["threatened"] = count_threatened
-
-    area = (
-        DB.session.query(LAreas.id_area, LAreas.geom).filter(LAreas.id_area == id_area)
-    ).first()
-
-    selected_type_codes = DB.session.query(LAreasTypeSelection.id_type).all()
-    select = []
-    for s in selected_type_codes:
-        select.append(s[0])
-
-    query_surrounding_territory = (
-        DB.session.query(Taxref.cd_ref, func.count(distinct(Synthese.id_synthese)))
-        .distinct()
-        .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
-        .filter(
-            Synthese.the_geom_local.ST_Intersects(func.ST_Buffer(area.geom, buffer)),
-        )
-        .group_by(Taxref.cd_ref)
-    )
-    print("query_territory2", query_surrounding_territory)
-    result = query_surrounding_territory.all()
-    data = []
-    for r in result:
-        dict = r._asdict()
-        redlist = get_redlist_status(r.cd_ref)
-        if len(redlist) > 0:
-            dict["threatened"] = redlist[0]["threatened"]
-        else:
-            dict["threatened"] = False
-        data.append(dict)
-    count_threatened = sum(1 for x in data if x["threatened"])
-    count_not_threatened = sum(1 for x in data if not x["threatened"])
-    print("sur", count_threatened)
-
-    surrounding_result = {}
-    # surrounding_result["surrounding_territory"] = {}
-    surrounding_result["not_threatened"] = count_not_threatened
-    surrounding_result["threatened"] = count_threatened
-
-    return (
-        jsonify({"territory": territory_result, "surrounding": surrounding_result}),
-        200,
-    )
 
 
 @api.route("/charts/synthesis/group2_inpn_species/<int:id_area>/<int:buffer>")
@@ -646,111 +577,79 @@ def get_surrounding_count_species_by_group2inpn(id_area, buffer=10000):
     :param id_area:
     :return:
     """
-    # try:
-    area = (
-        DB.session.query(LAreas.id_area, LAreas.geom).filter(LAreas.id_area == id_area)
-    ).first()
-
-    selected_type_codes = DB.session.query(LAreasTypeSelection.id_type).all()
-    select = []
-    for s in selected_type_codes:
-        select.append(s[0])
-
     query_surrounding_territory = (
         DB.session.query(
-            Taxref.cd_ref,
             Taxref.group2_inpn,
-            func.count(Synthese.id_synthese).label("count_occtax"),
+            funcfilter(
+                func.count(distinct(Taxref.cd_ref)),
+                TMaxThreatenedStatus.threatened == True,
+            ).label("threatened"),
+            funcfilter(
+                func.count(distinct(Taxref.cd_ref)),
+                TMaxThreatenedStatus.threatened == False,
+            ).label("not_threatened"),
         )
         .distinct()
-        .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
-        .join(CorAreaSynthese, CorAreaSynthese.id_area == id_area)
-        .filter(
-            Synthese.the_geom_local.ST_Intersects(func.ST_Buffer(area.geom, buffer)),
-        )
-        .group_by(Taxref.cd_ref, Taxref.group2_inpn)
+        .filter(LAreas.id_area == id_area)
+        .filter(Synthese.cd_nom == Taxref.cd_nom)
+        .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
+        .outerjoin(TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref)
+        .group_by(Taxref.group2_inpn)
+        .order_by(Taxref.group2_inpn)
     )
-
     surrounding_territory_data = query_surrounding_territory.all()
-    print("surrounding_territory_data", surrounding_territory_data)
-
-    taxo_groups = list(g.group2_inpn for g in surrounding_territory_data)
-    taxo_groups = list(set(taxo_groups))
-    print("TAXO_GROUPS", taxo_groups)
-
-    surrounding_datasets = []
-    for r in surrounding_territory_data:
-        dict = r._asdict()
-        redlist = get_redlist_status(r.cd_ref)
-        if len(redlist) > 0:
-            dict["threatened"] = redlist[0]["threatened"]
-        else:
-            dict["threatened"] = False
-        surrounding_datasets.append(dict)
-
-    result = {}
-    result["surrounding"] = []
-
-    for g in taxo_groups:
-        dataset = {}
-        dataset["label"] = g
-        dataset["threatened_species"] = sum(
-            1 for d in surrounding_datasets if d["group2_inpn"] == g and d["threatened"]
-        )
-        dataset["not_threatened_species"] = sum(
-            1
-            for d in surrounding_datasets
-            if d["group2_inpn"] == g and not d["threatened"]
-        )
-        result["surrounding"].append(dataset)
 
     query_territory = (
-        DB.session.query(LAreas.area_code, Taxref.cd_ref, Taxref.group2_inpn)
+        DB.session.query(
+            Taxref.group2_inpn,
+            funcfilter(
+                func.count(distinct(Taxref.cd_ref)),
+                TMaxThreatenedStatus.threatened == True,
+            ).label("threatened"),
+            funcfilter(
+                func.count(distinct(Taxref.cd_ref)),
+                TMaxThreatenedStatus.threatened == False,
+            ).label("not_threatened"),
+        )
         .distinct()
-        .join(CorAreaSynthese, LAreas.id_area == CorAreaSynthese.id_area)
-        .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
-        .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
         .filter(LAreas.id_area == id_area)
+        .filter(Synthese.cd_nom == Taxref.cd_nom)
+        .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)
+        .filter(CorAreaSynthese.id_area == LAreas.id_area)
+        .outerjoin(TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref)
+        .group_by(Taxref.group2_inpn)
+        .order_by(Taxref.group2_inpn)
     )
-    print("query_territory", query_territory)
+
     territory_data = query_territory.all()
 
-    territory_datasets = []
-    for r in territory_data:
-        dict = r._asdict()
-        redlist = get_redlist_status(r.cd_ref)
-        if len(redlist) > 0:
-            dict["threatened"] = redlist[0]["threatened"]
-        else:
-            dict["threatened"] = False
-        territory_datasets.append(dict)
+    print(surrounding_territory_data)
+    print(territory_data)
 
-    result["territory"] = []
-    for g in taxo_groups:
-        territory_dataset = {}
-        territory_dataset["label"] = g
-        territory_dataset["threatened_species"] = sum(
-            1 for d in territory_datasets if d["group2_inpn"] == g and d["threatened"]
-        )
-        territory_dataset["not_threatened_species"] = sum(
-            1
-            for d in territory_datasets
-            if d["group2_inpn"] == g and not d["threatened"]
-        )
-        result["territory"].append(territory_dataset)
+    taxo_groups = list(set(g.group2_inpn for g in surrounding_territory_data))
+    taxo_groups.sort()
+    print(taxo_groups)
+    # result["territory"] = []
 
     response = {}
-    response["surrounding"] = {"labels": [], "not_threatened": [], "threatened": []}
-    response["territory"] = {"labels": [], "not_threatened": [], "threatened": []}
-    for r in result["surrounding"]:
-        response["surrounding"]["labels"].append(r["label"])
-        response["surrounding"]["not_threatened"].append(r["not_threatened_species"])
-        response["surrounding"]["threatened"].append(r["threatened_species"])
-
-    for r in result["territory"]:
-        response["territory"]["labels"].append(r["label"])
-        response["territory"]["not_threatened"].append(r["not_threatened_species"])
-        response["territory"]["threatened"].append(r["threatened_species"])
+    response["labels"] = taxo_groups
+    response["surrounding"] = {
+        "not_threatened": [],
+        "threatened": [],
+    }
+    response["territory"] = {
+        "not_threatened": [],
+        "threatened": [],
+    }
+    for t in taxo_groups:
+        for r in surrounding_territory_data:
+            if r.group2_inpn == t:
+                response["surrounding"]["threatened"].append(r.threatened)
+                response["surrounding"]["not_threatened"].append(r.not_threatened)
+        for r in territory_data:
+            if r.group2_inpn == t:
+                response["territory"]["threatened"].append(r.threatened)
+                response["territory"]["not_threatened"].append(r.not_threatened)
 
     return (
         jsonify(response),

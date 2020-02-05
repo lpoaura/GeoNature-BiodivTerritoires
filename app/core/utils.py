@@ -5,8 +5,8 @@ from pypnnomenclature.models import TNomenclatures
 from shapely.geometry import asShape
 
 from app.core.env import DB
-from app.models.taxonomy import TRedlist, BibRedlistSource, BibRedlistCategories
 from app.models.dynamic_content import TDynamicPages
+from app.models.taxonomy import TRedlist, BibRedlistSource, BibRedlistCategories
 
 
 def geom_from_geojson(data):
@@ -94,6 +94,23 @@ def get_redlist_status(cdref):
     for r in query:
         list.append(r._asdict())
     return list
+
+
+def get_max_threatened_status(cdref):
+    query = (
+        DB.session.query(BibRedlistCategories.threatened)
+        .distinct()
+        .filter(TRedlist.cd_ref == cdref)
+        .filter(BibRedlistSource.id_source == TRedlist.id_source)
+        .filter(BibRedlistCategories.code_category == TRedlist.category)
+        .order_by(BibRedlistSource.priority, BibRedlistCategories.priority_order)
+    )
+    print(query)
+    result = query.first()
+    if result == None:
+        return False
+    else:
+        return result[0]
 
 
 def redlist_list_is_null(item):

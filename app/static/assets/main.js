@@ -131,3 +131,6 @@ var months = ['jan', 'fév', 'mar', 'avr', 'juin', 'juil', 'août', 'sept', 'oct
 $(document).tooltip({
     selector: '[data-toggle="tooltip"]'
 });
+
+// Function to help sum array
+const add = (a, b) => a + b
