@@ -24,6 +24,7 @@ if [ ! -f /config/config.py ]; then
     sed -i "s/dbPassword/${DBPWD}/g" /config/config.py
     sed -i "s/dbPort/${DBPORT}/g" /config/config.py
     sed -i "s/secretKey/${SECRETKEY}/g" /config/config.py
+    sed -i "s/2154/${SRID}/g" /config/config.py
 else
     echo "config file already exists" 
 fi

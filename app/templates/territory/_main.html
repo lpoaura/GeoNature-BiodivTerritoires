@@ -61,6 +61,8 @@
     </div>
 
     <script>
+    $('select option[value='+buffer+']').attr("selected",true);
+
         $('#selectBuffer').on('change', function () {
             buffer = this.value;
             surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/'+buffer);

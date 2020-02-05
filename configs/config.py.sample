@@ -8,6 +8,7 @@ DEBUG = True
 # eventuellement le port de la BDD et le nom de la BDD avec l'utilisateur qui a des droits de lecture sur les vues de l'atlas (user_pg dans settings.ini)
 SQLALCHEMY_DATABASE_URI = "postgresql://dbUser:dbPassword@dbHost:dbPort/dbName"
 DATABASE_CONNECT_OPTIONS = {}
+APP_SCHEMA_NAME = "gn_biodivterritory"
 
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED = True
@@ -40,6 +41,11 @@ SECRET_KEY = "mySecretKey"
 ###########################
 
 LOCAL_SRID = 2154
+
+# type_code (cf. ref_geo.bib_type_area) du type de mailles à utiliser par défaut
+DEFAULT_GRID = "M1"
+# Tampon par défaut autour du territoire pour la restitution par mailles
+DEFAULT_BUFFER = "2000"
 
 # Clé IGN si vous utilisez l'API Geoportail pour afficher les fonds cartographiques
 IGNAPIKEY = "myIGNkey"
