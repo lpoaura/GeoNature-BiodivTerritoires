@@ -1,76 +1,72 @@
 {% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
 {% block head %} {{ super() }}
 {% endblock %} {% block content %}
-<script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
-<script type="text/javascript">
-    var buffer = {{ default_buffer }};
-    var grid = '{{ default_grid }}';
-</script>
-<div id="territorySynthesis">
-    <div class="jumbotron paral paralsec">
-        <div class="container">
-            <h1 class="display-4">{{ area_info.area_name }}</h1>
-            <p class="lead">{{ area_info.type_name }} | code {{ area_info.area_code }}</p>
-            <div id="homeStats" class="row text-center lead">
-                {% include "territory/gen_stats.html" %}
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid">
-        <div class="row mt-2">
-            <div class="col">
-                <div class="form-group float-right">
-                    <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
-                    <select class="form-control-inline" id="selectBuffer">
-                        <option value="1000">1km</option>
-                        <option value="2000">2km</option>
-                        <option value="5000">5km</option>
-                        <option value="10000">10km</option>
-                    </select>
+    <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+        var buffer = {{ default_buffer }};
+        var grid = '{{ default_grid }}';
+    </script>
+    <div id="territorySynthesis">
+        <div class="jumbotron paral paralsec">
+            <div class="container">
+                <h1 class="display-4">{{ area_info.area_name }}</h1>
+                <p class="lead">{{ area_info.type_name }} | code {{ area_info.area_code }}</p>
+                <div id="homeStats" class="row text-center lead">
+                    {% include "territory/gen_stats.html" %}
                 </div>
-                <h2><i class="fa fa-map-signs fa-fw"></i> Territoires associés (recouvrement ou limitrophes)
-                </h2>
-
-            </div>
-            {% include "territory/surrounding_areas.html" %}
-        </div>
-        <div class="row mt-2">
-            <div class="col">
-                <h2><i class="fa fa-info fa-fw"></i> Espèces menacées du territoire</h2>
-            </div>
-            <div class="row">
-                {% include "territory/threatened_species.html" %}
             </div>
         </div>
+        <div class="container-fluid">
+            <div class="row mt-2">
+                <div class="col">
+                    <div class="form-group float-right">
+                        <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
+                        <select class="form-control-inline" id="selectBuffer">
+                            <option value="1000">1km</option>
+                            <option value="2000">2km</option>
+                            <option value="5000">5km</option>
+                            <option value="10000">10km</option>
+                        </select>
+                    </div>
+                    <h2><i class="fa fa-map-signs fa-fw"></i> Territoires associés (recouvrement ou limitrophes)
+                    </h2>
 
-        <div class="row mt-2 mb-2">
+                </div>
+                {% include "territory/surrounding_areas.html" %}
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <h2><i class="fa fa-info fa-fw"></i> Espèces menacées du territoire</h2>
+                </div>
+                <div class="row">
+                    {% include "territory/threatened_species.html" %}
+                </div>
+            </div>
+
+            <div class="row mt-2 mb-2">
                 <div class="col col-sm-12 col-md-12 col-lg-12">
                     <h2><span class="title"><i class="fa fa-chart-line fa-fw"></i> Etat des connaissances</span></h2>
                 </div>
-                <div class="col col-md-6 col-sm-12">
-                    {% include "territory/situation_map.html" %}
+
+                {% include "territory/situation_map.html" %}
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    {% include "territory/list_species.html" %}
                 </div>
-                <div class="col col-md-6 col-sm-12">
-                    {% include "territory/charts.html" %}
-                </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col">
-                {% include "territory/list_species.html" %}
             </div>
         </div>
     </div>
-</div>
-<script>
-    $('select option[value=' + buffer + ']').attr("selected", true);
+    <script>
+        $('select option[value=' + buffer + ']').attr("selected", true);
 
-    $('#selectBuffer').on('change', function () {
-        buffer = this.value;
-        surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
-        surroundingAreasTable.ajax.reload();
-        threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
-    threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
-    getGridArea('taxa');
+        $('#selectBuffer').on('change', function () {
+            buffer = this.value;
+            surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
+            surroundingAreasTable.ajax.reload();
+            threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
+            threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
+            getGridArea('taxa');
         });
-</script>
+    </script>
 {% endblock %}

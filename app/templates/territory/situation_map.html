@@ -1,8 +1,32 @@
-<div id="datasMap" class="card">
+<div class="col col-md-6 col-sm-12">
+    <div id="datasMap" class="card">
         <div id="mapSpinner">
-        <div class="loader-1"></div>
-        <div class="loader-2"></div>
-        <div class="loader-3"></div>
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
+    </div>
+</div>
+<div class="col col-md-6 col-sm-12">
+    <div class="table-responsive table-responsive-sm">
+        <div id="gridListSpeciesSpinner">
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
+        <table id="gridListSpeciesTable" class="table table-striped table-hover table-sm">
+            <thead class="thead-dark">
+            <tr>
+                <th>Groupe 2 INPN</th>
+                <th>Nom vernaculaire</th>
+                <th>Nom scientifique</th>
+                <th>Nombre d'occurences</th>
+                <th>Nombre d'observateurs</th>
+                <th>Nombre de dates</th>
+                <th>Dernière observation</th>
+            </tr>
+            </thead>
+        </table>
     </div>
 </div>
 <script>
@@ -39,8 +63,72 @@
         'areaGridLegend': null
     };
 
-
+    $('#gridListSpeciesTable').hide();
     var styleStorage = window.localStorage;
+
+
+    var gridListSpeciesTable = $('#gridListSpeciesTable').DataTable({
+        serverSide: false,
+        ajax: {
+            url: '',
+            dataSrc: "data"
+        },
+        deferLoading: 0,
+        scrollY: "500px",
+        scrollCollapse: true,
+        paging: false,
+        dom: 'trp',
+        language: {
+            "sEmptyTable": "Aucune donnée disponible dans le tableau",
+            "sInfo": "Affichage de l'élément _START_ à _END_ sur _TOTAL_ éléments",
+            "sInfoEmpty": "Affichage de l'élément 0 à 0 sur 0 élément",
+            "sInfoFiltered": "(filtré à partir de _MAX_ éléments au total)",
+            "sInfoPostFix": "",
+            "sInfoThousands": ",",
+            "sLengthMenu": "Afficher _MENU_ éléments",
+            "sLoadingRecords": "Chargement...",
+            "sProcessing": "Traitement...",
+            "sSearch": "Rechercher :",
+            "sZeroRecords": "Aucun élément correspondant trouvé",
+            "oAria": {
+                "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                "sSortDescending": ": activer pour trier la colonne par ordre décroissant"
+            },
+        },
+        columnDefs: [
+            {className: "text-center align-middle", targets: '_all'},
+        ],
+        createdRow: function (row, data, dataIndex) {
+            if (data.redlist.length > 0) {
+                if (!!data.redlist[0].threatened > 0) {
+                    $(row).addClass('table-danger');
+                }
+            }
+        },
+        columns: [
+            {data: "group2_inpn"},
+            {data: "nom_vern"},
+            {
+                data: function (row) {
+                    return '<i>' + row.lb_nom + '</i>';
+                }
+            },
+            {data: "count_occtax"},
+            {data: "count_observer"},
+            {data: "count_date"},
+            {data: "last_year"}
+        ]
+    });
+
+    var listSpeciesUpdate = function (id_area) {
+        $('#gridListSpeciesTable').hide();
+        $('#gridListSpeciesSpinner').show();
+        gridListSpeciesTable.clear();
+        gridListSpeciesTable.ajax.url('/api/list_taxa/' + id_area);
+        gridListSpeciesTable.ajax.reload();
+        $('#gridListSpeciesTable').show();
+        $('#gridListSpeciesSpinner').hide();
+    }
 
     function storeStyles() {
         axios
@@ -139,6 +227,8 @@
         for (var i = 0; i < keys.length; i++) {
             dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
         }
+        $('#gridListSpeciesTable').show();
+
         layer.bindPopup(dataResult);
 
     }
@@ -147,7 +237,7 @@
     function getGridArea(type) {
         $('#mapSpinner').show();
         axios
-            .get('/api/grid_data/{{ area_info.id_area }}/'+buffer+'/'+grid)
+            .get('/api/grid_data/{{ area_info.id_area }}/' + buffer + '/' + grid)
             .then(function (response) {
                     if (datasMapValues.areaGridDatas !== null) {
                         datasMap.removeLayer(datasMapValues.areaGridDatas);
@@ -161,7 +251,7 @@
                         style: function (feature) {
                             return areaGridStyle(feature, type, styleDesc[type].color)
                         }, onEachFeature: function (feature, layer) {
-                            areaGridPopup(feature, layer, type)
+                            areaGridPopup(feature, layer, type);
                         }
                     });
                     datasMapValues.areaGridDatas.addTo(datasMap);
@@ -187,6 +277,9 @@
                     datasMap.setMaxBounds(datasMapValues.areaGridDatas.getBounds());
                     datasMapValues.areaGridDatas.bringToFront();
                     $('#mapSpinner').hide();
+                    datasMapValues.areaGridDatas.on('click', function (e) {
+                        listSpeciesUpdate(e.layer.feature.properties.id_area)
+                    });
                 }
             )
             .catch(function (error) {
@@ -223,6 +316,5 @@
     $(document).on('change', '#datasMapDatasSelect', function () {
         getGridArea(this.value, '#bf01a6');
     });
-
 
 </script>
