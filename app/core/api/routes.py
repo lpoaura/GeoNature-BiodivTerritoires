@@ -366,6 +366,7 @@ def get_taxa_list(id_area):
             .first()
             .id_nomenclature
         )
+
         print("reproduction_id", reproduction_id)
         query_territory = (
             DB.session.query(
@@ -485,18 +486,6 @@ def get_redlist_taxa_status(cd_nom):
         return {"Error": error}, 400
 
 
-#
-# @api.route("/charts/synthesis/spatial/<int:id_area>")
-# def get_territory_spatial_synthesis(id_area):
-#     """
-#
-#     :param id_area:
-#     :return:
-#     """
-#     pass
-from sqlalchemy.orm import aliased
-
-
 @api.route("/charts/synthesis/yearly/<int:id_area>")
 def get_data_over_year(id_area):
     """
@@ -535,32 +524,6 @@ def get_data_over_year(id_area):
                     if d["label"] == r.group2_inpn:
                         d["countocctax"].append(r.count_occtax)
 
-        # labels = years
-        # print(years, taxo_groups)
-        # datasets = []
-        # datasets[0].label
-        # years = []
-        # for r in results:
-        #     if r.year in years:
-        #         if r.group2_inpn in taxo_groups:
-        #             data
-        #     years.append(r.year)
-        # print("YEARS", years)
-        # years = list(set(years))
-        # years.sort()
-        # for year in years:
-        #     print(year)
-        #     dataset = {}
-        #     for r in results:
-        #         print(r)
-        #         print(r.year == year)
-        #         if r.year == year:
-        #             print()
-        #             dataset[r.group2_inpn] = []
-        #             dataset[r.group2_inpn].append(r.count_occtax)
-        #     data.append(dataset)
-        #
-        # print(data)
         return jsonify(datasets)
 
     except Exception as e:
