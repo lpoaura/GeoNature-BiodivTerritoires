@@ -1,6 +1,7 @@
 /***************************************************
  *   CREATION D'UNE TABLE DE RECHERCHE DES ZONAGES  *
  ***************************************************/
+
 CREATE MATERIALIZED VIEW ref_geo.mv_l_areas_autocomplete AS
 (
 SELECT l_areas.id_area                    AS id
