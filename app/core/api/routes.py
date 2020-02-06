@@ -470,6 +470,69 @@ def get_taxa_list(id_area):
         return {"Error": error}, 400
 
 
+@api.route("/list_taxa/simp/<int:id_area>", methods=["GET"])
+def get_taxa_simple_list(id_area):
+    """
+
+    :param type:
+    :return:
+    """
+    try:
+        query_area = (
+            DB.session.query(
+                Taxref.cd_ref.label("id"),
+                Taxref.cd_ref,
+                func.split_part(Taxref.nom_vern, ",", 1).label("nom_vern"),
+                Taxref.lb_nom,
+                Taxref.group2_inpn,
+                func.coalesce(TMaxThreatenedStatus.threatened, False).label(
+                    "threatened"
+                ),
+                func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+                func.count(distinct(Synthese.observers)).label("count_observer"),
+                func.count(distinct(Synthese.date_min)).label("count_date"),
+                func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+                func.max(distinct(func.extract("year", Synthese.date_min))).label(
+                    "last_year"
+                ),
+            )
+            .select_from(Taxref)
+            .outerjoin(
+                TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_nom
+            )
+            .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .filter(Synthese.cd_nom == Taxref.cd_nom)
+            .filter(CorAreaSynthese.id_area == id_area)
+            .distinct()
+            .group_by(
+                func.coalesce(TMaxThreatenedStatus.threatened, False),
+                Taxref.cd_ref,
+                Taxref.nom_vern,
+                Taxref.lb_nom,
+                Taxref.group1_inpn,
+                Taxref.group2_inpn,
+            )
+            .order_by(
+                func.coalesce(TMaxThreatenedStatus.threatened, False).desc(),
+                func.count(distinct(Synthese.id_synthese)).desc(),
+                Taxref.group1_inpn,
+                Taxref.group2_inpn,
+            )
+        )
+        print("query_territory", query_area)
+        result = query_area.all()
+        data = []
+        for r in result:
+            data.append(r._asdict())
+
+        return jsonify({"count": len(result), "data": data}), 200
+
+    except Exception as e:
+        error = "<get_taxa_list> ERROR: {}".format(e)
+        current_app.logger.error(error)
+        return {"Error": error}, 400
+
+
 @api.route("/statut/taxa/<int:cd_nom>/redlist", methods=["GET"])
 def get_redlist_taxa_status(cd_nom):
     """
