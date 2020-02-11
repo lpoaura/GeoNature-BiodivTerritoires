@@ -45,10 +45,12 @@
 
             <div class="row mt-2 mb-2">
                 <div class="col col-sm-12 col-md-12 col-lg-12">
-                    <h2><span class="title"><i class="fas fa-map-marked-alt"></i></i> Répartition des observations</span></h2>
+                    <h2><span class="title"><i class="fas fa-map-marked-alt"></i></i>
+                        Répartition des observations</span></h2>
                 </div>
-
-                {% include "territory/situation_map.html" %}
+                <div class="col">
+                    {% include "territory/data_distribution.html" %}
+                </div>
             </div>
             <div class="row mt-2">
                 <div class="col">

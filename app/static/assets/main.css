@@ -247,3 +247,16 @@
         transform: rotate(360deg);
     }
 }
+
+.chart-container {
+    position: relative;
+    height: 500px;
+    width: 50vw
+}
+
+.chart-select-form {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 10;
+}

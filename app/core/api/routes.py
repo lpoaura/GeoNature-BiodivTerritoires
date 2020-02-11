@@ -549,8 +549,8 @@ def get_redlist_taxa_status(cd_nom):
         return {"Error": error}, 400
 
 
-@api.route("/charts/synthesis/yearly/<int:id_area>")
-def get_data_over_year(id_area):
+@api.route("/charts/synthesis/<string:timeinterval>/<int:id_area>")
+def get_data_over_year(id_area, timeinterval="year"):
     """
 
     :param id_area:
@@ -559,35 +559,55 @@ def get_data_over_year(id_area):
     try:
         query = (
             DB.session.query(
-                func.extract("year", Synthese.date_min).label("year"),
-                Taxref.group2_inpn,
+                func.extract(timeinterval, Synthese.date_min).label("year"),
                 func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+                func.count(distinct(Synthese.cd_nom)).label("count_taxa"),
                 func.count(distinct(Synthese.date_min)).label("count_date"),
                 func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
             )
             .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
             .filter(Synthese.cd_nom == Taxref.cd_nom)
             .filter(CorAreaSynthese.id_area == id_area)
-            .group_by(func.extract("year", Synthese.date_min), Taxref.group2_inpn,)
-            .order_by(func.extract("year", Synthese.date_min), Taxref.group2_inpn,)
+            .group_by(func.extract(timeinterval, Synthese.date_min))
+            .order_by(func.extract(timeinterval, Synthese.date_min))
         )
 
         results = query.all()
-        taxo_groups = list(set(r.group2_inpn for r in results)).sort()
-        years = list(set(r.year for r in results)).sort()
-        datasets = []
-        for t in taxo_groups:
-            label_dataset = {}
-            label_dataset["label"] = t
-            datasets.append(label_dataset)
-        for y in years:
-            for r in results:
-                for d in datasets:
-                    d["countocctax"] = []
-                    if d["label"] == r.group2_inpn:
-                        d["countocctax"].append(r.count_occtax)
 
-        return jsonify(datasets)
+        return jsonify(results)
+
+    except Exception as e:
+        error = "<get_data_over_year> ERROR: {}".format(e)
+        current_app.logger.error(error)
+        return {"Error": error}, 400
+
+
+@api.route("/charts/synthesis/taxogroup/<int:id_area>")
+def get_data_over_taxogroup(id_area):
+    """
+
+    :param id_area:
+    :return:
+    """
+    try:
+        query = (
+            DB.session.query(
+                Taxref.group2_inpn.label("groupTaxo"),
+                func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+                func.count(distinct(Synthese.cd_nom)).label("count_taxa"),
+                func.count(distinct(Synthese.date_min)).label("count_date"),
+                func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+            )
+            .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .filter(Synthese.cd_nom == Taxref.cd_nom)
+            .filter(CorAreaSynthese.id_area == id_area)
+            .group_by(Taxref.group2_inpn.label("groupTaxo"),)
+            .order_by(Taxref.group2_inpn.label("groupTaxo"),)
+        )
+
+        results = query.all()
+
+        return jsonify(results)
 
     except Exception as e:
         error = "<get_data_over_year> ERROR: {}".format(e)
