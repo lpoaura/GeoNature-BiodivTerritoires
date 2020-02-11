@@ -1,4 +1,4 @@
-{% extends "core/layout.html" %} {% block title %}{{ area_info.type_name }} {{ area_info.area_name }} {% endblock %}
+{% extends "core/layout.html" %} {% block title %}La biodiversité de {{ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})  {% endblock %}
 {% block head %} {{ super() }}
 {% endblock %} {% block content %}
     <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
@@ -9,7 +9,7 @@
     <div id="territorySynthesis">
         <div class="jumbotron paral paralsec">
             <div class="container">
-                <h1 class="display-4">{{ area_info.area_name }}</h1>
+                <h1 class="display-1">{{ area_info.area_name }}</h1>
                 <p class="lead">{{ area_info.type_name }} | code {{ area_info.area_code }}</p>
                 <div id="homeStats" class="row text-center lead">
                     {% include "territory/gen_stats.html" %}
