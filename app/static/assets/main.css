@@ -18,9 +18,27 @@
     }
 }
 
+@media (max-width: 768px) {
+    .paral {
+        min-height: 100vh;
+        background-position: 50% 50%;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+}
+
 @media (min-width: 768px) {
     .paral {
         height: 600px;
+        background-position: 50% 50%;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+}
+
+@media (min-width: 768px) {
+    .paral-adaptative {
+        min-height: 600px;
         background-position: 50% 50%;
         background-attachment: fixed;
         background-size: cover;
@@ -42,6 +60,39 @@
     text-align: center;
     padding-top: 60px;
     line-height: 100px;
+}
+
+
+/* Paragraph for Parallax Section */
+.paral-adaptative .content {
+    color: #f5f5f5;
+    text-align: center;
+}
+
+.paral-adaptative p {
+    font-size: 24px;
+    line-height: 30px;
+}
+
+
+/* Heading for Parallax Section */
+.paral-adaptative h1, h2, h3, h4 {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.paral-adaptative h1 {
+    font-size: 60px;
+    line-height: 100px;
+}
+
+.paral-adaptative h2 {
+    font-size: 50px;
+    line-height: 80px;
+}
+
+.paral-adaptative h3 {
+    font-size: 40px;
+    line-height: 60px;
 }
 
 /* Remove Bottom Margin from Jumbotron */

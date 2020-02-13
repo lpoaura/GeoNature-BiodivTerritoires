@@ -10,7 +10,6 @@ from app.models.ref_geo import BibAreasTypes, LAreas, LAreasTypeSelection
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 import re
 
-
 rendered = Blueprint("rendered", __name__)
 
 
@@ -72,7 +71,18 @@ def global_variables():
 
 @rendered.route("/")
 def index():
-    return render_template("home.html", name=config.SITE_NAME)
+    bonus_block = (
+        DB.session.query(
+            TDynamicPages.title, TDynamicPages.short_desc, TDynamicPages.content
+        )
+        .filter(TDynamicPages.url == "home-bonus")
+        .first()
+    )
+
+    print("bonus", bonus_block)
+    # re_grid_codes = r"M(\d+)"
+
+    return render_template("home.html", name=config.SITE_NAME, bonus_block=bonus_block)
 
 
 @rendered.route("/<string:url>")
@@ -134,13 +144,6 @@ def territory(type_code, area_code):
         legend_dict = {}
         for type in DB.session.query(MVAreaNtileLimit.type).distinct():
             legend_dict[type[0]] = get_legend_classes(type)
-
-        geom_area = (
-            DB.session.query(func.ST_Buffer(LAreas.geom, 1000).label("geom"))
-            .filter(LAreas.id_area == area_info.id_area)
-            .first()
-        )
-        # re_grid_codes = r"M(\d+)"
 
         return render_template(
             "territory/_main.html",

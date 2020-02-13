@@ -15,7 +15,7 @@
             background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
         }
 
-        #homeStats{
+        #homeStats {
             color: rgba(255, 255, 255, 0.8);
         }
     </style>
@@ -45,20 +45,23 @@
                     <div class="count" id="countObservers">0</div>
                     <div class="subject">Observateurs</div>
                 </div>
-                <div class="col">
-                    <div class="count" id="countDatasets">0</div>
-                    <div class="subject">Jeux de données</div>
-                </div>
+                {#                <div class="col">#}
+                {#                    <div class="count" id="countDatasets">0</div>#}
+                {#                    <div class="subject">Jeux de données</div>#}
+                {#                </div>#}
             </div>
         </div>
     </div>
-
-    <div class="jumbotron paral paralsec2">
-        <div class="container">
-            <h1 class="display-3">Partenaires</h1>
-            <p class="lead">{{ site_desc|safe }}</p>
+    {% if bonus_block %}
+        <div class="jumbotron paral-adaptative paralsec2">
+            <div class="container">
+                <h1 class="display-3">{{ bonus_block.title }}</h1>
+                <div id="bonusContent" class="content">
+                    {{ bonus_block.content|safe }}
+                </div>
+            </div>
         </div>
-    </div>
+    {% endif %}
     <script type="text/javascript">
 
         var countUpUpdate = function (element, data) {
@@ -73,7 +76,7 @@
                 .then(function (response) {
                     console.log(response);
                     countUpUpdate('countOcctax', response.data['count_occtax']);
-                    countUpUpdate('countDatasets', response.data['count_dataset']);
+                    {#countUpUpdate('countDatasets', response.data['count_dataset']);#}
                     countUpUpdate('countObservers', response.data['count_observers']);
                     countUpUpdate('countTaxa', response.data['count_taxa']);
                 })
@@ -82,6 +85,9 @@
                 })
         };
         getStats()
+
+
+        $("#bonusContent > p, h1, h2, h3, h4").addClass('lead');
 
     </script>
 

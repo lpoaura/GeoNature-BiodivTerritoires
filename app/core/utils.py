@@ -155,6 +155,12 @@ def create_special_pages():
             "navbar_link": False,
             "is_active": True,
         },
+        {
+            "url": "home-bonus",
+            "link_name": "Complément de l'accueil",
+            "navbar_link": False,
+            "is_active": False,
+        },
     ]
 
     for p in pages:

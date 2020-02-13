@@ -630,3 +630,5 @@ WHERE taxonomie.t_redlist.cd_ref = 79305
   AND taxonomie.bib_redlist_categories.code_category = taxonomie.t_redlist.category
 ORDER BY taxonomie.bib_redlist_source.priority, taxonomie.bib_redlist_categories.priority_order
 limit 1
+
+
