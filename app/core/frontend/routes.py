@@ -105,11 +105,16 @@ def datas():
         TReleasedDatas.data_name,
         TReleasedDatas.data_type,
         TReleasedDatas.data_url,
-    ).join(
-        TReleasedDatas, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True
-    )
+    ).join(BibDatasTypes, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True)
     datas = qdatas.all()
-    return render_template("datas.html", datas=datas)
+    intro = (
+        DB.session.query(
+            TDynamicPages.title, TDynamicPages.short_desc, TDynamicPages.content
+        )
+        .filter(TDynamicPages.url == "datas-intro")
+        .first()
+    )
+    return render_template("datas.html", datas=datas, intro=intro)
 
 
 @rendered.route("/territory/<string:type_code>/<string:area_code>")
@@ -145,11 +150,20 @@ def territory(type_code, area_code):
         for type in DB.session.query(MVAreaNtileLimit.type).distinct():
             legend_dict[type[0]] = get_legend_classes(type)
 
+        intro = (
+            DB.session.query(
+                TDynamicPages.title, TDynamicPages.short_desc, TDynamicPages.content
+            )
+            .filter(TDynamicPages.url == "territory-intro")
+            .first()
+        )
+
         return render_template(
             "territory/_main.html",
             area_info=area_info,
             gen_stats=gen_stats,
             legend_dict=legend_dict,
+            intro=intro,
         )
 
     except Exception as e:

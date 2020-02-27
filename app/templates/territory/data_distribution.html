@@ -504,7 +504,7 @@
     });
 
     $('#datasChartChooseTimeUnit').on('change', function () {
-        console.log('selected', this.);
+        console.log('selected', this.value);
         temporalDistribChartUpdate({{ area_info.id_area }}, this.value);
     });
 

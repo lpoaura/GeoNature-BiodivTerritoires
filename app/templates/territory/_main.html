@@ -1,4 +1,5 @@
-{% extends "core/layout.html" %} {% block title %}La biodiversité de {{ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})  {% endblock %}
+{% extends "core/layout.html" %} {% block title %}La biodiversité de {{ area_info.area_name }} (
+    {{ area_info.type_name }} : {{ area_info.area_code }})  {% endblock %}
 {% block head %} {{ super() }}
 {% endblock %} {% block content %}
     <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
@@ -17,9 +18,10 @@
             </div>
         </div>
         <div class="container-fluid">
-            <div class="row mt-2">
-                <div class="col">
-                    <div class="form-group float-right">
+            <div class="row p-3">
+                <div class="col  alert alert-info">
+                    {{ intro.content | safe }}
+                    <div class="form-group text-center mt-2 alert alert-light">
                         <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
                         <select class="form-control-inline" id="selectBuffer">
                             <option value="1000">1km</option>
@@ -28,9 +30,12 @@
                             <option value="10000">10km</option>
                         </select>
                     </div>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
                     <h2><i class="fa fa-map-signs fa-fw"></i> Territoires associés (recouvrement ou limitrophes)
                     </h2>
-
                 </div>
                 {% include "territory/surrounding_areas.html" %}
             </div>

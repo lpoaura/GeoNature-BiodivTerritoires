@@ -214,7 +214,7 @@ def datas_types():
             TReleasedDatas.data_name,
             TReleasedDatas.data_desc,
         ).join(
-            TReleasedDatas,
+            BibDatasTypes,
             BibDatasTypes.id_type == TReleasedDatas.id_type,
             isouter=True,
         )

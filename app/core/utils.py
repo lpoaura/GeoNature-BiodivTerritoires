@@ -161,6 +161,19 @@ def create_special_pages():
             "navbar_link": False,
             "is_active": False,
         },
+        {
+            "url": "datas-intro",
+            "link_name": "Introduction de la page Données",
+            "navbar_link": False,
+            "is_active": False,
+        },
+        {
+            "url": "territory-intro",
+            "link_name": "Introduction de la fiche territoire",
+            "navbar_link": False,
+            "is_active": False,
+            "content": "Dans les différents blocs ci-après, vous trouverez des informations de synthèse sur le territoire. Il s'agit des connaissances disponibles qui peuvent s'avérer lacunaires. Le choix a été de mettre en avant les espèces présentant les statuts les plus défavorables.Vous pouvez choisir la distance de recherche des données autour du territoire sélectionné.",
+        },
     ]
 
     for p in pages:
