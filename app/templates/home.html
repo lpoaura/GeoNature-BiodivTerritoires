@@ -1,0 +1,94 @@
+{% extends "core/layout.html" %} {% block title %}Accueil{% endblock %} {% block head %} {{ super() }}
+
+{% endblock %} {% block content %}
+    <style type="text/css">
+
+        .paralsec {
+            background-image: url({{ url_for('static', filename='custom/images/home-background.jpg')}});
+        }
+
+        .paralsec1 {
+            background-image: url("https://img.webnots.com/2017/05/parallax1.jpg");
+        }
+
+        .paralsec2 {
+            background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
+        }
+
+        #homeStats {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+    <!-- First Parallax Section -->
+    <div class="jumbotron paral paralsec">
+        <div class="container">
+            <h1 class="display-3">{{ site_name }}</h1>
+            <p class="lead">{{ site_desc|safe }}</p>
+            <p class="lead">
+                {% include "core/search_territory.html" %}
+            </p>
+        </div>
+    </div>
+    <div class="jumbotron paral paralsec1">
+        <div class="container">
+            <h1 class="display-3">Données de la plateforme</h1>
+            <div id="homeStats" class="row text-center lead">
+                <div class="col">
+                    <div class="count" id="countOcctax">0</div>
+                    <div class="subject">Observations</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countTaxa">0</div>
+                    <div class="subject">Taxons</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countObservers">0</div>
+                    <div class="subject">Observateurs</div>
+                </div>
+                {#                <div class="col">#}
+                {#                    <div class="count" id="countDatasets">0</div>#}
+                {#                    <div class="subject">Jeux de données</div>#}
+                {#                </div>#}
+            </div>
+        </div>
+    </div>
+    {% if bonus_block %}
+        <div class="jumbotron paral-adaptative paralsec2">
+            <div class="container">
+                <h1 class="display-3">{{ bonus_block.title }}</h1>
+                <div id="bonusContent" class="content">
+                    {{ bonus_block.content|safe }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <script type="text/javascript">
+
+        var countUpUpdate = function (element, data) {
+            {#new CountUp('element', data);#}
+            console.log(element, data);
+            document.getElementById(element).innerText = data
+        };
+
+
+        var getStats = function () {
+            axios.get('/api/homestats')
+                .then(function (response) {
+                    console.log(response);
+                    countUpUpdate('countOcctax', response.data['count_occtax']);
+                    {#countUpUpdate('countDatasets', response.data['count_dataset']);#}
+                    countUpUpdate('countObservers', response.data['count_observers']);
+                    countUpUpdate('countTaxa', response.data['count_taxa']);
+                })
+                .catch(function (error) {
+                    console.log('<get GenStats error>', error);
+                })
+        };
+        getStats();
+
+
+        $("#bonusContent > p, h1, h2, h3, h4").addClass('lead');
+
+    </script>
+
+{% endblock %}

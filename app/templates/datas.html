@@ -1,0 +1,47 @@
+{% extends "core/layout.html" %} {% block title %}Données {% endblock %} {% block head %} {{ super() }}
+    <style type="text/css">
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Données</h1>
+            <div class="">
+                {{ intro.content|safe }}
+            </div>
+                <div class="table-responsive table-responsive-sm">
+                    <table id="datasTable" class="table table-striped table-hover table-sm">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Type de donnée/de protocole</th>
+                            <th>Description</th>
+                            <th>URL</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for v in datas %}
+                            <tr>
+                                <td>{{ v.data_name }}</td>
+                                <td>{{ v.type_protocol }}</td>
+                                <td>{{ v.data_desc }} </td>
+                                <td><a href="{{ v.data_url }}" target="_blank" data-toggle="tooltip" title="URL de {{ v.data_name }}">{{ v.data_url }}</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var datasTable = $('#datasTable').DataTable({
+            scrollY: "600px",
+            scrollCollapse: true,
+            paging: false,
+            language: dataTableFr,
+        });
+    </script>
+{% endblock %}

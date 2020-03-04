@@ -1,0 +1,17 @@
+{% extends "core/layout.html" %} {% block title %}Données {% endblock %} {% block head %} {{ super() }}
+    <style type="text/css">
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>{{page.title}}</h1>
+                <div>
+                    {{ page.content | safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

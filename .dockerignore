@@ -1,0 +1,5 @@
+.env
+venv
+config.py
+configs/settings.ini
+configs/config.py

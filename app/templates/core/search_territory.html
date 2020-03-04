@@ -1,0 +1,87 @@
+<div class="input-group" data-toggle="tooltip"  data-placement="left" title="Recherchez un territorie (nom ou code INSEE)">
+    <div class="input-group-prepend">
+        <span class="input-group-text text-info"><i class="fa fa-search-location"></i></span>
+    </div>
+    <select class="search-territory-select form-control mr-sm-2" type="text" placeholder="Rechercher un territoire"
+            aria-label="Search" style="width:1%">
+    </select>
+</div>
+
+
+
+<script>
+
+
+    // Select2 de Recherche de territoire
+
+
+    $(".search-territory-select").select2({
+        ajax: {
+            url: "/api/find/area",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.datas,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+            cache: true
+        },
+        language: {
+            // You can find all of the options in the language files provided in the
+            // build. They all must be functions that return the string that should be
+            // displayed.
+            inputTooShort: function () {
+              return "Veuillez saisir plus de 3 caractères...";
+            }
+          },
+        theme: 'bootstrap4',
+        placeholder: 'Recherchez un territoire',
+        minimumInputLength: 3,
+        templateResult: formatArea,
+        templateSelection: formatAreaSelection
+    });
+
+    function formatArea(area) {
+        if (area.loading) {
+            return area.text;
+        }
+
+        var $container = $(
+            "<div class='clearfix'>" +
+            "<div><strong><span id='select2-result-area__area_name'></span></strong>" +
+            "&nbsp;(" +
+            "<span id='select2-result-area__area_code'></span>)" +
+            "&nbsp;" +
+            "<span class='badge badge-primary text-right' id='select2-result-area__type_name'></span></div>" +
+            "</div>"
+        );
+
+        $container.find("#select2-result-area__area_name").text(area.area_name);
+        $container.find("#select2-result-area__type_name").text(area.type_name);
+        $container.find("#select2-result-area__area_code").text(area.area_code);
+
+        return $container;
+    }
+
+    function formatAreaSelection(area) {
+        return area.area_name ? area.area_name : 'Recherchez un territoire';
+    }
+
+    $('.search-territory-select').change(function () {
+        var data = $(this).val();
+        location.href = '/api/area/' + data;
+    });
+
+
+</script>
