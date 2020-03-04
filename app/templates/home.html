@@ -1,48 +1,94 @@
 {% extends "core/layout.html" %} {% block title %}Accueil{% endblock %} {% block head %} {{ super() }}
-<style type="text/css">
-/*
- * Base structure
- */
-    
-    .jumbotron {
-        text-align: center;
-        min-height: 100vh;
-        height: calc(100% - 65px);
-        height: -o-calc(100% - 65px);
-        /* opera */
-        height: -webkit-calc(100% - 65px);
-        /* google, safari */
-        height: -moz-calc(100% - 65px);
-        /* firefox */
-        position: relative;
-        background: url({{ url_for('static', filename='images/paysage_crollant.jpg')}});
-        background-repeat: no-repeat;
-        background-size: cover;
-        color: white;
-    }
-#home-info {
-    margin: auto;
-    top: 50%;
-    left: 50%;
-    margin: 0;
-    position: absolute;
-    transform: translate(-50%,
-    -50%);
-}
-</style>
+
 {% endblock %} {% block content %}
-<div class="container-fluid">
-    <div id="jumbotron" class="jumbotron">
-        <div id="home-info">
-            <h1>{{site_name}}</h1>
-            <p class="lead">{{site_desc|safe}}</p>
-            <div>
+    <style type="text/css">
+
+        .paralsec {
+            background-image: url({{ url_for('static', filename='custom/images/home-background.jpg')}});
+        }
+
+        .paralsec1 {
+            background-image: url("https://img.webnots.com/2017/05/parallax1.jpg");
+        }
+
+        .paralsec2 {
+            background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
+        }
+
+        #homeStats {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+    <!-- First Parallax Section -->
+    <div class="jumbotron paral paralsec">
+        <div class="container">
+            <h1 class="display-3">{{ site_name }}</h1>
+            <p class="lead">{{ site_desc|safe }}</p>
+            <p class="lead">
                 {% include "core/search_territory.html" %}
+            </p>
+        </div>
+    </div>
+    <div class="jumbotron paral paralsec1">
+        <div class="container">
+            <h1 class="display-3">Données de la plateforme</h1>
+            <div id="homeStats" class="row text-center lead">
+                <div class="col">
+                    <div class="count" id="countOcctax">0</div>
+                    <div class="subject">Observations</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countTaxa">0</div>
+                    <div class="subject">Taxons</div>
+                </div>
+                <div class="col">
+                    <div class="count" id="countObservers">0</div>
+                    <div class="subject">Observateurs</div>
+                </div>
+                {#                <div class="col">#}
+                {#                    <div class="count" id="countDatasets">0</div>#}
+                {#                    <div class="subject">Jeux de données</div>#}
+                {#                </div>#}
             </div>
         </div>
-        </p>
     </div>
-</div>
+    {% if bonus_block %}
+        <div class="jumbotron paral-adaptative paralsec2">
+            <div class="container">
+                <h1 class="display-3">{{ bonus_block.title }}</h1>
+                <div id="bonusContent" class="content">
+                    {{ bonus_block.content|safe }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <script type="text/javascript">
 
+        var countUpUpdate = function (element, data) {
+            {#new CountUp('element', data);#}
+            console.log(element, data);
+            document.getElementById(element).innerText = data
+        };
+
+
+        var getStats = function () {
+            axios.get('/api/homestats')
+                .then(function (response) {
+                    console.log(response);
+                    countUpUpdate('countOcctax', response.data['count_occtax']);
+                    {#countUpUpdate('countDatasets', response.data['count_dataset']);#}
+                    countUpUpdate('countObservers', response.data['count_observers']);
+                    countUpUpdate('countTaxa', response.data['count_taxa']);
+                })
+                .catch(function (error) {
+                    console.log('<get GenStats error>', error);
+                })
+        };
+        getStats();
+
+
+        $("#bonusContent > p, h1, h2, h3, h4").addClass('lead');
+
+    </script>
 
 {% endblock %}

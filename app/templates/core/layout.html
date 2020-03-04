@@ -1,26 +1,41 @@
 <!doctype html>
 <html>
-
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block head %}
 
-    <title>{% block title %}{% endblock %} {{site_name}}</title>
+        <title>{% block title %}{% endblock %} {{ site_name }}</title>
     {% endblock %} {% include "core/assets_css.html" %} {% include "core/assets_js.html" %}
     <style>
         body {
-            padding-top: 5rem;
+        {#padding-top: 5rem;#} padding-top: 77px;
         }
     </style>
 </head>
 
 <body>
-    <header id="navbar">
-        {% include "core/navbar.html" %}
-    </header>
-    {% block content %}{% endblock %}
-    <footer id="footer">
-        {% include "core/footer.html" %}
-    </footer>
+<header id="navbar">
+    {% include "core/navbar.html" %}
+</header>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div id="message">
+                <div id="inner-message" class="alert alert-warning alert-dismissible fade show position-fixed right"
+                     role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+<footer id="footer">
+    {% include "core/footer.html" %}
+</footer>
 
 </body>
 

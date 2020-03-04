@@ -1,68 +1,61 @@
 # Import flask and template operators
 from flask import Flask, render_template
-from flask_assets import Bundle, Environment
-from flask_admin import Admin
-# Import SQLAlchemy
-from flask_sqlalchemy import SQLAlchemy
+
 import config
-from app.utils import create_schemas
-
-# Define the WSGI application object
-app = Flask(
-    __name__,
-    static_url_path="/static",
-    static_folder="static",
-    template_folder="templates",
-)
-
-# Configurations
-try:
-    app.config.from_object(config)
-except Exception as e:
-    print('Import config error : ', e)
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["PYSCSS_STYLE"] = "compressed"
-# Define the database object which is imported
-# by modules and controllers
-db = SQLAlchemy(app)
-assets = Environment(app)
-admin = Admin(app, name='GnBT', template_mode='bootstrap3')
-
-js = Bundle(
-    "leaflet.js",
-    "vue.js",
-    "bootstrap.js",
-    "Chart.js",
-    "jquery.min.js",
-    "select2.js",
-    "main.js",
-    filters="rjsmin",
-    output="bundle.js",
-)
-assets.register("js_all", js)
-
-css = Bundle(
-    "bootstrap.css", "leaflet.css", "Chart.css", "main.css","custom.css","select2.css", filters="pyscss", output="bundle.css"
-)
-assets.register("css_all", css)
+from app.core.env import create_schemas, DB, assets, admin, ckeditor
 
 
-# Sample HTTP error handling
-@app.errorhandler(404)
-def not_found(error):
-    return render_template("404.html"), 404
-
-# Create schemas
-create_schemas(db)
-db.create_all()
+# Import SQLAlchemy
 
 
+def create_app():
+    # Define the WSGI application object
+    app = Flask(
+        __name__,
+        static_url_path="/static",
+        static_folder="static",
+        template_folder="templates",
+    )
+    app.secret_key = config.SECRET_KEY
+    # Configurations
+    try:
+        app.config.from_object(config)
+    except Exception as e:
+        print("<create_app> Import config error : ", e)
 
-from app.api_routes import api
-from app.rendered_routes import rendered
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["PYSCSS_STYLE"] = "compressed"
+    # Define the database object which is imported
+    # by modules and controllers
+    DB.init_app(app)
+    assets.init_app(app)
+    admin.init_app(app)
+    ckeditor.init_app(app)
 
+    # pass parameters to the usershub authenfication sub-module, DONT CHANGE THIS
+    app.config["DB"] = DB
 
-# Register blueprint(s)
-app.register_blueprint(rendered)
-app.register_blueprint(api, url_prefix="/api")
+    # Sample HTTP error handling
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template("404.html"), 404
+
+    with app.app_context():
+        from app.core.api.routes import api
+        from app.core.frontend.routes import rendered
+        from pypnusershub.routes import routes as users_routes
+        from pypnnomenclature.routes import routes as nom_routes
+        from app.core.utils import create_special_pages
+
+        create_schemas(DB)
+        DB.create_all()
+
+        create_special_pages()
+
+        # Register blueprint(s)
+        app.register_blueprint(rendered)
+        app.register_blueprint(api, url_prefix="/api")
+        app.register_blueprint(users_routes, url_prefix="/auth")
+        app.register_blueprint(nom_routes, url_prefix="/api/nomenclatures")
+
+        return app

@@ -1,4 +1,4 @@
-FROM python:slim-buster
+FROM python:3.7-slim-buster
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get -y upgrade && \
 
 
 RUN apt-get update && \
-        apt-get install -y postgresql-client gcc libgeos-dev 
+        apt-get install -y postgresql-client gcc libgeos-dev git libpq-dev python-dev build-essential libgdal-dev
 
 COPY requirements.txt /app
 
