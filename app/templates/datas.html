@@ -27,7 +27,7 @@
                                 <td>{{ v.data_name }}</td>
                                 <td>{{ v.type_protocol }}</td>
                                 <td>{{ v.data_desc }} </td>
-                                <td>{{ v.data_url }} </td>
+                                <td><a href="{{ v.data_url }}" target="_blank" data-toggle="tooltip" title="URL de {{ v.data_name }}">{{ v.data_url }}</a></td>
                             </tr>
                         {% endfor %}
                         </tbody>

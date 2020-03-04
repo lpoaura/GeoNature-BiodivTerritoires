@@ -18,10 +18,10 @@
             </div>
         </div>
         <div class="container-fluid">
-            <div class="row p-3">
-                <div class="col  alert alert-info">
+            <div id="territoryIntro" class="row p-3">
+                <div class="col lead alert alert-info">
                     {{ intro.content | safe }}
-                    <div class="form-group text-center mt-2 alert alert-light">
+                    <div id="selectBuffer" class="form-group text-center mt-2 alert alert-light">
                         <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
                         <select class="form-control-inline" id="selectBuffer">
                             <option value="1000">1km</option>
@@ -36,13 +36,19 @@
                 <div class="col">
                     <h2><i class="fa fa-map-signs fa-fw"></i> Territoires associés (recouvrement ou limitrophes)
                     </h2>
+                    <p class="lead">Le tableau suivant liste les territoires associés au territoire courant (communes
+                        voisines, zones naturelles, etc.).</p>
                 </div>
                 {% include "territory/surrounding_areas.html" %}
             </div>
             <div class="row mt-2">
                 <div class="col">
                     <h2><i class="fa fa-info fa-fw"></i> Espèces menacées du territoire</h2>
-                </div>
+                    <p class="lead">Les graphiques suivants font l'état des <abbr data-toggle="tooltip"
+                                                                                  data-placement="bottom"
+                                                                                  title="Taxons à statuts de conservation défavorable">espèces
+                        menacées</abbr> du territoire comparativement à son contexte (zone tampon séléctionnée
+                        précédemment <a href="#territoryIntro">ici</a>)</p></div>
                 <div class="row">
                     {% include "territory/threatened_species.html" %}
                 </div>
@@ -50,8 +56,14 @@
 
             <div class="row mt-2 mb-2">
                 <div class="col col-sm-12 col-md-12 col-lg-12">
-                    <h2><span class="title"><i class="fas fa-map-marked-alt"></i></i>
+                    <h2><span class="title"><i class="fas fa-map-marked-alt"></i>
                         Répartition des observations</span></h2>
+                    <p class="lead">La carte suivante illustre la répartition des données sur le territoire. Vous pouvez
+                        choisir la couche thématique et le fond de carte à afficher. Cliquez sur une maille pour
+                        visualiser les espèces observées sur cette dernière. Les graphiques qui suivent illustrent la
+                        répartition des données dans le temps et par groupes taxonomiques. Les lignes en <span
+                                class="bg-danger text-light">rouge</span> indiquent que les taxons qui présentent un
+                        statut de conservation défavorable</p>
                 </div>
                 <div class="col">
                     {% include "territory/data_distribution.html" %}
@@ -59,7 +71,13 @@
             </div>
             <div class="row mt-2">
                 <div class="col">
-                    {% include "territory/list_species.html" %}
+                    <div id="listSpecies">
+                        <h2><i class="fa fa-fw fa-list"></i> Liste des espèces</h2>
+                        <p class="lead">Le tableau suivant liste les espèces connues sur le territoire. Les lignes en
+                            <span class="bg-danger text-light">rouge</span> indiquent que les taxons qui présentent un
+                            statut de conservation défavorable</p>
+                        {% include "territory/list_species.html" %}
+                    </div>
                 </div>
             </div>
         </div>

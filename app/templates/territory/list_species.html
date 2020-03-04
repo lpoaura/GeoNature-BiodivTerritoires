@@ -1,28 +1,25 @@
-<div id="listSpecies">
-    <h2><i class="fa fa-fw fa-list"></i> Liste des espèces</h2>
-    <div class="table-responsive table-responsive-sm">
-        <table id="listSpeciesTable" class="table table-striped table-hover table-sm">
-            <thead class="thead-dark">
-            <tr>
-                <th><i class="fas fa-plus-circle"></i></th>
-                <th>Groupe 1 INPN</th>
-                <th>Groupe 2 INPN</th>
-                <th>Identifiant TaxRef</th>
-                <th>Nom vernaculaire</th>
-                <th>Nom scientifique</th>
-                <th>Menace</th>
-                <th>Liste rouge France</th>
-                <th>Espèce réglementée</th>
-                <th>Nombre d'occurences</th>
-                <th>Nombre d'observateurs</th>
-                <th>Nombre de dates</th>
-                <th>Nombre de jeux de données</th>
-                <th>Reproduction</th>
-                <th>Dernière observation</th>
-            </tr>
-            </thead>
-        </table>
-    </div>
+<div class="table-responsive table-responsive-sm">
+    <table id="listSpeciesTable" class="table table-striped table-hover table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th><i class="fas fa-plus-circle"></i></th>
+            <th>Groupe 1 INPN</th>
+            <th>Groupe 2 INPN</th>
+            <th>Identifiant TaxRef</th>
+            <th>Nom vernaculaire</th>
+            <th>Nom scientifique</th>
+            <th>Menace</th>
+            <th>Liste rouge France</th>
+            <th>Espèce réglementée</th>
+            <th>Nombre d'occurences</th>
+            <th>Nombre d'observateurs</th>
+            <th>Nombre de dates</th>
+            <th>Nombre de jeux de données</th>
+            <th>Reproduction</th>
+            <th>Dernière observation</th>
+        </tr>
+        </thead>
+    </table>
 </div>
 <div id="modalInfo" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -192,7 +189,7 @@
                     "class": "details-control text-center align-middle",
                     "orderable": false,
                     "data": "",
-                    "defaultContent": '<a><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
+                    "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
                 },
                 {data: "group1_inpn"},
                 {data: "group2_inpn"},

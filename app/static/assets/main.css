@@ -300,10 +300,20 @@
     }
 }
 
-.chart-container {
-    position: relative;
-    height: 500px;
-    width: 50vw
+    .chart-container {
+        position: relative;
+        height: 500px;
+    }
+
+@media (min-width: 992px) {
+    .chart-container {
+        width: 50vw
+    }
+}
+@media (max-width: 992px) {
+    .chart-container {
+        width: 100vw
+    }
 }
 
 .chart-select-form {

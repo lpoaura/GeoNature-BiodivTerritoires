@@ -1,10 +1,8 @@
 <div class="col col-md-12">
-
     <div class="table-responsive table-responsive-sm">
         <table id="surroundingAreasTable" class="table table-striped table-hover table-sm">
             <thead class="thead-dark">
             <tr>
-                <th><i class="fas fa-plus-circle"></i></th>
                 <th>Type</th>
                 <th>Code</th>
                 <th>Nom</th>
@@ -26,7 +24,7 @@
 <script>
     var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
             ajax: {
-                url: '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/'+buffer,
+                url: '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer,
                 dataSrc: ""
             },
             scrollY: '300px',
@@ -42,14 +40,13 @@
                 ]
             },
             columns: [
-                {
-                    data: function (row) {
-                        return '<a href="/territory/' + row.type_code + '/' + row.area_code + '" target="_blank" title="Voir la fiche de ' + row.area_name + '" data-toogle="tooltips"><i class="fa fa-fw fa-link text-info"></i></a>'
-                    }
-                },
                 {data: "type_desc"},
                 {data: "area_code"},
-                {data: "area_name"},
+                {
+                    data: function (row) {
+                        return '<a href="/territory/' + row.type_code + '/' + row.area_code + '" target="_blank" title="Voir la fiche de ' + row.area_name + '" data-toogle="tooltips">' + row.area_name + '</a>'
+                    }
+                },
                 {data: "count_occtax"},
                 {data: "count_taxa"},
                 {data: "count_threatened"},
@@ -69,15 +66,15 @@
     {#var surroundingArea = null;#}
     {##}
     {#$('#surroundingAreasTable').on('click', 'tr', function () {#}
-    {#    type_code = $(this).data("typecode");#}
-    {#    area_code = $(this).data("areacode");#}
+    {#    var data = surroundingAreasTable.row(this).data();#}
     {#    console.log(surroundingAreasMap.hasLayer(surroundingArea));#}
     {#    if (surroundingAreasMap.hasLayer(surroundingArea)) {#}
     {#        console.log('removeLayer');#}
     {#        surroundingAreasMap.removeLayer(surroundingArea);#}
-    {#    };#}
+    {#    }#}
+    {#    ;#}
     {#    axios#}
-    {#        .get('/api/geom/' + type_code + '/' + area_code)#}
+    {#        .get('/api/geom/' + data.type_code + '/' + data.area_code)#}
     {#        .then(function (response) {#}
     {#            var surroundingArea = L.geoJson(response.data, {#}
     {#                style: territoryStyle#}
@@ -89,9 +86,7 @@
     {#        .catch(function (error) {#}
     {#            console.log('<getTerritoryArea> Error', error);#}
     {#        });#}
-    {#})
-    ;
-    #}
+    {#});#}
 
 
 </script>
