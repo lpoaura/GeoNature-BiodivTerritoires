@@ -8,15 +8,15 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Accueil<span class="sr-only">(current)</span></a>
+                <li class="nav-item">
+                    <a class="nav-link {% if  request.path=='/'  %}active{% endif %}" href="/">Accueil<span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/datas">Données</a>
+                    <a class="nav-link {% if  request.path=='/datas'  %}active{% endif %}" href="/datas">Données</a>
                 </li>
                 {% for page in special_pages %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ page.url }}">{{ page.link_name }}</a>
+                        <a class="nav-link {% if  request.path=='/'+page.url  %}active{% endif %}" href="{{ page.url }}">{{ page.link_name }}</a>
                     </li>
                 {% endfor %}
             </ul>

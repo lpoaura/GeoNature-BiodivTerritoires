@@ -130,6 +130,36 @@ def redlist_is_not_null(item):
 def create_special_pages():
     pages = [
         {
+            "url": "footer",
+            "link_name": "Footer",
+            "navbar_link": False,
+            "is_active": False,
+            "content": """
+            <div class="container-fluid">
+                <div class="float-right"><a href="https://www.auvergnerhonealpes.fr/" target="_blank"
+                                            title="Région Auvergne-Rhône-Alpes" data-toggle="tooltip"><img
+                        src="https://www.auvergnerhonealpes.fr/cms_viewFile.php?idtf=1406&path=logo-partenaire-2017-rvb-pastille-bleue-png.png"
+                        height="100px"/></a></div>
+                <div class="text-center">
+                    <p class="text-muted">
+                        <a href="/">Accueil</a> |
+                        <a href="/credits" target="_blank">Conception et crédits</a> |
+                        <a href="/mentions-legales">Mentions légales</a>
+                    <p>
+    
+                        <div id="clear">
+                    <p class="text-muted">
+                        Biodiversité des territoires - LPO Auvergne-Rhône-Alpes, 2020
+                        <br/>
+                        Réalisé avec <a href="https://github.com/lpoaura/GeoNature-BiodivTerritoires" target="_blank">GeoNature-BiodivTerritoires</a>,
+                        développé par la <a href="https://auvergne-rhpne-alpes.lpo.fr" target="_blank">LPO
+                        Auvergne-Rhône-Alpes</a> avec le soutien financier de la Région Auvergne-Rhône-Alpes
+                    </p>
+                </div>
+            </div>
+            """,
+        },
+        {
             "url": "about",
             "link_name": "A propos",
             "navbar_link": True,
@@ -160,12 +190,30 @@ def create_special_pages():
             "link_name": "Complément de l'accueil",
             "navbar_link": False,
             "is_active": False,
+            "content": """
+            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/" target="_blank">interface d'administration</a> (<b>url = home-bonus</b>)</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed 
+                do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor 
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat 
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident, 
+                sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            """,
         },
         {
             "url": "datas-intro",
             "link_name": "Introduction de la page Données",
             "navbar_link": False,
             "is_active": False,
+            "content": """
+            <p>Vous trouverez-ici des ressources OpenData relatives &agrave; cette plateforme:</p>
+            <ul>
+                <li>Flux de donn&eacute;es&nbsp;;</li>
+                <li>Donn&eacute;es t&eacute;l&eacute;chargeables&nbsp;;</li>
+                <li>etc.</li>
+            </ul>
+            """,
         },
         {
             "url": "territory-intro",

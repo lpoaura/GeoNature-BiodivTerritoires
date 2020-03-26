@@ -10,6 +10,19 @@
         body {
         {#padding-top: 5rem;#} padding-top: 77px;
         }
+
+        .paralsec {
+            background-image: url('/static/custom/images/home-background.jpg');
+        }
+
+        .paralsec1 {
+            background-image: url("https://img.webnots.com/2017/05/parallax1.jpg");
+        }
+
+        .paralsec2 {
+            background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
+        }
+
     </style>
 </head>
 
@@ -18,22 +31,22 @@
     {% include "core/navbar.html" %}
 </header>
 <main>
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <div id="message">
-                <div id="inner-message" class="alert alert-warning alert-dismissible fade show position-fixed right"
-                     role="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div id="message">
+                    <div id="inner-message" class="alert alert-warning alert-dismissible fade show position-fixed right"
+                         role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-{% block content %}{% endblock %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
 </main>
 <footer id="footer">
     {% include "core/footer.html" %}

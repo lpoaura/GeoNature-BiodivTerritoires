@@ -1,23 +1,5 @@
 {% block footer %}
     <footer class="row pt-3 bg-light">
-        <div class="container">
-            <div class="text-center">
-                <p class="text-muted">
-                    <a href="/">Accueil</a> |
-                    <a href="/credits" target="_blank">Conception et crédits</a> |
-                    <a href="/mentions-legales">Mentions légales</a>
-                <p>
-
-                    <div id="clear">
-                <p class="text-muted">
-                    Biodiversité des territoires - LPO Auvergne-Rhône-Alpes, 2020
-                    <br/>
-                    Réalisé avec <a href="https://github.com/lpoaura/GeoNature-BiodivTerritoires" target="_blank">GeoNature-BiodivTerritoires</a>,
-                    développé par la <a href="https://auvergne-rhpne-alpes.lpo.fr" target="_blank">LPO
-                    Auvergne-Rhône-Alpes</a> avec le soutien financier de la Région Auvergne-Rhône-Alpes
-                </p>
-            </div>
-        </div>
-    </footer>
+        {{ footer|safe }}
     </footer>
 {% endblock %}
