@@ -17,6 +17,7 @@
 <header id="navbar">
     {% include "core/navbar.html" %}
 </header>
+<main>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         {% for message in messages %}
@@ -33,6 +34,7 @@
     {% endif %}
 {% endwith %}
 {% block content %}{% endblock %}
+</main>
 <footer id="footer">
     {% include "core/footer.html" %}
 </footer>
