@@ -4,7 +4,7 @@
 DROP MATERIALIZED VIEW IF EXISTS ref_geo.mv_l_areas_autocomplete;
 CREATE MATERIALIZED VIEW ref_geo.mv_l_areas_autocomplete AS
 (
-SELECT distinct
+SELECT DISTINCT
     l_areas.id_area                    AS id
   , bib_areas_types.type_name          AS type_name
   , lower(unaccent(l_areas.area_name)) AS search_area_name
@@ -130,8 +130,8 @@ WITH
     area AS (SELECT st_simplify(st_union(geom), 100) AS geom
              FROM
                  ref_geo.l_areas
---              WHERE LEFT(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
-             WHERE LEFT(area_code, 2) IN ('07'))
+             WHERE LEFT(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
+--             WHERE LEFT(area_code, 2) IN ('07'))
 SELECT
     bib_areas_types.id_type
   , 'Maille 500m l' || grow || 'c' || gcol AS NAME
@@ -155,7 +155,27 @@ WHERE
     st_intersects(st_buffer(area.geom, 1000), sg.geom)
 ;
 
-DROP TABLE IF EXISTS public.test;
+WITH
+    area AS (SELECT st_simplify(st_union(geom), 100) AS geom
+             FROM
+                 ref_geo.l_areas
+             WHERE LEFT(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
+  , select_areas AS (
+    SELECT id_area
+    FROM
+        ref_geo.l_areas
+            NATURAL JOIN ref_geo.bib_areas_types
+      , area
+    WHERE type_code LIKE 'M0.5' AND st_disjoint(l_areas.geom, area.geom))
+DELETE
+FROM ref_geo.l_areas
+WHERE
+        id_area IN (SELECT id_area
+                    FROM
+                        select_areas);
+
+
+DROP TABLE IF EXISTS PUBLIC.test;
 CREATE TABLE public.test AS
 WITH
     area AS (SELECT st_simplify(st_union(geom), 100) AS geom

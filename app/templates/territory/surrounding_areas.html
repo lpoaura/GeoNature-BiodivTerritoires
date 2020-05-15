@@ -3,16 +3,16 @@
         <table id="surroundingAreasTable" class="table table-striped table-hover table-sm">
             <thead class="thead-dark">
             <tr>
-                <th>Type</th>
-                <th>Code</th>
-                <th>Nom</th>
-                <th>Nombre d'observations</th>
-                <th>Nombre de taxons</th>
-                <th>Nombre de taxons menacés</th>
-                <th>Nombre d'observateurs</th>
-                <th>Nombre de dates</th>
+                <th data-toggle="tooltip" title="Type de territoire">Type</th>
+                <th data-toggle="tooltip" title="Code officiel">Code</th>
+                <th data-toggle="tooltip" title="Nom officiel">Nom</th>
+                <th data-toggle="tooltip" title="Nombre total d'observations sur le territoire">Nombre d'observations</th>
+                <th data-toggle="tooltip" title="Un taxon correspond à un niveau taxonomique (généralement espèce)">Nombre de taxons</th>
+                <th data-toggle="tooltip" title="Nombre total de taxons inscrits sur une liste rouge (préciser régionale ou nationale)">Nombre de taxons menacés</th>
+                <th data-toggle="tooltip" title="Nombre de personnes ayant transmis au moins une observation">Nombre d'observateurs</th>
+                <th data-toggle="tooltip" title="Nombre de dates distinctes d'observation">Nombre de dates</th>
                 <th>Dernière observation</th>
-                <th>Nombre de jeux de données</th>
+{#                <th>Nombre de jeux de données</th>#}
             </tr>
             </thead>
         </table>
@@ -57,7 +57,7 @@
                         return new Date(row.last_obs).toLocaleDateString();
                     }
                 },
-                {data: "count_dataset"},
+                {#{data: "count_dataset"},#}
             ],
         })
     ;

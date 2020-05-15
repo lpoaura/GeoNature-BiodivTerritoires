@@ -37,6 +37,13 @@ def global_variables():
         .order_by(TDynamicPages.navbar_link_order.asc())
         .all()
     )
+    values["footer"] = (
+        DB.session.query(TDynamicPages.content)
+        .filter(TDynamicPages.is_active == False)
+        .filter(TDynamicPages.navbar_link == False)
+        .filter(TDynamicPages.url == "footer")
+        .one()
+    ).content
 
     categories = (
         DB.session.query(

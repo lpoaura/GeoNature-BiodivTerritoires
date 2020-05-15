@@ -45,16 +45,19 @@ class TDynamicPages(DB.Model):
     )
 
 
-class TDynamicPagesModelView(ModelView):
-    form_overrides = {"content": CKEditorField}
-
-    create_template = "admin/ckeditor.html"
-    edit_template = "admin/ckeditor.html"
+#
+# class TDynamicPagesModelView(ModelView):
+#     form_overrides = {"content": CKEditorField}
+#
+#     create_template = "admin/ckeditor.html"
+#     edit_template = "admin/ckeditor.html"
 
 
 admin.add_view(
-    ModelView(BibDynamicPagesCategory, DB.session, category="Contenu dynamique")
+    ModelView(
+        BibDynamicPagesCategory, DB.session, "Category", category="Dynamic content"
+    )
 )
 admin.add_view(
-    TDynamicPagesModelView(TDynamicPages, DB.session, category="Contenu dynamique")
+    ModelView(TDynamicPages, DB.session, "Pages", category="Dynamic content")
 )

@@ -37,9 +37,5 @@ class TReleasedDatas(DB.Model):
         return self.data_name
 
 
-admin.add_view(
-    ModelView(BibDatasTypes, DB.session, category="Données", name="Types de données")
-)
-admin.add_view(
-    ModelView(TReleasedDatas, DB.session, category="Données", name="Données")
-)
+admin.add_view(ModelView(BibDatasTypes, DB.session, category="Data", name="Data types"))
+admin.add_view(ModelView(TReleasedDatas, DB.session, category="Data", name="Data"))
