@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="gn2dev@crashtest" uuid="cce74af8-ad73-498a-8baa-82f973a2633d">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://crashtest:5432/gn2dev</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="gnlpoaura@geonature.lpo-aura.org" uuid="285de938-a166-46f5-9558-60cd1d07f04e">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://geonature.lpo-aura.org:5432/gnlpoaura</jdbc-url>
+    </data-source>
+  </component>
+</project>
