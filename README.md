@@ -4,7 +4,7 @@ Portail de restitution de la biodiversité des territoires pour un porté à con
 
 ## Démo
 
-Une démo, couvrant le territoire de l'Ardèche est disponible à cette adresse: https://biodiv-territoires-demo.lpo-aura.org/
+Une démo, couvrant le territoire de l'Ardèche est disponible à cette adresse: https://biodiv-territoires.lpo-aura.org/
 
 ## Contexte
 
