@@ -1,0 +1,175 @@
+<div class="chart-container  col col-lg-6" style="position: relative; height:500px; width:50vw">
+    <canvas id="threatenedSpeciesGlobal"></canvas>
+    <div id="threatenedSpeciesGlobalSpinner">
+        <div class="loader-1"></div>
+        <div class="loader-2"></div>
+        <div class="loader-3"></div>
+    </div>
+</div>
+<div class="chart-container col col-lg-6" style="position: relative; height:500px; width:50vw">
+    <canvas id="threatenedSpeciesByTaxoGroup"></canvas>
+    <div id="threatenedSpeciesByTaxoGroupSpinner">
+        <div class="loader-1"></div>
+        <div class="loader-2"></div>
+        <div class="loader-3"></div>
+    </div>
+</div>
+<script>
+    var threatenedSpeciesGlobal = document.getElementById('threatenedSpeciesGlobal').getContext('2d');
+    var threatenedSpeciesByTaxoGroup = document.getElementById('threatenedSpeciesByTaxoGroup').getContext('2d');
+
+    var threatenedDataColors = {
+        threatened: {background: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)'},
+        not_threatened: {background: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)'}
+    }
+
+    var threatenedSpeciesGlobalChart = new Chart(threatenedSpeciesGlobal, {
+        type: 'bar',
+        data: {
+            labels: ['Chargemet en cours'],
+            datasets: [{
+                label: 'Espèces menacées',
+                data: [0, 0],
+                backgroundColor: [threatenedDataColors.threatened.background, threatenedDataColors.threatened.background,],
+                borderColor: [threatenedDataColors.threatened.border, threatenedDataColors.threatened.border,],
+                borderWidth: 3
+            },
+                {
+                    label: 'Autres espèces',
+                    data: [0, 0],
+                    backgroundColor: [threatenedDataColors.not_threatened.background, threatenedDataColors.not_threatened.background,],
+                    borderColor: [threatenedDataColors.not_threatened.border, threatenedDataColors.not_threatened.border,],
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Nombre d'espèces observées par catégories de menaces",
+                position: "top",
+                fontSize: 20,
+            },
+            scales: {
+                xAxes: [{
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true
+                }]
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+
+    var threatenedSpeciesGlobalUpdate = function (id_area, buffer) {
+        $('#threatenedSpeciesGlobalSpinner').show();
+        axios.get('/api/charts/synthesis/group2_inpn_species/' + id_area + '/' + buffer)
+            .then(function (response) {
+                threatenedSpeciesGlobalChart.data.datasets[0].data = [response.data['territory']['threatened'].reduce(add), response.data['surrounding']['threatened'].reduce(add)];
+                threatenedSpeciesGlobalChart.data.datasets[1].data = [response.data['territory']['not_threatened'].reduce(add), response.data['surrounding']['not_threatened'].reduce(add)];
+                threatenedSpeciesGlobalChart.data.labels[0] = 'Sur le territoire';
+                threatenedSpeciesGlobalChart.data.labels[1] = 'Autour du territoire sur ' + buffer / 1000 + 'km';
+                threatenedSpeciesGlobalChart.options.title.text = ["Nombre d'espèces observées par catégories de menaces","sur le territoire et sur une zone de "+buffer/1000+"km autour du territoire"];
+                threatenedSpeciesGlobalChart.update();
+                $('#threatenedSpeciesGlobalSpinner').hide();
+            }).catch(function (error) {
+            console.log(error);
+        });
+    };
+
+    var threatenedSpeciesByTaxoGroupChart = new Chart(threatenedSpeciesByTaxoGroup, {
+        type: 'bar',
+        data: {
+            labels: ['chargement en cours'],
+            datasets: [{
+                label: 'Espèces menacées',
+                data: [0, 0],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 99, 132, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 99, 132, 1)',
+                ],
+                borderWidth: 3
+            },
+                {
+                    label: 'Autres espèces',
+                    data: [0, 0],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Nombre d'espèces observées par catégories de menaces et par groupe taxonomique",
+                position: "top",
+                fontSize: 20,
+            },
+            scales: {
+                xAxes: [{
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true
+                }]
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    });
+
+    var threatenedSpeciesByTaxoGroupDatas = null;
+
+    var threatenedSpeciesByTaxoGroupGetData = function (id_area, buffer, source_data) {
+        $('#threatenedSpeciesByTaxoGroupSpinner').show();
+        axios.get('/api/charts/synthesis/group2_inpn_species/' + id_area + '/' + buffer)
+            .then(function (response) {
+                threatenedSpeciesByTaxoGroupDatas = response.data;
+                $('#threatenedSpeciesByTaxoGroupSpinner').hide();
+                threatenedSpeciesByTaxoGroupUpdate(source_data, 10000);
+                $('#threatenedSpeciesByTaxoGroupSpinner').hide();
+            }).catch(function (error) {
+            console.log(error);
+        });
+
+    };
+
+    var threatenedSpeciesByTaxoGroupUpdate = function (source_data) {
+        $('#threatenedSpeciesByTaxoGroupSpinner').show();
+        console.log(threatenedSpeciesByTaxoGroupDatas)
+        threatenedSpeciesByTaxoGroupChart.data.labels = threatenedSpeciesByTaxoGroupDatas['labels'];
+        threatenedSpeciesByTaxoGroupChart.data.datasets[0].label = 'Espèces menacées';
+        threatenedSpeciesByTaxoGroupChart.data.datasets[0].data = threatenedSpeciesByTaxoGroupDatas[source_data]['threatened'];
+        threatenedSpeciesByTaxoGroupChart.data.datasets[1].label = 'Espèces non menacées';
+        threatenedSpeciesByTaxoGroupChart.data.datasets[1].data = threatenedSpeciesByTaxoGroupDatas[source_data]['not_threatened'];
+        threatenedSpeciesByTaxoGroupChart.data.datasets[0].backgroundColor = [];
+        threatenedSpeciesByTaxoGroupChart.data.datasets[0].borderColor = [];
+        threatenedSpeciesByTaxoGroupChart.data.datasets[1].backgroundColor = [];
+        threatenedSpeciesByTaxoGroupChart.data.datasets[1].borderColor = [];
+        threatenedSpeciesByTaxoGroupChart.options.title.text = ["Nombre d'espèces observées par catégories de menaces et par groupe taxonomique","sur une zone de "+buffer/1000+"km autour du territoire"];
+        for (var i = 0; i < threatenedSpeciesByTaxoGroupDatas['labels'].length; i++) {
+            threatenedSpeciesByTaxoGroupChart.data.datasets[0].backgroundColor.push(threatenedDataColors.threatened.background);
+            threatenedSpeciesByTaxoGroupChart.data.datasets[0].borderColor.push(threatenedDataColors.threatened.border);
+            threatenedSpeciesByTaxoGroupChart.data.datasets[1].backgroundColor.push(threatenedDataColors.not_threatened.background);
+            threatenedSpeciesByTaxoGroupChart.data.datasets[1].borderColor.push(threatenedDataColors.not_threatened.border);
+        }
+        threatenedSpeciesByTaxoGroupChart.update();
+        $('#threatenedSpeciesByTaxoGroupSpinner').hide();
+    };
+
+    threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
+    threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
+
+</script>
