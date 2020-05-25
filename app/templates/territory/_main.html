@@ -8,7 +8,6 @@
 
 {% block head %}
     {{ super() }}
-
 {% endblock %}
 
 
@@ -36,7 +35,7 @@
             <div id="territoryIntro" class="row p-3">
                 <div class="col lead alert alert-info">
                     {{ intro.content | safe }}
-                    <div id="selectBuffer" class="form-group text-center mt-2 alert alert-light">
+                    <div class="form-group text-center mt-2 alert alert-light">
                         <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
                         <select class="form-control-inline" id="selectBuffer">
                             <option value="1000">1km</option>
