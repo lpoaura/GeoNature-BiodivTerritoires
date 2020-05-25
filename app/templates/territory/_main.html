@@ -1,7 +1,22 @@
-{% extends "core/layout.html" %} {% block title %}La biodiversité de {{ area_info.area_name }} (
-    {{ area_info.type_name }} : {{ area_info.area_code }})  {% endblock %}
-{% block head %} {{ super() }}
-{% endblock %} {% block content %}
+{% extends "core/layout.html" %}
+
+
+{% block title %}La biodiversité de {{ area_info.area_name }} (
+    {{ area_info.type_name }} : {{ area_info.area_code }})
+{% endblock %}
+
+
+{% block head %}
+    {{ super() }}
+
+{% endblock %}
+
+
+{% block content %}
+    <script>
+        const baseLayersList = JSON.parse('{{ base_layers | tojson | safe }}');
+        console.log('<baseLayersList>', baseLayersList);
+    </script>
     <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         var buffer = {{ default_buffer }};
@@ -76,7 +91,8 @@
                 <div class="col">
                     <div id="listSpecies">
                         <h2><i class="fa fa-fw fa-list"></i> Liste des espèces</h2>
-                        <p class="lead">Dans le tableau ci-dessous figurent l'ensemble des espèces observées sur le territoire sélectionné.  Les lignes en
+                        <p class="lead">Dans le tableau ci-dessous figurent l'ensemble des espèces observées sur le
+                            territoire sélectionné. Les lignes en
                             <span class="bg-danger text-light">rouge</span> indiquent que les taxons qui présentent un
                             statut de conservation défavorable.<br/>
                             Vous pouvez télécharger le tableau sous différents formats.</p>

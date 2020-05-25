@@ -223,18 +223,17 @@ SELECT populate_geometry_columns();
 -- UPDATE gn_synthese.synthese
 -- SET
 --     the_geom_local = the_geom_local;
-
-INSERT INTO
-    gn_synthese.cor_area_synthese (id_synthese, id_area)
-SELECT
-    s.id_synthese AS id_synthese
-  , a.id_area     AS id_area
-FROM
-    ref_geo.l_areas a
-        JOIN gn_synthese.synthese s ON public.ST_INTERSECTS(s.the_geom_local, a.geom)
-WHERE
-        a.id_type = (SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code LIKE 'M0.5');
-
+--
+-- INSERT INTO
+--     gn_synthese.cor_area_synthese (id_synthese, id_area)
+-- SELECT
+--     s.id_synthese AS id_synthese
+--   , a.id_area     AS id_area
+-- FROM
+--     ref_geo.l_areas a
+--         JOIN gn_synthese.synthese s ON public.ST_INTERSECTS(s.the_geom_local, a.geom)
+-- WHERE
+--         a.id_type = (SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code LIKE 'M0.5');
 
 
 DROP
@@ -495,7 +494,7 @@ CREATE TABLE taxonomie.cor_redlist_source_area (
 );
 
 DROP TABLE IF EXISTS taxonomie.t_redlist;
-CREATE TABLE taxonomie.redlist (
+CREATE TABLE taxonomie.t_redlist (
     id_redlist   SERIAL  NOT NULL PRIMARY KEY,
     status_order INTEGER,
     cd_nom       INTEGER REFERENCES taxonomie.taxref(cd_nom),
@@ -505,7 +504,6 @@ CREATE TABLE taxonomie.redlist (
     id_source    INTEGER REFERENCES taxonomie.bib_redlist_source(id_source)
 );
 
-ALTER TABLE taxonomie.red
 
 /* Insertion de la source UICN France*/
 INSERT INTO
@@ -526,6 +524,7 @@ FROM
     taxonomie.taxref_liste_rouge_fr
         JOIN taxonomie.bib_redlist_source ON liste_rouge_source = bib_redlist_source.name_source
         JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom;
+
 
 INSERT INTO
     taxonomie.t_redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
@@ -589,83 +588,6 @@ INSERT INTO
 VALUES
     ('Régions', 'REG', 'Type région')
   , ('Pays', 'PAY', 'Type pays');
-
-INSERT INTO
-    ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, meta_create_date, meta_update_date)
-SELECT
-    t.id_type
-  , 'France'
-  , 'FR'
-  , st_makevalid(st_union(geom))
-  , st_centroid(st_makevalid(st_union(geom)))
-  , 'SQL - Union des communes'
-  , NULL
-  , now()
-  , now()
-FROM
-    ref_geo.l_areas
-  , (SELECT t1.id_type FROM ref_geo.bib_areas_types t1 WHERE type_code LIKE 'PAY') AS t
-WHERE
-        l_areas.id_type = (SELECT t2.id_type FROM ref_geo.bib_areas_types AS t2 WHERE t2.type_code LIKE 'COM')
-GROUP BY
-    t.id_type;
-
-SELECT
-    t.id_type
-  , 'Auvergne-Rhône-Alpes'
-  , 'R84'
-  , st_makevalid(st_union(geom))
-  , st_centroid(st_makevalid(st_union(geom)))
-  , 'SQL - Union des communes'
-  , NULL
-  , now()
-  , now()
-FROM
-    ref_geo.l_areas
-  , (SELECT t1.id_type FROM ref_geo.bib_areas_types t1 WHERE type_code LIKE 'REG') AS t
-WHERE
-        l_areas.id_type = (SELECT t2.id_type FROM ref_geo.bib_areas_types AS t2 WHERE t2.type_code LIKE 'COM') AND
-        left(l_areas.area_code, 2) IN ('03', '15', '43', '63', '01', '07', '26', '38', '42', '69', '73', '74')
-GROUP BY
-    t.id_type;
-
-SELECT
-    t.id_type
-  , 'Auvergne'
-  , 'R83'
-  , st_makevalid(st_union(geom))
-  , st_centroid(st_makevalid(st_union(geom)))
-  , 'SQL - Union des communes'
-  , NULL
-  , now()
-  , now()
-FROM
-    ref_geo.l_areas
-  , (SELECT t1.id_type FROM ref_geo.bib_areas_types t1 WHERE type_code LIKE 'REG') AS t
-WHERE
-        l_areas.id_type = (SELECT t2.id_type FROM ref_geo.bib_areas_types AS t2 WHERE t2.type_code LIKE 'COM') AND
-        left(l_areas.area_code, 2) IN ('03', '15', '43', '63')
-GROUP BY
-    t.id_type;
-
-SELECT
-    t.id_type
-  , 'Rhône-Alpes'
-  , 'R82'
-  , st_makevalid(st_union(geom))
-  , st_centroid(st_makevalid(st_union(geom)))
-  , 'SQL - Union des communes'
-  , NULL
-  , now()
-  , now()
-FROM
-    ref_geo.l_areas
-  , (SELECT t1.id_type FROM ref_geo.bib_areas_types t1 WHERE type_code LIKE 'REG') AS t
-WHERE
-        l_areas.id_type = (SELECT t2.id_type FROM ref_geo.bib_areas_types AS t2 WHERE t2.type_code LIKE 'COM') AND
-        left(l_areas.area_code, 2) IN ('01', '07', '26', '38', '42', '69', '73', '74')
-GROUP BY
-    t.id_type;
 
 
 
