@@ -37,7 +37,7 @@
 <script type="text/javascript">
     $(document.body).on('click', "#protectionDetails", function () {
         var cdref = $(this).data("cdref");
-        axios.get('https://geonature.fauneauvergnerhonealpes.org/taxhub/api/taxref/' + cdref)
+        axios.get('{{TAXHUB_URL}}/api/taxref/' + cdref)
             .then(function (response) {
                     $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
                     var tableContent = '';
