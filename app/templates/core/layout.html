@@ -5,7 +5,10 @@
     {% block head %}
 
         <title>{% block title %}{% endblock %} {{ site_name }}</title>
-    {% endblock %} {% include "core/assets_css.html" %} {% include "core/assets_js.html" %}
+    {% endblock %}
+    {% include "core/assets_css.html" %}
+
+    {% include "core/assets_js.html" %}
     <style>
         body {
         {#padding-top: 5rem;#} padding-top: 77px;

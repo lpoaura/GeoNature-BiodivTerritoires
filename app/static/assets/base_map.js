@@ -23,9 +23,9 @@ var baseLayers = {
         ), title: 'Orthophotographie'
     },
     'pollum': {
-        layer: L.tileLayer.wms('https://bdd.fauneauvergnerhonealpes.org/geoserver/opendata/wms?',
+        layer: L.tileLayer.wms('https://data.lpo-aura.org/geoserver/wms?',
             {
-                layers: "opendata:Intensite lumineuse",
+                layers: "opendata:pollum_aura",
                 minZoom: 0,
                 maxZoom: 18,
                 attribution: 'Pollution lumineuse généré d\'après les données de <a href="https://ngdc.noaa.gov/eog/viirs/download_dnb_composites.html" target="_blank" data-toggle="tooltip" title="Lien vers les données source"><b>Earth Observation Group, NOAA National Centers for Environmental Information (NCEI)</b></a>',
@@ -46,9 +46,36 @@ var baseLayers = {
         , url_info: '/clc'
     }
 };
+//
+// var baseLayers = {};
+//
+// populateBaseLayer = function (layer) {
+//     console.log('layerData', layer);
+//     var layer_datas = {};
+//     if (layer.type === 'wms') {
+//         var loadMethod = L.tileLayer.wms(layer.url, layer.options);
+//     } else {
+//         var loadMethod = L.tileLayer(layer.url, layer.options);
+//     }
+//     ;
+//
+//     layer_datas[layer] = loadMethod;
+//     if (layer.url_info) {
+//         layer_datas['url_info'] = layer.url_info
+//     }
+//     ;
+//     layer_datas['title'] = layer.title;
+//     console.log(layer.name, layer_datas);
+//     baseLayers[layer.name] = layer_datas
+// };
+//
+// baseLayersList.forEach(layer => populateBaseLayer(layer));
+//
+// console.log('<baseLayers>',baseLayers);
+// console.log( '<firstLayer>', Object.keys(baseLayers)[0]);
 
 var mapValues = {
-    baseLayerType: 'carte',
+    baseLayerType: Object.keys(baseLayers)[0],
     baseLayerInfoControl: null,
 };
 
@@ -72,6 +99,7 @@ baseLayerControl.onAdd = function () {
 
 function baseMap(idAttr) {
     map = L.map(idAttr).setView([45, 5], 10);
+    console.log('<baseLayer>', baseLayers[mapValues.baseLayerType]);
     var baseLayer = baseLayers[mapValues.baseLayerType].layer;
     baseLayer.addTo(map);
 
