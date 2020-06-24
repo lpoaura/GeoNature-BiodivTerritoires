@@ -32,12 +32,12 @@
             </div>
         </div>
         <div class="container-fluid">
-            <div id="territoryIntro" class="row p-3">
+            <div id="territoryIntro" class="row p-0">
                 <div class="col lead alert alert-info">
                     {{ intro.content | safe }}
-                    <div class="form-group text-center mt-2 alert alert-light">
+                    <div class="form-group text-center mt-1 alert alert-light p-1">
                         <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
-                        <select class="form-control-inline" id="selectBuffer">
+                        <select class="form-control-inline " id="selectBuffer">
                             <option value="1000">1km</option>
                             <option value="2000">2km</option>
                             <option value="5000">5km</option>
@@ -45,18 +45,6 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col">
-                    <h2><i class="fa fa-map-signs fa-fw"></i> Données de synthèse sur les territoires associés (en
-                        recouvrement ou limitrophes)
-                    </h2>
-                    <p class="lead">Le tableau suivant liste les territoires associés au territoire courant (communes
-                        voisines, zones naturelles, etc.). Le nombre de territoires associés est dépendant de la
-                        distance sélectionnée ci-dessus.<br/>
-                        Vous pouvez exporter ces informations sous différents formats.</p>
-                </div>
-                {% include "territory/surrounding_areas.html" %}
             </div>
             <div class="row mt-2">
                 <div class="col">
@@ -98,6 +86,18 @@
                         {% include "territory/list_species.html" %}
                     </div>
                 </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col">
+                    <h2><i class="fa fa-map-signs fa-fw"></i> Données de synthèse sur les territoires associés (en
+                        recouvrement ou limitrophes)
+                    </h2>
+                    <p class="lead">Le tableau suivant liste les territoires associés au territoire courant (communes
+                        voisines, zones naturelles, etc.). Le nombre de territoires associés est dépendant de la
+                        distance sélectionnée ci-dessus.<br/>
+                        Vous pouvez exporter ces informations sous différents formats.</p>
+                </div>
+                {% include "territory/surrounding_areas.html" %}
             </div>
         </div>
     </div>
