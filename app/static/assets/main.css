@@ -1,12 +1,23 @@
+/*
+ * Base structure
+ */
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
 .navbar {
     border-bottom: 1px rgba(1, 1, 1, 0.2) solid;
     background: white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-/*
- * Base structure
- */
 
 /* Header Parallax Element Style*/
 @media (max-width: 768px) {
@@ -66,7 +77,7 @@
 /* Paragraph for Parallax Section */
 .paral-adaptative .content {
     color: #f5f5f5;
-    text-align: center;
+    text-align: justify;
 }
 
 .paral-adaptative p {
@@ -83,6 +94,7 @@
 .paral-adaptative h1 {
     font-size: 60px;
     line-height: 100px;
+    text-align: center;
 }
 
 .paral-adaptative h2 {
@@ -101,17 +113,7 @@
     border-radius: 0px;
 }
 
-.paralsec {
-    background-image: url('/static/custom/images/home-background.jpg');
-}
 
-.paralsec1 {
-    background-image: url("https://img.webnots.com/2017/05/parallax1.jpg");
-}
-
-.paralsec2 {
-    background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");
-}
 
 #territorySynthesis .paral h1 {
     padding-top: 30px;

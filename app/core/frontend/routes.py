@@ -29,6 +29,8 @@ def global_variables():
     values["site_desc"] = config.SITE_DESC
     values["default_grid"] = config.DEFAULT_GRID
     values["default_buffer"] = config.DEFAULT_BUFFER
+    # values["base_layers"] = config.BASE_LAYERS
+    values["taxhub_url"] = config.TAXHUB_URL
     values["special_pages"] = (
         DB.session.query(TDynamicPages.link_name, TDynamicPages.url)
         .filter(TDynamicPages.is_active == True)
@@ -37,6 +39,13 @@ def global_variables():
         .order_by(TDynamicPages.navbar_link_order.asc())
         .all()
     )
+    values["footer"] = (
+        DB.session.query(TDynamicPages.content)
+        .filter(TDynamicPages.is_active == False)
+        .filter(TDynamicPages.navbar_link == False)
+        .filter(TDynamicPages.url == "footer")
+        .one()
+    ).content
 
     categories = (
         DB.session.query(
