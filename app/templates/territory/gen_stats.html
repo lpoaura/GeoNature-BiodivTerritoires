@@ -1,31 +1,57 @@
-<div class="col col-sm-12 col-lg-4 text-center">
-    <div class="count" data-count="{{ gen_stats.count_occtax }}">0</div>
-    <div class="subject">Observations</div>
+<div class="row">
+    <div class="col col-sm-12 col-lg-3 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-eye fa-2x"></i>
+        </div>
+        <div class="count" data-count="{{ gen_stats.count_occtax }}">0</div>
+        <div class="subject">Observations</div>
+    </div>
+    <div class="col col-sm-6 col-lg-3 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-frog fa-2x"></i>
+        </div>
+        <div class="count" data-count="{{ gen_stats.count_taxa }}">0</div>
+        <div class="subject">Espèces</div>
+    </div>
+    <div class="col col-sm-6 col-lg-3 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-exclamation fa-2x"></i>
+        </div>
+        <div class="count" data-count="{{ gen_stats.count_threatened }}">0</div>
+        <div class="subject">Espèces menacées</div>
+    </div>
+    <div class="col col-sm-6 col-lg-3 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-user-friends fa-2x"></i>
+        </div>
+        <div class="count" data-count="{{ gen_stats.count_observer }}">0</div>
+        <div class="subject">Observateurs</div>
+    </div>
 </div>
-<div class="col col-sm-6  col-lg-4 ">
-    <div class="count" data-count="{{ gen_stats.count_taxa }}">0</div>
-    <div class="subject">Espèces</div>
+<div class="row">
+    <div class="col col-sm-6 col-lg-4 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-calendar-alt fa-2x"></i>
+        </div>
+        <div class="count" data-count="{{ gen_stats.count_date }}">0</div>
+        <div class="subject">Dates</div>
+    </div>
+    <div class="col col-sm-6 col-lg-4 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-clock fa-2x"></i>
+        </div>
+        <div class="count">{{ gen_stats.last_obs.strftime('%Y-%m-%d') }}</div>
+        <div class="subject">Dernière date</div>
+    </div>
+    <div class="col col-sm-6 col-lg-4 text-center">
+        <div class="icon-rounded bg-primary-light mb-3">
+            <i class="fas fa-server fa-2x"></i>
+        </div>
+        <div class="count" data-count="{{ gen_stats.count_dataset }}">0</div>
+        <div class="subject">Jeux de données</div>
+    </div>
 </div>
-<div class="col col-sm-6 col-lg-4 ">
-    <div class="count" data-count="{{ gen_stats.count_threatened }}">0</div>
-    <div class="subject">Espèces menacées</div>
-</div>
-<div class="col col-sm-6 col-lg-3">
-    <div class="count" data-count="{{ gen_stats.count_observer }}">0</div>
-    <div class="subject">Observateurs</div>
-</div>
-<div class="col col-sm-6 col-lg-3">
-    <div class="count" data-count="{{ gen_stats.count_date }}">0</div>
-    <div class="subject">Dates</div>
-</div>
-<div class="col col-sm-6 col-lg-3">
-    <div class="count">{{ gen_stats.last_obs.strftime('%Y-%m-%d') }}</div>
-    <div class="subject">Dernière date</div>
-</div>
-<div class="col col-sm-6 col-lg-3">
-    <div class="count" data-count="{{ gen_stats.count_dataset }}">0</div>
-    <div class="subject">Jeux de données</div>
-</div>
+
 <script type="text/javascript">
     $('.count').each(function () {
         var $this = $(this),

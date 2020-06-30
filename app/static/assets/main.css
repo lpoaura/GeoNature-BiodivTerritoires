@@ -122,7 +122,7 @@ main {
 }
 
 #homeStats {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.8);
 }
 
 #surroundingAreasMap {
@@ -145,14 +145,16 @@ main {
 
 #genstats .count {
     font-size: 2rem;
+    font-weight: bolder;
 }
 
 #genstats .subject {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
 }
 
 #homeStats .count {
     font-size: 3rem;
+    font-weight: bolder;
 }
 
 #homeStats .subject {
