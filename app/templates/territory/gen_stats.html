@@ -68,7 +68,7 @@
 $('.count').each(function () {
         var $this = $(this),
             countTo = $this.attr('data-count');
-        console.log('<$this>',this.id);
+        debugLog('<$this>',this.id);
         countUpUpdate(this.id, countTo, countUpOptions)
     });
 </script>

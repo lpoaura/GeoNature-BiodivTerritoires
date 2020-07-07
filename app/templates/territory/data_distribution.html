@@ -128,7 +128,7 @@
 
     var listSpeciesUpdate = function (id_area) {
         if (gridListSpeciesTable == null) {
-            console.log('CREATE TABLE with' + id_area);
+            debugLog('CREATE TABLE with' + id_area);
             $('#gridListSpeciesTable').show();
             createGridListSpeciesTable(id_area);
         }
@@ -167,7 +167,7 @@
                 }
             )
             .catch(function (error) {
-                console.log('<getColor> Error', error);
+                debugLog('<getColor> Error', error);
             });
     };
 
@@ -189,14 +189,14 @@
     // [Carte d'état des connaissances du territoire] <LEGENDE> :  Génère la liste des valeurs palier utilisées pour les classes de la carte de restitution par mailles, par type de représentation
     function areaGridDatasGrades(type) {
         var styleData = JSON.parse(styleStorage.getItem(type));
-        {#console.log('<Styledata>', styleData);#}
+        {#debugLog('<Styledata>', styleData);#}
         grade = []
         for (var i = 0, size = styleData.length; i < size; i++) {
             var item = styleData[i];
-            {#console.log('<item>',item)#}
+            {#debugLog('<item>',item)#}
             grade.push(item.min)
         }
-        {#console.log('<grade>',grade);#}
+        {#debugLog('<grade>',grade);#}
         return grade
     }
 
@@ -211,14 +211,14 @@
                 situationObject.addTo(datasMap).bringToBack();
             })
             .catch(function (error) {
-                console.log('<getTerritoryArea> Error', error);
+                debugLog('<getTerritoryArea> Error', error);
             });
 
     };
 
     // [Carte d'état des connaissances du territoire] <STYLE> :Styles des mailles
     function areaGridStyle(feature, type, color) {
-        {#console.log('<areaGridStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
+        {#debugLog('<areaGridStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
         var field = 'count_' + type
         return {
             fillColor: getColor(feature.properties[field], type, color),
@@ -232,7 +232,7 @@
     // [Carte d'état des connaissances du territoire] <POPUP> Affiche les données détaillées des mailles
     function areaGridPopup(feature, layer, type) {
         var keys = Object.keys(styleDesc);
-        {#console.log(type);#}
+        {#debugLog(type);#}
         var dataResult = '';
         for (var i = 0; i < keys.length; i++) {
             dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
@@ -292,7 +292,7 @@
                 }
             )
             .catch(function (error) {
-                console.log('getTerritoryArea Error', error);
+                debugLog('getTerritoryArea Error', error);
             })
     };
 
@@ -304,13 +304,13 @@
     select.onAdd = function () {
         var div = L.DomUtil.create('div', 'form-group form-group-sm');
         var keys = Object.keys(styleDesc);
-        {#console.log(keys);#}
+        {#debugLog(keys);#}
         var options = '';
         for (var i = 0; i < keys.length; i++) {
-            {#console.log(keys[i], styleDesc[keys[i]].desc);#}
+            {#debugLog(keys[i], styleDesc[keys[i]].desc);#}
             options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
         }
-        {#console.log('<options>', options)#}
+        {#debugLog('<options>', options)#}
         div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="datasMapDatasSelect" name="title">'
             + options
             + '</select>';
@@ -397,17 +397,17 @@
                     dataDate.push(data[i][3]);
                     dataDataset.push(data[i][4]);
                 }
-                console.log(labels, dataOcctax);
+                debugLog(labels, dataOcctax);
                 temporalDistribChart.data.datasets[0].data = dataOcctax;
                 temporalDistribChart.data.datasets[1].data = dataTaxa;
                 temporalDistribChart.data.datasets[2].data = dataDate;
                 temporalDistribChart.data.datasets[3].data = dataDataset;
                 temporalDistribChart.data.labels = labels;
                 temporalDistribChart.update();
-                console.log('chart', temporalDistribChart);
+                debugLog('chart', temporalDistribChart);
                 $('#temporalDistribChartSpinner').hide();
             }).catch(function (error) {
-            console.log(error);
+            debugLog(error);
         });
     };
 
@@ -477,17 +477,17 @@
                     dataDate.push(data[i][3]);
                     dataDataset.push(data[i][4]);
                 }
-                console.log(labels, dataOcctax);
+                debugLog(labels, dataOcctax);
                 taxoGroupDistribChart.data.datasets[0].data = dataOcctax;
                 taxoGroupDistribChart.data.datasets[1].data = dataTaxa;
                 taxoGroupDistribChart.data.datasets[2].data = dataDate;
                 taxoGroupDistribChart.data.datasets[3].data = dataDataset;
                 taxoGroupDistribChart.data.labels = labels;
                 taxoGroupDistribChart.update();
-                console.log('chart', taxoGroupDistribChart);
+                debugLog('chart', taxoGroupDistribChart);
                 $('#taxoGroupDistribChartSpinner').hide();
             }).catch(function (error) {
-            console.log(error);
+            debugLog(error);
         });
     };
 
@@ -499,18 +499,18 @@
     });
 
     $('#datasChartChooseTimeUnit').on('change', function () {
-        console.log('selected', this.value);
+        debugLog('selected', this.value);
         temporalDistribChartUpdate({{ area_info.id_area }}, this.value);
     });
 
 
-    console.log('<before mapSize>',datasMap.getSize());
+    debugLog('<before mapSize>',datasMap.getSize());
 
     $(document).ready(function () {
         $("#collapseObservationsDistribution").on('show.bs.collapse', function () {
             setTimeout(function() {
-                console.log('<collapseObservationsDistribution>', $("#collapseObservationsDistribution"));
-                    console.log('<before mapSize>',datasMap.getSize());
+                debugLog('<collapseObservationsDistribution>', $("#collapseObservationsDistribution"));
+                    debugLog('<before mapSize>',datasMap.getSize());
                     datasMap.invalidateSize();
                     datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
               }, 10);

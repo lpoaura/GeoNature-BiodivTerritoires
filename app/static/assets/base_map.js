@@ -50,7 +50,7 @@ var baseLayers = {
 // var baseLayers = {};
 //
 // populateBaseLayer = function (layer) {
-//     console.log('layerData', layer);
+//     debugLog('layerData', layer);
 //     var layer_datas = {};
 //     if (layer.type === 'wms') {
 //         var loadMethod = L.tileLayer.wms(layer.url, layer.options);
@@ -65,14 +65,14 @@ var baseLayers = {
 //     }
 //     ;
 //     layer_datas['title'] = layer.title;
-//     console.log(layer.name, layer_datas);
+//     debugLog(layer.name, layer_datas);
 //     baseLayers[layer.name] = layer_datas
 // };
 //
 // baseLayersList.forEach(layer => populateBaseLayer(layer));
 //
-// console.log('<baseLayers>',baseLayers);
-// console.log( '<firstLayer>', Object.keys(baseLayers)[0]);
+// debugLog('<baseLayers>',baseLayers);
+// debugLog( '<firstLayer>', Object.keys(baseLayers)[0]);
 
 var mapValues = {
     baseLayerType: Object.keys(baseLayers)[0],
@@ -99,7 +99,7 @@ baseLayerControl.onAdd = function () {
 
 function baseMap(idAttr) {
     map = L.map(idAttr).setView([45, 5], 10);
-    console.log('<baseLayer>', baseLayers[mapValues.baseLayerType]);
+    debugLog('<baseLayer>', baseLayers[mapValues.baseLayerType]);
     var baseLayer = baseLayers[mapValues.baseLayerType].layer;
     baseLayer.addTo(map);
 
@@ -107,7 +107,7 @@ function baseMap(idAttr) {
 
 
     $(document).on('change', '#situationBaseLayerSelect', function () {
-        console.log(this.value);
+        debugLog(this.value);
         baseLayer.removeFrom(map);
         baseLayer = baseLayers[this.value].layer;
         baseLayer.addTo(map);

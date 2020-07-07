@@ -2,6 +2,8 @@ from flask import Blueprint, redirect, render_template, url_for, flash
 from sqlalchemy import and_, not_
 from sqlalchemy.sql import func, case
 
+import json
+
 import config
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
@@ -25,6 +27,7 @@ def get_legend_classes(type):
 @rendered.context_processor
 def global_variables():
     values = {}
+    values["debug"] = json.dumps(config.DEBUG)
     values["site_name"] = config.SITE_NAME
     values["site_desc"] = config.SITE_DESC
     values["default_grid"] = config.DEFAULT_GRID

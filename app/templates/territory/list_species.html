@@ -40,14 +40,14 @@
 <script type="text/javascript">
     $(document.body).on('click', "#protectionDetails", function () {
         var cdref = $(this).data("cdref");
-        console.log('api regl','{{taxhub_url}}/api/taxref/' + cdref );
+        debugLog('api regl','{{taxhub_url}}/api/taxref/' + cdref );
         axios.get('{{taxhub_url}}/api/taxref/' + cdref)
             .then(function (response) {
                     $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
                     var tableContent = '';
 
                     var items = response.data.statuts_protection;
-                    console.log('isArray', Array.isArray(items));
+                    debugLog('isArray', Array.isArray(items));
                     var itemsLength = items.length;
                     if (itemsLength == 0) {
                         $('#modalInfoBody').html('Aucune protection');
@@ -69,7 +69,7 @@
                 }
             )
             .catch(function (error) {
-                console.log('<protectionDetails> Error', error);
+                debugLog('<protectionDetails> Error', error);
             });
     });
 
@@ -107,7 +107,7 @@
                 }
             )
             .catch(function (error) {
-                console.log('<protectionDetails> Error', error);
+                debugLog('<protectionDetails> Error', error);
             });
     });
 
