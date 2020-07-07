@@ -17,6 +17,7 @@ def create_app():
         template_folder="templates",
     )
     app.secret_key = config.SECRET_KEY
+    app.app_context().push()
     # Configurations
     try:
         app.config.from_object(config)

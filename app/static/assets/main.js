@@ -1,4 +1,8 @@
-// Select2 de Recherche de territoire 
+if (debugMode) var debugLog = console.log.bind(window.console)
+else var debugLog = function () {
+}
+
+// Select2 de Recherche de territoire
 
 function formatArea(area) {
     if (area.loading) {

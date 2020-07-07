@@ -1,23 +1,24 @@
 <div class="row">
     <div class="col col-md-12">
         <div class="table-responsive table-responsive-sm">
-            <table id="listSpeciesTable" class="table table-striped table-hover table-sm">
-                <thead class="thead-dark">
-                    <th><i class="fas fa-plus-circle"></i></th>
-                    <th>Groupe 1 INPN</th>
-                    <th>Groupe 2 INPN</th>
-                    <th>Identifiant TaxRef</th>
-                    <th>Nom vernaculaire</th>
-                    <th>Nom scientifique</th>
-                    <th>Menace</th>
-                    <th>Liste rouge France</th>
-                    <th>Espèce réglementée</th>
-                    <th>Nombre d'occurences</th>
-                    <th>Nombre d'observateurs</th>
-                    <th>Nombre de dates</th>
-                    <th>Nombre de jeux de données</th>
-                    <th>Reproduction</th>
-                    <th>Dernière observation</th>
+            <table id="listSpeciesTable" class="table table-striped table-hover">
+                <thead>
+                <th><i class="fas fa-plus-circle"></i></th>
+                {#                    <th>Groupe 1 INPN</th>#}
+                <th data-toggle="tooltip" title="Group 2 INPN">Groupe taxonomique</th>
+                <th data-toggle="tooltip" title="Nom vernaculaire">Nom français</th>
+                <th data-toggle="tooltip" title="Nom scientifique">Nom scientifique</th>
+                <th>Menace</th>
+                <th data-toggle="tooltip" title="Statut de conservation le plus fort, toutes périodes confondues">Liste
+                    rouge France
+                </th>
+                <th data-toggle="tooltip" title="Statut de protection/réglementation">Espèce réglementée</th>
+                <th data-toggle="tooltip" title="Nombre d'observations">Nombre d'occurences</th>
+                <th>Nombre d'observateurs</th>
+                <th>Nombre de dates</th>
+                <th>Nombre de jeux de données</th>
+                <th data-toggle="tooltip" title="Dernière année d'observation d'une reproduction">Reproduction</th>
+                <th data-toggle="tooltip" title="Dernière année d'observation du taxon">Dernière observation</th>
                 </thead>
             </table>
         </div>
@@ -39,13 +40,14 @@
 <script type="text/javascript">
     $(document.body).on('click', "#protectionDetails", function () {
         var cdref = $(this).data("cdref");
-        axios.get('{{TAXHUB_URL}}/api/taxref/' + cdref)
+        debugLog('api regl','{{taxhub_url}}/api/taxref/' + cdref );
+        axios.get('{{taxhub_url}}/api/taxref/' + cdref)
             .then(function (response) {
                     $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
                     var tableContent = '';
 
                     var items = response.data.statuts_protection;
-                    console.log('isArray', Array.isArray(items));
+                    debugLog('isArray', Array.isArray(items));
                     var itemsLength = items.length;
                     if (itemsLength == 0) {
                         $('#modalInfoBody').html('Aucune protection');
@@ -67,14 +69,13 @@
                 }
             )
             .catch(function (error) {
-                console.log('<protectionDetails> Error', error);
+                debugLog('<protectionDetails> Error', error);
             });
     });
 
     $(document.body).on('click', "#redlistDetails", function () {
         var cdref = $(this).data("cdref");
         var nom_valide = $(this).data("nomvalide");
-        console.log('DAATTAA', $(this).data);
         axios.get('/api/statut/taxa/' + cdref + '/redlist')
             .then(function (response) {
                     $('#modalInfoTitle').html('Statuts de conservation pour&nbsp;:&nbsp;<i>' + nom_valide);
@@ -106,7 +107,7 @@
                 }
             )
             .catch(function (error) {
-                console.log('<protectionDetails> Error', error);
+                debugLog('<protectionDetails> Error', error);
             });
     });
 
@@ -115,6 +116,10 @@
     $(document).ready(function () {
         function format(d) {
             var dataArray = [];
+            // Nombre de dates
+            dataArray.push('<tr><td><b>Nombre de dates</b></td><td>' + d.count_date + '</td></tr>');
+            dataArray.push('<tr><td><b>Nombre d\'observateurs</b></td><td>' + d.count_observer + '</td></tr>');
+            dataArray.push('<tr><td><b>Nombre de jeux de données</b></td><td>' + d.count_dataset + '</td></tr>');
             // Années d'objservation
             dataArray.push('<tr><td><b>Années d\'observation</b></td><td>' + d.list_years + '</td></tr>');
             // Mois d'observation
@@ -139,7 +144,7 @@
             ;
             dataArray.push('<tr><td><b>Statuts biologiques</b></td><td>' + list_biostatus + '</td></tr>');
 
-            return '<table>' + dataArray.join('') + '</table>'
+            return '<table class="table">' + dataArray.join('') + '</table>'
         }
 
         var listSpeciesTable = $('#listSpeciesTable').DataTable({
@@ -148,12 +153,13 @@
                 dataSrc: "data"
             },
             scrollY: "500px",
-            scrollCollapse: true,
+            scrollCollapse: false,
             paging: false,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
             dom: 'Bftrp',
             language: dataTableFr,
             buttons: {
+                name: 'primary',
                 buttons: [
                     {extend: 'copy', className: 'btn btn-info'},
                     {
@@ -171,10 +177,10 @@
                         if (!!cellData) {
                             $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')
                         }
-                    }, targets: [7,]
+                    }, targets: [5,]
                 },
                 {
-                    "targets": [6],
+                    "targets": [4,8,9,10],
                     "visible": false,
                     "searchable": false
                 },
@@ -193,17 +199,16 @@
                     "data": "",
                     "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
                 },
-                {data: "group1_inpn"},
+                {#{data: "group1_inpn"},#}
                 {data: "group2_inpn"},
                 {
                     data: function (row) {
-                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + '">' + row.cd_ref + '</a>';
+                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;'+row.cd_ref+')">' + row.nom_vern + '</a>';
                     }
                 },
-                {data: "nom_vern"},
                 {
                     data: function (row) {
-                        return '<i>' + row.nom_valide + '</i>';
+                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;'+row.cd_ref+')"><i>' + row.nom_valide + '</i></a>';
                     }
                 },
                 {
@@ -285,7 +290,7 @@
         $('.dt-buttons').addClass('btn-group-sm float-right pl-2');
     });
 
-    $(document).on('shown.bs.collapse', '#collapseSpeciesList', function () {
-        listSpeciesTable.columns.adjust();
-    });
+    {#$(document).on('shown.bs.collapse', '#collapseSpeciesList', function () {#}
+    {#    listSpeciesTable.columns.adjust();#}
+    {#});#}
 </script>

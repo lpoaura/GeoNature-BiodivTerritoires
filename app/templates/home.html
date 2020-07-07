@@ -3,7 +3,7 @@
 {% endblock %} {% block content %}
     <style type="text/css">
         .paralsec1 {
-            height: 515px;
+            min-height: 515px;
         }
 
         .icon-rounded {
@@ -79,14 +79,14 @@
         var getStats = function () {
             axios.get('/api/homestats')
                 .then(function (response) {
-                    console.log(response);
+                    debugLog(response);
                     countUpUpdate('countOcctax', response.data['count_occtax']);
                     {#countUpUpdate('countDatasets', response.data['count_dataset']);#}
                     countUpUpdate('countObservers', response.data['count_observers']);
                     countUpUpdate('countTaxa', response.data['count_taxa']);
                 })
                 .catch(function (error) {
-                    console.log('<get GenStats error>', error);
+                    debugLog('<get GenStats error>', error);
                 })
         };
         getStats();
