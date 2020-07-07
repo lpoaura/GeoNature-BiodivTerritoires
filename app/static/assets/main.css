@@ -66,7 +66,7 @@ main {
 
 /* Heading for Parallax Section */
 .paral h1 {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 1);
     font-size: 60px;
     text-align: center;
     padding-top: 60px;
@@ -83,12 +83,13 @@ main {
 .paral-adaptative p {
     font-size: 24px;
     line-height: 30px;
+    text-align: center;
 }
 
 
 /* Heading for Parallax Section */
 .paral-adaptative h1, h2, h3, h4 {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 1);
 }
 
 .paral-adaptative h1 {
@@ -113,8 +114,7 @@ main {
     border-radius: 0px;
 }
 
-
-
+/* Diverse */
 #territorySynthesis .paral h1 {
     padding-top: 30px;
     line-height: 50px;
@@ -187,6 +187,79 @@ main {
     margin-top: 30px;
 }
 
+#territoryIntro p {
+    color: white;
+    text-align: left;
+    font-size: 24px;
+    font-weight: bolder;
+    line-height: 40px;
+}
+
+.icon-rounded {
+    display: inline-block;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.card-header svg {
+    vertical-align: middle;
+}
+
+.icon-rounded svg {
+    vertical-align: middle;
+    color: rgba(0, 96, 230, 0.9);
+}
+
+.bg-primary-light {
+    background-color: rgba(229, 240, 255, 1);
+}
+
+.testimonial.card {
+    height: 100%;
+    padding: 1.5rem 1.5rem;
+    text-align: center;
+}
+
+.testimonial-quote {
+    color: rgba(0, 96, 230, 0.9);
+    margin-bottom: 20px;
+}
+
+.testimonial-text {
+    color: #656565;
+    font-size: 18px;
+    line-height: 1.7rem;
+    margin-bottom: 20px;
+}
+
+.accordion h1 {
+    margin-bottom: 0;
+    font-size: 2.2rem;
+    font-weight: bolder;
+    color: rgba(0, 96, 230, 0.9);
+    line-height: 2.2;
+}
+
+.accordion .card-header.blocks {
+    padding: 1rem 2rem;
+}
+
+.accordion .icon-rounded {
+    width: 5rem;
+    height: 5rem;
+    line-height: 5rem;
+    margin-right: 1rem;
+}
+
+.card-header.info svg {
+    margin-right: 3px;
+}
+
+h1.page-title {
+    font-weight: bolder;
+    color: rgba(0, 96, 230, 0.9);
+    margin-top: 2rem;
+}
 
 /* UICN Colors */
 :root {

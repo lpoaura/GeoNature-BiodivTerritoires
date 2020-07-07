@@ -18,6 +18,7 @@
                 "run",
                 "--port=1234",
                 // "--no-reload"
+                "--host=0.0.0.0"
             ],
             "jinja": true
         },

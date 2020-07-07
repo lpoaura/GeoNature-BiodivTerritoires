@@ -2,37 +2,15 @@
 
 {% endblock %} {% block content %}
     <style type="text/css">
-        .paralsec h1, .paralsec1 h1, .paralsec2 h1 {
-            font-weight: bolder;
-        }
-
         .paralsec1 {
-            background-color: white;
             height: 515px;
         }
 
-        .paralsec1 h1 {
-            color: rgba(0, 0, 0, 0.8);
-            padding-top: 0px;
-        }
-
-        .bg-primary-light {
-            background-color: rgba(229, 240, 255, 1);
-        }
-
         .icon-rounded {
-            display: inline-block;
             width: 6rem;
             height: 6rem;
-            border-radius: 50%;
-            text-align: center;
             line-height: 6rem;
         }
-
-        .icon-rounded svg {
-            vertical-align: middle;
-            color: rgba(0, 96, 230, 0.9);
-        }        
     </style>
 
     <!-- First Parallax Section -->
@@ -50,21 +28,21 @@
             <h1 class="display-1">Données de la plateforme</h1>
             <div id="homeStats" class="row text-center" style="padding-top: 20px;">
                 <div class="col">
-                    <div class="icon-rounded bg-primary-light mb-3">
+                    <div class="icon-rounded shadow bg-primary-light mb-3">
                         <i class="fas fa-eye fa-3x"></i>
                     </div>
                     <div class="count" id="countOcctax">0</div>
                     <div class="subject">Observations</div>
                 </div>
                 <div class="col">
-                    <div class="icon-rounded bg-primary-light mb-3">
+                    <div class="icon-rounded shadow bg-primary-light mb-3">
                         <i class="fas fa-frog fa-3x"></i>
                     </div>
                     <div class="count" id="countTaxa">0</div>
                     <div class="subject">Taxons</div>
                 </div>
                 <div class="col">
-                    <div class="icon-rounded bg-primary-light mb-3">
+                    <div class="icon-rounded shadow bg-primary-light mb-3">
                         <i class="fas fa-user-friends fa-3x"></i>
                     </div>
                     <div class="count" id="countObservers">0</div>
