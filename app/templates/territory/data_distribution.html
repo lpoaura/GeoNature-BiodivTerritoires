@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col col-md-12 col-lg-6 mt-2">
+    <div class="col col-sm-12 col-lg-6 mt-2">
         <div id="datasMap" class="card">
             <div id="mapSpinner">
                 <div class="loader-1"></div>
@@ -8,9 +8,11 @@
             </div>
         </div>
     </div>
-    <div class="col col-md-12 col-lg-6 mt-2">
+    <div class="col col-sm-12 col-lg-6 mt-2">
         <div id="gridListSpeciesSpinner">
-            <p class="lead alert alert-info">Cliquez sur une maille pour visualiser les espèces observées</p>
+            <p class="lead alert alert-info"><i class="fas fa-arrow-circle-left" style="margin-right: 3px;"></i>
+                Cliquez sur une maille de la carte pour accéder à la liste des espèces observées sur cette dernière !
+            </p>
         </div>
         <div class="table-responsive table-responsive-sm">
             <table id="gridListSpeciesTable" class="table table-striped table-hover table-sm">
@@ -29,24 +31,20 @@
         </div>
     </div>
 </div>
-<div class="row  mt-2">
-    <div class="col col-md-12 col-lg-6">
-        <div class="chart-container">
-            <canvas id="temporalDistrib"></canvas>
-            <div class="chart-select-form">
-                <select class="custom-select custom-select-sm mb-3" id="datasChartChooseTimeUnit"
-                        name="timeUnit">
-                    <option value="year">par années</option>
-                    <option value="month">par mois</option>
-                    <option value="week">par semaine</option>
-                </select>
-            </div>
+<div class="row mt-3">
+    <div class="chart-container col col-sm-12 col-lg-6" style="position: relative; height:500px; width:50vw">
+        <canvas id="temporalDistrib"></canvas>
+        <div class="chart-select-form">
+            <select class="custom-select custom-select-sm mt-1" id="datasChartChooseTimeUnit"
+                    name="timeUnit">
+                <option value="year">par année</option>
+                <option value="month">par mois</option>
+                <option value="week">par semaine</option>
+            </select>
         </div>
     </div>
-    <div class="col col-md-12 col-lg-6">
-        <div class="chart-container">
-            <canvas id="taxoGroupDistrib"></canvas>
-        </div>
+    <div class="chart-container col col-sm-12 col-lg-6" style="position: relative; height:500px; width:50vw">
+        <canvas id="taxoGroupDistrib"></canvas>
     </div>
 </div>
 <script>
@@ -453,7 +451,7 @@
         options: {
             title: {
                 display: true,
-                text: "Nombre d'observations par groupes taxonomiques",
+                text: "Nombre d'observations par groupe taxonomique",
                 position: "top",
                 fontSize: 20,
             },
@@ -505,4 +503,17 @@
         temporalDistribChartUpdate({{ area_info.id_area }}, this.value);
     });
 
+
+    console.log('<before mapSize>',datasMap.getSize());
+
+    $(document).ready(function () {
+        $("#collapseObservationsDistribution").on('show.bs.collapse', function () {
+            setTimeout(function() {
+                console.log('<collapseObservationsDistribution>', $("#collapseObservationsDistribution"));
+                    console.log('<before mapSize>',datasMap.getSize());
+                    datasMap.invalidateSize();
+                    datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
+              }, 10);
+        })
+    });
 </script>

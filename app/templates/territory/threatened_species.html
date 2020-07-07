@@ -1,19 +1,22 @@
-<div class="chart-container  col col-lg-6" style="position: relative; height:500px; width:50vw">
-    <canvas id="threatenedSpeciesGlobal"></canvas>
-    <div id="threatenedSpeciesGlobalSpinner">
-        <div class="loader-1"></div>
-        <div class="loader-2"></div>
-        <div class="loader-3"></div>
+<div class="row">
+    <div class="chart-container col col-lg-6 col-sm-12" style="position: relative; height:500px; width:50vw">
+        <canvas id="threatenedSpeciesGlobal"></canvas>
+        <div id="threatenedSpeciesGlobalSpinner">
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
+    </div>
+    <div class="chart-container col col-lg-6 col-sm-12" style="position: relative; height:500px; width:50vw">
+        <canvas id="threatenedSpeciesByTaxoGroup"></canvas>
+        <div id="threatenedSpeciesByTaxoGroupSpinner">
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
     </div>
 </div>
-<div class="chart-container col col-lg-6" style="position: relative; height:500px; width:50vw">
-    <canvas id="threatenedSpeciesByTaxoGroup"></canvas>
-    <div id="threatenedSpeciesByTaxoGroupSpinner">
-        <div class="loader-1"></div>
-        <div class="loader-2"></div>
-        <div class="loader-3"></div>
-    </div>
-</div>
+
 <script>
     var threatenedSpeciesGlobal = document.getElementById('threatenedSpeciesGlobal').getContext('2d');
     var threatenedSpeciesByTaxoGroup = document.getElementById('threatenedSpeciesByTaxoGroup').getContext('2d');

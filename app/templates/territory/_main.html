@@ -1,8 +1,8 @@
 {% extends "core/layout.html" %}
 
 
-{% block title %}La biodiversité de {{ area_info.area_name }} (
-    {{ area_info.type_name }} : {{ area_info.area_code }})
+{% block title %}La biodiversité de {{ area_info.area_name }}
+    ({{ area_info.type_name }} : {{ area_info.area_code }})
 {% endblock %}
 
 
@@ -16,91 +16,301 @@
         {#const baseLayersList = JSON.parse('{{ base_layers | tojson | safe }}');#}
         {#console.log('<baseLayersList>', baseLayersList);#}
     </script>
+
     <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>
+
     <script type="text/javascript">
         var buffer = {{ default_buffer }};
         var grid = '{{ default_grid }}';
     </script>
+
+    <style type="text/css">
+        .paralsec3.areaName {
+            min-height: 280px;
+            height: auto;
+            background-position: 95% 5%;
+        }
+
+        .paralsec1 {
+            height: auto;
+            padding: 2rem 2rem;
+        }
+
+        .paralsec1 .icon-rounded {
+            width: 4rem;
+            height: 4rem;
+            line-height: 4rem;
+        }
+
+        .paralsec3.territoryIntro {
+            height: auto;
+            background-position: 20% 80%;
+        }
+
+        .fa-info-circle {
+            color: white;
+        }
+    </style>
+
     <div id="territorySynthesis">
-        <div class="jumbotron paral paralsec">
+        <div class="jumbotron paral paralsec3 areaName">
             <div class="container">
                 <h1 class="display-1">{{ area_info.area_name }}</h1>
-                <p class="lead">{{ area_info.type_name }} | code {{ area_info.area_code }}</p>
-                <div id="homeStats" class="row text-center lead">
+                <!-- <p class="lead">{{ area_info.type_name }} | code {{ area_info.area_code }}</p> -->
+            </div>
+        </div>
+        <div class="jumbotron paral paralsec1">
+            <div class="container">
+                <div id="genstats">
                     {% include "territory/gen_stats.html" %}
                 </div>
             </div>
         </div>
-        <div class="container-fluid">
-            <div id="territoryIntro" class="row p-0">
-                <div class="col lead alert alert-info">
-                    {{ intro.content | safe }}
-                    <div class="form-group text-center mt-1 alert alert-light p-1">
-                        <label for="selectBuffer">Sélectionnez la distance tampon à prendre en compte</label>
-                        <select class="form-control-inline " id="selectBuffer">
-                            <option value="1000">1km</option>
-                            <option value="2000">2km</option>
-                            <option value="5000">5km</option>
-                            <option value="10000">10km</option>
-                        </select>
+        <div class="jumbotron paral paralsec3 territoryIntro">
+            <div class="container">
+                <div id="territoryIntro" class="row p-0">
+                    <div class="row">
+                        <div class="col col-sm-12 col-lg-2 text-center align-self-center">
+                            <i class="fas fa-info-circle fa-10x"></i>
+                        </div>
+                        <div class="col col-sm-12 col-lg-7 align-self-center">
+                            {{ intro.content | safe }}
+                        </div>
+                        <div class="col col-sm-12 col-lg-3 align-self-center">
+                            <div class="testimonial rounded-lg shadow border-0 card">
+                                <div class="text">
+                                    <div class="testimonial-quote">
+                                        <i class="fas fa-drafting-compass fa-2x"></i>
+                                    </div>
+                                    <div class="testimonial-text">
+                                        Sélectionnez la distance tampon à prendre en compte pour la synthèse
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control" id="selectBuffer">
+                                            <option value="1000">1km</option>
+                                            <option value="2000">2km</option>
+                                            <option value="5000">5km</option>
+                                            <option value="10000">10km</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row mt-2">
-                <div class="col">
-                    <h2><i class="fa fa-info fa-fw"></i> Espèces menacées du territoire</h2>
-                    <p class="lead">Les graphiques suivants font l'état des <abbr data-toggle="tooltip"
-                                                                                  data-placement="bottom"
-                                                                                  title="Taxons à statuts de conservation défavorable">espèces
-                        menacées</abbr> du territoire comparativement à son contexte (zone tampon séléctionnée
-                        précédemment <a href="#territoryIntro">ici</a>)</p></div>
-                <div class="row">
-                    {% include "territory/threatened_species.html" %}
-                </div>
-            </div>
+        </div>
 
-            <div class="row mt-2 mb-2">
-                <div class="col col-sm-12 col-md-12 col-lg-12">
-                    <h2><span class="title"><i class="fas fa-map-marked-alt"></i>
-                        Répartition des observations</span></h2>
-                    <p class="lead">La carte suivante illustre la répartition des données sur le territoire. Vous pouvez
-                        choisir la couche thématique et le fond de carte à afficher. Cliquez sur une maille pour
-                        visualiser les espèces observées sur cette dernière. Les graphiques qui suivent illustrent la
-                        répartition des données dans le temps et par groupes taxonomiques. Les lignes en <span
-                                class="bg-danger text-light">rouge</span> indiquent que les taxons qui présentent un
-                        statut de conservation défavorable</p>
-                </div>
-                <div class="col">
-                    {% include "territory/data_distribution.html" %}
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col">
-                    <div id="listSpecies">
-                        <h2><i class="fa fa-fw fa-list"></i> Liste des espèces</h2>
-                        <p class="lead">Dans le tableau ci-dessous figurent l'ensemble des espèces observées sur le
-                            territoire sélectionné. Les lignes en
-                            <span class="bg-danger text-light">rouge</span> indiquent que les taxons qui présentent un
-                            statut de conservation défavorable.<br/>
-                            Vous pouvez télécharger le tableau sous différents formats.</p>
-                        {% include "territory/list_species.html" %}
+        <div class="accordion" id="blocks">
+            <!-- Block 1 -->
+            <div class="card">
+                <div class="card-header blocks" id="headingThreatenedSpecies">                    
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseThreatenedSpecies" aria-expanded="true" aria-controls="collapseThreatenedSpecies">
+                        <h1>
+                            <div class="icon-rounded shadow bg-primary-light">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            <span data-toggle="tooltip" data-placement="right" data-html="true" title="Les graphiques suivants font l'état des espèces menacées du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment).">
+                                Espèces menacées du territoire
+                            </span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-double-down accordion-chevron" aria-hidden="true"></i>
+                            </span>
+                        </h1>
+                    </button>                    
+                </div>            
+                <div id="collapseThreatenedSpecies" class="collapse" aria-labelledby="headingThreatenedSpecies" data-parent="#blocks">
+                    <div class="card-body">
+                        <div class="col">
+                            <div class="card border-primary mb-3 shadow">
+                                <div class="card-header info">
+                                    <i class="fas fa-info text-primary"></i>
+                                    Les graphiques suivants font l'état des <abbr data-toggle="tooltip"
+                                                                                    data-placement="bottom"
+                                                                                    title="Taxons à statuts de conservation défavorable">espèces
+                                    menacées</abbr> du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment).
+                                </div>
+                            </div>
+                            <div class="card text-white bg-dark mb-3 shadow">
+                                <div class="card-header info">
+                                    <i class="fas fa-drafting-compass"></i>
+                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a href="#territoryIntro">ici</a> la distance tampon de votre choix.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            {% include "territory/threatened_species.html" %}
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row mt-2">
-                <div class="col">
-                    <h2><i class="fa fa-map-signs fa-fw"></i> Données de synthèse sur les territoires associés (en
-                        recouvrement ou limitrophes)
-                    </h2>
-                    <p class="lead">Le tableau suivant liste les territoires associés au territoire courant (communes
-                        voisines, zones naturelles, etc.). Le nombre de territoires associés est dépendant de la
-                        distance sélectionnée ci-dessus.<br/>
-                        Vous pouvez exporter ces informations sous différents formats.</p>
+            <!-- Block 2 -->
+            <div class="card">
+                <div class="card-header blocks" id="headingObservationsDistribution">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseObservationsDistribution" aria-expanded="true" aria-controls="collapseObservationsDistribution">
+                        <h1>
+                            <div class="icon-rounded shadow bg-primary-light">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <span data-toggle="tooltip" data-placement="right" data-html="true" title="La carte suivante illustre la répartition des données sur le territoire 
+                            <u>et</u> sur sa zone tampon (sélectionnée précédemment).<br/>Les graphiques situés en dessous illustrent quant à eux la
+                            répartition des données dans le temps et par groupe taxonomique.">
+                                Répartition des observations
+                            </span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-double-down accordion-chevron" aria-hidden="true"></i>
+                            </span>
+                        </h1>
+                    </button>
+                </div>            
+                <div id="collapseObservationsDistribution" class="collapse" aria-labelledby="headingObservationsDistribution" data-parent="#blocks">
+                    <div class="card-body">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col col-lg-5 col-sm-12">
+                                    <div class="card border-primary shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-info text-primary"></i>
+                                            La carte suivante illustre la répartition des données sur le territoire 
+                                            <u>et</u> sur sa zone tampon (sélectionnée précédemment).<br/>
+                                            <i class="fas fa-info text-primary"></i>
+                                            Les graphiques situés en dessous illustrent quant à eux la
+                                            répartition des données dans le temps et par groupe taxonomique.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col col-lg-7 col-sm-12">
+                                    <div class="card border-warning shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-lightbulb text-warning"></i>
+                                            Sur la carte, vous pouvez choisir la couche thématique (nombre de taxons, nombre d'observations, etc.) et 
+                                            le fond de carte qui vous intéressent.<br/>
+                                            <i class="fas fa-lightbulb text-warning"></i>
+                                            Cliquez sur une maille de la carte pour accéder à la liste des espèces observées sur cette dernière : les lignes en <span
+                                            class="bg-danger text-light">rouge</span> qui s'affichent mettent en évidence les taxons qui présentent un
+                                            statut de conservation défavorable.<br/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card text-white bg-dark mt-3 mb-3 shadow">
+                                <div class="card-header info">
+                                    <i class="fas fa-drafting-compass"></i>
+                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a href="#territoryIntro">ici</a> la distance tampon de votre choix.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            {% include "territory/data_distribution.html" %}
+                        </div>
+                    </div>
                 </div>
-                {% include "territory/surrounding_areas.html" %}
+            </div>
+            <!-- Block 3 -->
+            <div class="card">
+                <div class="card-header blocks" id="headingSpeciesList">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseSpeciesList" aria-expanded="true" aria-controls="collapseSpeciesList">
+                        <h1>
+                            <div class="icon-rounded shadow bg-primary-light">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <span data-toggle="tooltip" data-placement="right" data-html="true" title="Le tableau suivant liste l'ensemble des espèces observées sur le territoire.">
+                                Liste des espèces
+                            </span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-double-down accordion-chevron" aria-hidden="true"></i>
+                            </span>
+                        </h1>
+                    </button>
+                </div>            
+                <div id="collapseSpeciesList" class="collapse" aria-labelledby="headingSpeciesList" data-parent="#blocks">
+                    <div class="card-body">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col col-lg-8 col-sm-12">
+                                    <div class="card border-primary shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-info text-primary"></i>
+                                            Le tableau suivant liste l'ensemble des espèces observées sur le territoire.
+                                            Les lignes en
+                                            <span class="bg-danger text-light">rouge</span> mettent en évidence les taxons qui présentent un
+                                            statut de conservation défavorable.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col col-lg-4 col-sm-12">
+                                    <div class="card border-warning shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-lightbulb text-warning"></i>
+                                            Vous pouvez télécharger le tableau sous différents formats (CSV, PDF).
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col mt-3">
+                            {% include "territory/list_species.html" %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Block 4 -->
+            <div class="card">
+                <div class="card-header blocks" id="headingSurroundingAreas">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseSurroundingAreas" aria-expanded="true" aria-controls="collapseSurroundingAreas">
+                        <h1>
+                            <div class="icon-rounded shadow bg-primary-light">
+                                <i class="fas fa-map-signs"></i>
+                            </div>
+                            <span data-toggle="tooltip" data-placement="right" data-html="true" title="Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
+                            par rapport au territoire courant <u>et</u> à sa zone tampon.">
+                                Données de synthèse sur les territoires alentours
+                            </span>
+                            <span class="float-right">
+                                <i class="fas fa-angle-double-down accordion-chevron" aria-hidden="true"></i>
+                            </span>
+                        </h1>
+                    </button>
+                </div>            
+                <div id="collapseSurroundingAreas" class="collapse" aria-labelledby="headingSurroundingAreas" data-parent="#blocks">
+                    <div class="card-body">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col col-lg-9 col-sm-12">
+                                    <div class="card border-primary shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-info text-primary"></i>
+                                            Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
+                                            par rapport au territoire courant <u>et</u> à sa zone tampon. Le nombre de territoires associés est donc dépendant de la
+                                            distance tampon (sélectionnée précédemment).
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col col-lg-3 col-sm-12">
+                                    <div class="card border-warning shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-lightbulb text-warning"></i>
+                                            Vous pouvez télécharger le tableau sous différents formats (CSV, PDF).
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card text-white bg-dark mt-3 mb-3 shadow">
+                                <div class="card-header info">
+                                    <i class="fas fa-drafting-compass"></i>
+                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a href="#territoryIntro">ici</a> la distance tampon de votre choix.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            {% include "territory/surrounding_areas.html" %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
     <script>
         $('select option[value=' + buffer + ']').attr("selected", true);
 
@@ -112,5 +322,13 @@
             threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
             getGridArea('taxa');
         });
+
+        $(document).ready(function(){ 
+            $(".collapse").on('show.bs.collapse', function(){
+              $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
+            }).on('hide.bs.collapse', function(){
+              $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
+            });
+          });
     </script>
 {% endblock %}

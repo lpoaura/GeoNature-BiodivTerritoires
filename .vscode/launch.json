@@ -18,6 +18,7 @@
                 "run",
                 "--port=1234",
                 // "--no-reload"
+                "--host=0.0.0.0"
             ],
             "jinja": true
         },
@@ -27,7 +28,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "run.py",
+                "FLASK_APP": "wsgi",
                 "FLASK_ENV": "production",
                 "FLASK_DEBUG": "0"
             },
