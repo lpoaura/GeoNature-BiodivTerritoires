@@ -1,16 +1,16 @@
-from flask import Blueprint, redirect, render_template, url_for, flash
-from sqlalchemy import and_, not_
-from sqlalchemy.sql import func, case
-
 import json
+import threading
+import time
+
+from flask import Blueprint, redirect, render_template, url_for, flash, current_app
+from sqlalchemy import and_
 
 import config
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import TDynamicPages, BibDynamicPagesCategory
-from app.models.ref_geo import BibAreasTypes, LAreas, LAreasTypeSelection
+from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
-import re
 
 rendered = Blueprint("rendered", __name__)
 

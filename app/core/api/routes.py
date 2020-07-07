@@ -1,11 +1,14 @@
-from flask import Blueprint, jsonify, redirect, url_for, request, current_app
+import threading
+import time
+
+from flask import Blueprint, jsonify, redirect, url_for, request, current_app, app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 from sqlalchemy import and_, or_, distinct
 from sqlalchemy.dialects.postgresql import aggregate_order_by
-from sqlalchemy.sql import func, case, funcfilter
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql import func, case, funcfilter
 
 from app.core.env import DB
 from app.core.utils import (
@@ -31,6 +34,80 @@ from app.models.taxonomy import (
 from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
 
 api = Blueprint("api", __name__)
+
+genStats = {}
+
+
+@current_app.before_first_request
+def activate_job():
+    """ refresh hourly general datas """
+
+    def refresh_genstats():
+        while True:
+            try:
+                current_app.app_context().push()
+                taxa = aliased(
+                    (
+                        DB.session.query(Synthese.cd_nom)
+                        .distinct()
+                        .cte(name="taxa", recursive=False)
+                    ),
+                    name="taxa_cte",
+                )
+                # taxa = DB.session.query(Synthese.cd_nom).distinct()
+                # occtax = aliased(
+                #     (
+                #         DB.session.query(Synthese.id_synthese)
+                #         .distinct()
+                #         .cte(name="occtax", recursive=False)
+                #     ),
+                #     name="occtax_cte",
+                # )
+                observers = aliased(
+                    (
+                        DB.session.query(Synthese.observers)
+                        .distinct()
+                        .cte(name="observers", recursive=False)
+                    ),
+                    name="observers_cte",
+                )
+                dataset = aliased(
+                    (
+                        DB.session.query(Synthese.id_dataset)
+                        .distinct()
+                        .cte(name="dataset", recursive=False)
+                    ),
+                    name="dataset_cte",
+                )
+                genStats["count_taxa"] = DB.session.query(
+                    func.count(taxa.c.cd_nom)
+                ).one()[0]
+                current_app.logger.debug("<CountObserversQuery> {}".format(observers))
+                current_app.logger.info(
+                    "<homestats query> {}".format(
+                        DB.session.query(func.count(taxa.c.cd_nom))
+                    )
+                )
+                genStats["count_occtax"] = DB.session.query(
+                    func.count(Synthese.id_synthese)
+                ).one()[0]
+                genStats["count_dataset"] = DB.session.query(
+                    func.count(dataset.c.id_dataset)
+                ).one()[0]
+                genStats["count_observers"] = DB.session.query(
+                    func.count(observers.c.observers)
+                ).one()[0]
+                for k, v in genStats.items():
+                    print(k, v)
+
+            except Exception as e:
+                print("<refresh_genstats> {}".format(str(e)))
+
+            time.sleep(3600)
+
+    with current_app.app_context():
+        thread = threading.Thread(target=refresh_genstats)
+        thread.start()
 
 
 @api.route("/find/area")
@@ -105,60 +182,55 @@ def home_stats():
 
     :return:
     """
-    data_to_count = [
-        {"label": "count_dataset", "column": Synthese.id_dataset},
-        {"label": "count_occtax", "column": Synthese.id_synthese},
-        {"label": "count_taxa", "column": Synthese.cd_nom},
-        {"label": "count_observers", "column": Synthese.observers},
-    ]
-    result = {}
+    # result = genStats
     try:
-        taxa = aliased(
-            (
-                DB.session.query(Synthese.cd_nom)
-                .distinct()
-                .cte(name="taxa", recursive=False)
-            ),
-            name="taxa_cte",
-        )
-        # taxa = DB.session.query(Synthese.cd_nom).distinct()
-        # occtax = aliased(
-        #     (
-        #         DB.session.query(Synthese.id_synthese)
-        #         .distinct()
-        #         .cte(name="occtax", recursive=False)
-        #     ),
-        #     name="occtax_cte",
-        # )
-        observers = aliased(
-            (
-                DB.session.query(Synthese.observers)
-                .distinct()
-                .cte(name="observers", recursive=False)
-            ),
-            name="observers_cte",
-        )
-        dataset = aliased(
-            (
-                DB.session.query(Synthese.id_dataset)
-                .distinct()
-                .cte(name="dataset", recursive=False)
-            ),
-            name="dataset_cte",
-        )
-        result["count_taxa"] = DB.session.query(func.count(taxa.c.cd_nom)).one()[0]
-        current_app.logger.info(
-            "<homestats query> {}".format(DB.session.query(func.count(taxa.c.cd_nom)))
-        )
-        result["count_occtax"] = DB.session.query(
-            func.count(Synthese.id_synthese)
-        ).one()[0]
-        result["count_dataset"] = DB.session.query(
-            func.count(dataset.c.id_dataset)
-        ).one()[0]
-        result["count_observers"] = DB.session.query(
-            func.count(observers.c.observers)
-        ).one()[0]
+        #     taxa = aliased(
+        #         (
+        #             DB.session.query(Synthese.cd_nom)
+        #             .distinct()
+        #             .cte(name="taxa", recursive=False)
+        #         ),
+        #         name="taxa_cte",
+        #     )
+        #     # taxa = DB.session.query(Synthese.cd_nom).distinct()
+        #     # occtax = aliased(
+        #     #     (
+        #     #         DB.session.query(Synthese.id_synthese)
+        #     #         .distinct()
+        #     #         .cte(name="occtax", recursive=False)
+        #     #     ),
+        #     #     name="occtax_cte",
+        #     # )
+        #     observers = aliased(
+        #         (
+        #             DB.session.query(Synthese.observers)
+        #             .distinct()
+        #             .cte(name="observers", recursive=False)
+        #         ),
+        #         name="observers_cte",
+        #     )
+        #     dataset = aliased(
+        #         (
+        #             DB.session.query(Synthese.id_dataset)
+        #             .distinct()
+        #             .cte(name="dataset", recursive=False)
+        #         ),
+        #         name="dataset_cte",
+        #     )
+        #     result["count_taxa"] = DB.session.query(func.count(taxa.c.cd_nom)).one()[0]
+        #     current_app.logger.debug("<CountObserversQuery> {}".format(observers))
+        #     current_app.logger.info(
+        #         "<homestats query> {}".format(DB.session.query(func.count(taxa.c.cd_nom)))
+        #     )
+        #     result["count_occtax"] = DB.session.query(
+        #         func.count(Synthese.id_synthese)
+        #     ).one()[0]
+        #     result["count_dataset"] = DB.session.query(
+        #         func.count(dataset.c.id_dataset)
+        #     ).one()[0]
+        #     result["count_observers"] = DB.session.query(
+        #         func.count(observers.c.observers)
+        #     ).one()[0]
 
         # query = DB.session.query(
         #     func.count(taxa.c.cd_nom).label("count_taxa"),
@@ -169,7 +241,7 @@ def home_stats():
         # current_app.logger.info("<homestat query>: {}".format(query))
         # result = query.one()
         # return jsonify(result._asdict())
-        return jsonify(result)
+        return jsonify(genStats)
 
     except Exception as e:
         current_app.logger.error("<main_area_info> ERROR: {}".format(e))
