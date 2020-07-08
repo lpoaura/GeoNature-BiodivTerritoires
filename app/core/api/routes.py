@@ -1,7 +1,7 @@
 import threading
 import time
 
-from flask import Blueprint, jsonify, redirect, url_for, request, current_app, app
+from flask import Blueprint, jsonify, redirect, url_for, request, current_app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
@@ -41,71 +41,58 @@ genStats = {}
 @current_app.before_first_request
 def activate_job():
     """ refresh hourly general datas """
+    with current_app.app_context():
 
-    def refresh_genstats():
-        while True:
-            try:
-                current_app.app_context().push()
-                taxa = aliased(
-                    (
-                        DB.session.query(Synthese.cd_nom)
-                        .distinct()
-                        .cte(name="taxa", recursive=False)
-                    ),
-                    name="taxa_cte",
-                )
-                # taxa = DB.session.query(Synthese.cd_nom).distinct()
-                # occtax = aliased(
-                #     (
-                #         DB.session.query(Synthese.id_synthese)
-                #         .distinct()
-                #         .cte(name="occtax", recursive=False)
-                #     ),
-                #     name="occtax_cte",
-                # )
-                observers = aliased(
-                    (
-                        DB.session.query(Synthese.observers)
-                        .distinct()
-                        .cte(name="observers", recursive=False)
-                    ),
-                    name="observers_cte",
-                )
-                dataset = aliased(
-                    (
-                        DB.session.query(Synthese.id_dataset)
-                        .distinct()
-                        .cte(name="dataset", recursive=False)
-                    ),
-                    name="dataset_cte",
-                )
-                genStats["count_taxa"] = DB.session.query(
-                    func.count(taxa.c.cd_nom)
-                ).one()[0]
-                current_app.logger.debug("<CountObserversQuery> {}".format(observers))
-                current_app.logger.info(
-                    "<homestats query> {}".format(
-                        DB.session.query(func.count(taxa.c.cd_nom))
+        def refresh_genstats():
+            while True:
+                try:
+                    print("start querying genstats")
+                    taxa = aliased(
+                        (
+                            DB.session.query(Synthese.cd_nom)
+                            .distinct()
+                            .cte(name="taxa", recursive=False)
+                        ),
+                        name="taxa_cte",
                     )
-                )
-                genStats["count_occtax"] = DB.session.query(
-                    func.count(Synthese.id_synthese)
-                ).one()[0]
-                genStats["count_dataset"] = DB.session.query(
-                    func.count(dataset.c.id_dataset)
-                ).one()[0]
-                genStats["count_observers"] = DB.session.query(
-                    func.count(observers.c.observers)
-                ).one()[0]
-                for k, v in genStats.items():
-                    print(k, v)
+                    observers = aliased(
+                        (
+                            DB.session.query(Synthese.observers)
+                            .distinct()
+                            .cte(name="observers", recursive=False)
+                        ),
+                        name="observers_cte",
+                    )
+                    # dataset = aliased(
+                    #     (
+                    #         DB.session.query(Synthese.id_dataset)
+                    #         .distinct()
+                    #         .cte(name="dataset", recursive=False)
+                    #     ),
+                    #     name="dataset_cte",
+                    # )
+                    genStats["count_taxa"] = DB.session.query(
+                        func.count(taxa.c.cd_nom)
+                    ).one()[0]
+                    print(genStats["count_taxa"])
+                    genStats["count_occtax"] = DB.session.query(
+                        func.count(Synthese.id_synthese)
+                    ).one()[0]
+                    # genStats["count_dataset"] = DB.session.query(
+                    #     func.count(dataset.c.id_dataset)
+                    # ).one()[0]
+                    genStats["count_observers"] = DB.session.query(
+                        func.count(observers.c.observers)
+                    ).one()[0]
+                    for k, v in genStats.items():
+                        print(k, v)
 
-            except Exception as e:
-                print("<refresh_genstats> {}".format(str(e)))
+                except Exception as e:
+                    print("<refresh_genstats> {}".format(str(e)))
+                    raise (e)
 
             time.sleep(3600)
 
-    with current_app.app_context():
         thread = threading.Thread(target=refresh_genstats)
         thread.start()
 
