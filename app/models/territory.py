@@ -1,10 +1,25 @@
-from app.core.env import DB
 from flask import current_app
-from sqlalchemy import Column, Integer, String, Date
 from geoalchemy2 import Geometry
-import config
+from sqlalchemy import Column, Integer, String, Date
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
+
+import config
+from app.core.env import DB
+
+
+@serializable
+class MVGeneralStats(DB.Model):
+    __tablename__ = "mv_general_stats"
+    __table_args__ = {
+        "schema": current_app.config["APP_SCHEMA_NAME"],
+        "extend_existing": True,
+    }
+    id = Column(Integer, primary_key=True)
+    count_occtax = Column(Integer)
+    count_dataset = Column(Integer)
+    count_observer = Column(Integer)
+    count_taxa = Column(Integer)
 
 
 @serializable
