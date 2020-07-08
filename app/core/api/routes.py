@@ -507,15 +507,81 @@ def get_taxa_list(id_area):
 
         print("reproduction_id", reproduction_id)
         query_territory = (
+            # DB.session.query(
+            #     Taxref.cd_ref.label("id"),
+            #     LAreas.id_area,
+            #     LAreas.area_code,
+            #     Taxref.cd_ref,
+            #     func.split_part(Taxref.nom_vern, ",", 1).label("nom_vern"),
+            #     Taxref.nom_valide,
+            #     Taxref.group1_inpn,
+            #     Taxref.group2_inpn,
+            #     func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+            #     func.count(distinct(Synthese.observers)).label("count_observer"),
+            #     func.count(distinct(Synthese.date_min)).label("count_date"),
+            #     func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+            #     func.max(distinct(func.extract("year", Synthese.date_min))).label(
+            #         "last_year"
+            #     ),
+            #     func.array_agg(
+            #         aggregate_order_by(
+            #             distinct(func.extract("year", Synthese.date_min)),
+            #             func.extract("year", Synthese.date_min).desc(),
+            #         )
+            #     ).label("list_years"),
+            #     func.array_agg(
+            #         aggregate_order_by(
+            #             distinct(func.extract("month", Synthese.date_min)),
+            #             func.extract("month", Synthese.date_min).asc(),
+            #         )
+            #     ).label("list_months"),
+            #     func.bool_or(
+            #         Synthese.id_nomenclature_bio_status == reproduction_id
+            #     ).label("reproduction"),
+            #     func.max(distinct(func.extract("year", Synthese.date_min)))
+            #     .filter(Synthese.id_nomenclature_bio_status == reproduction_id)
+            #     .label("last_year_reproduction"),
+            #     func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
+            #         "bio_status_id"
+            #     ),
+            #     case(
+            #         [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
+            #         else_=False,
+            #     ).label("protection"),
+            # )
+            # .select_from(CorAreaSynthese)
+            # .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            # .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
+            # .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
+            # .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
+            # .outerjoin(
+            #     TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
+            # )
+            # .filter(LAreas.id_area == id_area)
+            # .group_by(
+            #     LAreas.id_area,
+            #     LAreas.area_code,
+            #     Taxref.cd_ref,
+            #     Taxref.nom_vern,
+            #     Taxref.nom_valide,
+            #     Taxref.group1_inpn,
+            #     Taxref.group2_inpn,
+            # )
+            # .order_by(
+            #     func.count(distinct(Synthese.id_synthese)).desc(),
+            #     Taxref.group1_inpn,
+            #     Taxref.group2_inpn,
+            #     Taxref.nom_valide,
+            # )
             DB.session.query(
                 Taxref.cd_ref.label("id"),
-                LAreas.id_area,
-                LAreas.area_code,
                 Taxref.cd_ref,
                 func.split_part(Taxref.nom_vern, ",", 1).label("nom_vern"),
-                Taxref.nom_valide,
-                Taxref.group1_inpn,
+                Taxref.lb_nom,
                 Taxref.group2_inpn,
+                func.coalesce(TMaxThreatenedStatus.threatened, False).label(
+                    "threatened"
+                ),
                 func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
                 func.count(distinct(Synthese.observers)).label("count_observer"),
                 func.count(distinct(Synthese.date_min)).label("count_date"),
@@ -541,37 +607,37 @@ def get_taxa_list(id_area):
                 func.max(distinct(func.extract("year", Synthese.date_min)))
                 .filter(Synthese.id_nomenclature_bio_status == reproduction_id)
                 .label("last_year_reproduction"),
-                func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
-                    "bio_status_id"
-                ),
+                func.array_agg(distinct(TNomenclatures.mnemonique)).label("bio_status"),
                 case(
                     [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
                     else_=False,
                 ).label("protection"),
             )
-            .select_from(CorAreaSynthese)
-            .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
-            .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
-            .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
-            .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
+            .select_from(Taxref)
+            .join(Synthese, Synthese.cd_nom == Taxref.cd_nom)
+            .join(CorAreaSynthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .outerjoin(
+                TNomenclatures,
+                TNomenclatures.id_nomenclature == Synthese.id_nomenclature_bio_status,
+            )
+            .outerjoin(
+                TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_nom
+            )
             .outerjoin(
                 TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
             )
-            .filter(LAreas.id_area == id_area)
+            .filter(CorAreaSynthese.id_area == id_area)
             .group_by(
-                LAreas.id_area,
-                LAreas.area_code,
+                func.coalesce(TMaxThreatenedStatus.threatened, False),
                 Taxref.cd_ref,
                 Taxref.nom_vern,
-                Taxref.nom_valide,
-                Taxref.group1_inpn,
+                Taxref.lb_nom,
                 Taxref.group2_inpn,
             )
             .order_by(
+                func.coalesce(TMaxThreatenedStatus.threatened, False).desc(),
                 func.count(distinct(Synthese.id_synthese)).desc(),
-                Taxref.group1_inpn,
                 Taxref.group2_inpn,
-                Taxref.nom_valide,
             )
         )
         print("query_territory", query_territory)
@@ -580,27 +646,27 @@ def get_taxa_list(id_area):
         data = []
         for r in result:
             dict = r._asdict()
-            bio_status = []
-            for s in r.bio_status_id:
-                bio_status.append(get_nomenclature(s))
-                dict["bio_status"] = bio_status
-            redlist = get_redlist_status(r.cd_ref)
-            dict["redlist"] = redlist
+            # bio_status = []
+            # for s in r.bio_status_id:
+            #     bio_status.append(get_nomenclature(s))
+            #     dict["bio_status"] = bio_status
+            # redlist = get_redlist_status(r.cd_ref)
+            # dict["redlist"] = redlist
             data.append(dict)
-
-        redlistless_data = list(filter(redlist_list_is_null, data))
-        print("redlistless_data", len(redlistless_data))
-        redlist_data = list(filter(redlist_is_not_null, data))
-        print("redlist_data", len(redlist_data))
-        redlist_sorted_data = sorted(
-            redlist_data,
-            key=lambda k: (
-                k["redlist"][0]["priority_order"],
-                k["redlist"][0]["threatened"],
-            ),
-        )
-        sorted_data = redlist_sorted_data + list(redlistless_data)
-        return jsonify({"count": count, "data": sorted_data}), 200
+        #
+        # redlistless_data = list(filter(redlist_list_is_null, data))
+        # print("redlistless_data", len(redlistless_data))
+        # redlist_data = list(filter(redlist_is_not_null, data))
+        # print("redlist_data", len(redlist_data))
+        # redlist_sorted_data = sorted(
+        #     redlist_data,
+        #     key=lambda k: (
+        #         k["redlist"][0]["priority_order"],
+        #         k["redlist"][0]["threatened"],
+        #     ),
+        # )
+        # sorted_data = redlist_sorted_data + list(redlistless_data)
+        return jsonify({"count": count, "data": data}), 200
 
     except Exception as e:
         error = "<get_taxa_list> ERROR: {}".format(e)
@@ -635,11 +701,11 @@ def get_taxa_simple_list(id_area):
                 ),
             )
             .select_from(Taxref)
+            .join(Synthese, Synthese.cd_nom == Taxref.cd_nom)
+            .join(CorAreaSynthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
             .outerjoin(
                 TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_nom
             )
-            .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
-            .filter(Synthese.cd_nom == Taxref.cd_nom)
             .filter(CorAreaSynthese.id_area == id_area)
             .distinct()
             .group_by(

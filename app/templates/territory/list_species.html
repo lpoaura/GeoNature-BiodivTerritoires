@@ -9,8 +9,7 @@
                 <th data-toggle="tooltip" title="Nom vernaculaire">Nom français</th>
                 <th data-toggle="tooltip" title="Nom scientifique">Nom scientifique</th>
                 <th>Menace</th>
-                <th data-toggle="tooltip" title="Statut de conservation le plus fort, toutes périodes confondues">Liste
-                    rouge France
+                <th data-toggle="tooltip" title="Statut de conservation le plus fort, toutes périodes confondues">Espèce menacée
                 </th>
                 <th data-toggle="tooltip" title="Statut de protection/réglementation">Espèce réglementée</th>
                 <th data-toggle="tooltip" title="Nombre d'observations">Nombre d'occurences</th>
@@ -40,7 +39,7 @@
 <script type="text/javascript">
     $(document.body).on('click', "#protectionDetails", function () {
         var cdref = $(this).data("cdref");
-        debugLog('api regl','{{taxhub_url}}/api/taxref/' + cdref );
+        debugLog('api regl', '{{taxhub_url}}/api/taxref/' + cdref);
         axios.get('{{taxhub_url}}/api/taxref/' + cdref)
             .then(function (response) {
                     $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
@@ -136,7 +135,7 @@
             var list_biostatus = '';
             if (d.bio_status.length > 0) {
                 for (var i = 0; i < d.bio_status.length; i++) {
-                    list_biostatus += '<span class="badge badge-info" data-toggle="tooltip" title="' + d.bio_status[i].definition_fr + '">' + d.bio_status[i].mnemonique + '</span>&nbsp;';
+                    list_biostatus += '<span class="badge badge-info">' + d.bio_status[i]+ '</span>&nbsp;';
                 }
             } else {
                 list_biostatus = 'Aucun statut spécifié'
@@ -172,89 +171,93 @@
             },
             columnDefs: [
                 {className: "text-center align-middle", targets: '_all'},
+                {#{#}
+                {#    "createdCell": function (td, cellData, rowData, row, col) {#}
+                {#        if (!!cellData) {#}
+                {#            $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')#}
+                {#        }#}
+                {#    }, targets: [5,]#}
+                {#v},#}
                 {
-                    "createdCell": function (td, cellData, rowData, row, col) {
-                        if (!!cellData) {
-                            $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')
-                        }
-                    }, targets: [5,]
-                },
-                {
-                    "targets": [4,8,9,10],
+                    "targets": [4, 8, 9, 10],
                     "visible": false,
                     "searchable": false
                 },
             ],
             createdRow: function (row, data, dataIndex) {
-                if (data.redlist.length > 0) {
-                    if (!!data.redlist[0].threatened > 0) {
+                {#if (data.redlist.length > 0) {#}
+                {#    if (!!data.redlist[0].threatened > 0) {#}
+                {#        $(row).addClass('table-danger');#}
+                {#    }#}
+                {# } #}
+                    if (data.threatened) {
                         $(row).addClass('table-danger');
                     }
                 }
-            },
-            columns: [
-                {
-                    "class": "details-control text-center align-middle",
-                    "orderable": false,
-                    "data": "",
-                    "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
-                },
-                {#{data: "group1_inpn"},#}
-                {data: "group2_inpn"},
-                {
-                    data: function (row) {
-                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;'+row.cd_ref+')">' + row.nom_vern + '</a>';
-                    }
-                },
-                {
-                    data: function (row) {
-                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;'+row.cd_ref+')"><i>' + row.nom_valide + '</i></a>';
-                    }
-                },
-                {
-                    data: function (row) {
-                        var threatened = null;
-                        if (row.redlist.length > 0) {
-                            threatened = row.redlist[0].threatened;
+            ,
+                columns: [
+                    {
+                        "class": "details-control text-center align-middle",
+                        "orderable": false,
+                        "data": "",
+                        "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
+                    },
+                    {#{data: "group1_inpn"},#}
+                    {data: "group2_inpn"},
+                    {
+                        data: function (row) {
+                            return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')">' + row.nom_vern + '</a>';
                         }
-                        return threatened;
-                    }
-                },
-                {
-                    data: function (row) {
-                        var protection = null;
-                        if (row.redlist.length > 0) {
-                            protection = '<span id="redlistDetails" data-nomvalide="' + row.nom_valide + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation">' + row.redlist[0].category + '</span>';
+                    },
+                    {
+                        data: function (row) {
+                            return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')"><i>' + row.lb_nom + '</i></a>';
                         }
-                        return protection;
-                    }
-                },
-                {
-                    data: function (row) {
-                        var protection = '';
-                        if (row.protection == true) {
-                            protection = '<i id="protectionDetails" data-nomvalide="' + row.nom_valide + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
+                    },
+                    {
+                        data: function (row) {
+                            var threatened = null;
+                            if (row.threatened == true) {
+                                threatened = row.threatened;
+                            }
+                            return threatened;
                         }
-                        return protection;
-                    }
-                },
-                {data: "count_occtax"},
-                {data: "count_observer"},
-                {data: "count_date"},
-                {data: "count_dataset"},
-                {
-                    data: function (row) {
-                        var data = '';
-                        if (row.reproduction == true) {
-                            data = '<i class="fas fa-check-circle text-success"></i>&nbsp;<span data-toggle="tooltip" title="Dernière année d\'observation en reproduction">' + row.last_year_reproduction + '</span>';
+                    },
+                    {
+                        data: function (row) {
+                            var threatened = '';
+                            if (row.threatened == true) {
+                                threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
+                            }
+                            return threatened;
                         }
-                        ;
-                        return data;
-                    }
-                },
-                {data: "last_year"}
-            ]
-        });
+                    },
+                    {
+                        data: function (row) {
+                            var protection = '';
+                            if (row.protection == true) {
+                                protection = '<i id="protectionDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
+                            }
+                            return protection;
+                        }
+                    },
+                    {data: "count_occtax"},
+                    {data: "count_observer"},
+                    {data: "count_date"},
+                    {data: "count_dataset"},
+                    {
+                        data: function (row) {
+                            var data = '';
+                            if (row.reproduction == true) {
+                                data = '<i class="fas fa-check-circle text-success"></i>&nbsp;<span data-toggle="tooltip" title="Dernière année d\'observation en reproduction">' + row.last_year_reproduction + '</span>';
+                            }
+                            ;
+                            return data;
+                        }
+                    },
+                    {data: "last_year"}
+                ]
+            });
 
         var detailRows = [];
 
@@ -292,5 +295,7 @@
 
     {#$(document).on('shown.bs.collapse', '#collapseSpeciesList', function () {#}
     {#    listSpeciesTable.columns.adjust();#}
-    {#});#}
+    {#})
+    ;
+    #}
 </script>
