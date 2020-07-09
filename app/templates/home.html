@@ -18,6 +18,13 @@
         <div class="container">
             <h1 class="display-1">{{ site_name }}</h1>
             <p class="">{{ site_desc|safe }}</p>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle text-warning"></i>
+                <span>Cette plateforme est une première version en cours de développement. Elle sera amenée à évoluer.</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <p class="">
                 {% include "core/search_territory.html" %}
             </p>
