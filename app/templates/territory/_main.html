@@ -371,5 +371,16 @@
                 $(this).prev(".card-header").removeClass("bg-gradient-info");
             });
         });
+
+
+        $(document).ready(function () {
+            $(".collapse").on('show.bs.collapse', function () {
+                $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
+                $(this).prev(".card-header").addClass("bg-gradient-info");
+            }).on('hide.bs.collapse', function () {
+                $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
+                $(this).prev(".card-header").removeClass("bg-gradient-info");
+            });
+        });
     </script>
 {% endblock %}

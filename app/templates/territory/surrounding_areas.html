@@ -63,7 +63,7 @@
 
     $(document).on('shown.bs.collapse', '#collapseSurroundingAreas', function () {
         debugLog('hey');
-        surroundingAreasTable.columns.adjust();
+        surroundingAreasTable.columns.adjust().draw();
     });
 
     {#var surroundingAreasMap = baseMap('surroundingAreasMap');#}
