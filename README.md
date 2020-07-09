@@ -4,7 +4,7 @@ Portail de restitution de la biodiversité des territoires pour un porté à con
 
 ## Démo
 
-Une démo, couvrant le territoire de l'Ardèche est disponible à cette adresse: https://biodiv-territoires.lpo-aura.org/
+Une première version, couvrant la région Auvergne-Rhône-Alpes est disponible à cette adresse: https://biodiv-territoires.lpo-aura.org/
 
 ## Contexte
 
@@ -73,14 +73,19 @@ La plateforme disposera également des élément suivants :
 - Une page « Conception & crédits » listant les informations ;
 - Un dispositif de gestion de contenu éditorial (articles, actualités).
 
-## Démo
-
-Une démo, couvrant le territoire de l'Ardèche est disponible à cette adresse: https://biodiv-territoires-demo.lpo-aura.org/
-
 ## Partenaires
 
 Ce projet a été développé par la [LPO Auvergne-Rhône-Alpes](https//auvergne-rhone-alpes.lpo.fr/) avec le soutien financier de la [région Auvergne-Rhône-Alpes](https://www.auvergnerhonealpes.fr/).
 
 ![Logos](./docs/images/LPO_AuRA_regionAuRA_l250px.png)
+
+## Equipe
+
+Les contributeurs du projet sont:
+
+* Frédéric CLOITRE (@lpofredc) : Développement
+* Julien GIRARD-CLAUDON (@lpojgc) : Coordination du projet
+* Elsa GUILLEY (@eguilley) : Développement
+* Arthur VERNET : Analyses statistiques et modélisations
 
  
