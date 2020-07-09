@@ -1,12 +1,34 @@
 from flask import current_app
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
-from pypnnomenclature.models import TNomenclatures
+from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 from shapely.geometry import asShape
+from sqlalchemy import and_
 
 from app.core.env import DB
 from app.models.dynamic_content import TDynamicPages
 from app.models.taxonomy import TRedlist, BibRedlistSource, BibRedlistCategories
+
+
+def get_nomenclature_id(mnemonique, cd_nomenclature):
+    id_nomenclature = (
+        (
+            DB.session.query(TNomenclatures.id_nomenclature)
+            .join(
+                BibNomenclaturesTypes,
+                TNomenclatures.id_type == BibNomenclaturesTypes.id_type,
+            )
+            .filter(
+                and_(
+                    BibNomenclaturesTypes.mnemonique.like(mnemonique),
+                    TNomenclatures.cd_nomenclature.like(cd_nomenclature),
+                )
+            )
+        )
+        .first()
+        .id_nomenclature
+    )
+    return id_nomenclature
 
 
 def geom_from_geojson(data):

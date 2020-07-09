@@ -296,10 +296,14 @@ FROM
         JOIN gn_synthese.cor_area_synthese ON l_areas.id_area = cor_area_synthese.id_area
         JOIN gn_synthese.synthese ON cor_area_synthese.id_synthese = synthese.id_synthese
         JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
+        JOIN ref_nomenclatures.t_nomenclatures nom_df on synthese.id_nomenclature_diffusion_level = t_nomenclatures.id_nomenclature
+        JOIN taxonomie.bib_taxref_rangs on taxref.id_rang = bib_taxref_rangs.id_rang
         LEFT JOIN taxonomie.t_redlist ON taxref.cd_nom = t_redlist.cd_nom
         JOIN taxonomie.bib_redlist_categories ON t_redlist.category = bib_redlist_categories.code_category
         JOIN taxonomie.bib_redlist_source ON t_redlist.id_source = bib_redlist_source.id_source
 --         JOIN observers ON observers.id_area = l_areas.id_area
+WHERE bib_taxref_rangs like 'ES'
+    AND mnemonique like ''
 GROUP BY
     l_areas.id_area
   , bib_areas_types.type_code

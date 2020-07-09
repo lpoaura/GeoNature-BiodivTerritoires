@@ -16,6 +16,7 @@ from app.core.utils import (
     get_redlist_status,
     redlist_is_not_null,
     redlist_list_is_null,
+    get_nomenclature_id,
 )
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import (
@@ -40,6 +41,8 @@ from app.models.territory import (
 api = Blueprint("api", __name__)
 
 genStats = {}
+
+
 #
 #
 # @current_app.before_first_request
@@ -487,23 +490,8 @@ def get_taxa_list(id_area):
     :return:
     """
     try:
-        reproduction_id = (
-            (
-                DB.session.query(TNomenclatures.id_nomenclature)
-                .join(
-                    BibNomenclaturesTypes,
-                    TNomenclatures.id_type == BibNomenclaturesTypes.id_type,
-                )
-                .filter(
-                    and_(
-                        BibNomenclaturesTypes.mnemonique.like("STATUT_BIO"),
-                        TNomenclatures.cd_nomenclature.like("3"),
-                    )
-                )
-            )
-            .first()
-            .id_nomenclature
-        )
+        reproduction_id = get_nomenclature_id("STATUT_BIO", "3")
+        diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
 
         print("reproduction_id", reproduction_id)
         query_territory = (
@@ -627,6 +615,7 @@ def get_taxa_list(id_area):
                 TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
             )
             .filter(CorAreaSynthese.id_area == id_area)
+            .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
             .group_by(
                 func.coalesce(TMaxThreatenedStatus.threatened, False),
                 Taxref.cd_ref,
@@ -681,7 +670,9 @@ def get_taxa_simple_list(id_area):
     :param type:
     :return:
     """
+
     try:
+        diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
         query_area = (
             DB.session.query(
                 Taxref.cd_ref.label("id"),
@@ -707,6 +698,7 @@ def get_taxa_simple_list(id_area):
                 TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_nom
             )
             .filter(CorAreaSynthese.id_area == id_area)
+            .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
             .distinct()
             .group_by(
                 func.coalesce(TMaxThreatenedStatus.threatened, False),
@@ -847,6 +839,11 @@ def get_surrounding_count_species_by_group2inpn(id_area, buffer=10000):
         .group_by(Taxref.group2_inpn)
         .order_by(Taxref.group2_inpn)
     )
+    current_app.logger.debug(
+        "<get_surrounding_count_species_by_group2inpn> query_surrounding_territory: {} ".format(
+            query_surrounding_territory
+        )
+    )
     surrounding_territory_data = query_surrounding_territory.all()
 
     query_territory = (
@@ -869,6 +866,12 @@ def get_surrounding_count_species_by_group2inpn(id_area, buffer=10000):
         .outerjoin(TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref)
         .group_by(Taxref.group2_inpn)
         .order_by(Taxref.group2_inpn)
+    )
+
+    current_app.logger.debug(
+        "<get_surrounding_count_species_by_group2inpn> query_territory: {} ".format(
+            query_territory
+        )
     )
 
     territory_data = query_territory.all()
