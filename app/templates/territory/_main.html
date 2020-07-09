@@ -17,7 +17,7 @@
         {#debugLog('<baseLayersList>', baseLayersList);#}
     </script>
 
-{#    <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>#}
+    {#    <script src="{{ url_for('static', filename='base_map.js') }}" type="text/javascript"></script>#}
 
     <script type="text/javascript">
         var buffer = {{ default_buffer }};
@@ -104,37 +104,43 @@
         <div class="accordion" id="blocks">
             <!-- Block 1 -->
             <div class="card">
-                <div class="card-header blocks" id="headingThreatenedSpecies">                    
-                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseThreatenedSpecies" aria-expanded="true" aria-controls="collapseThreatenedSpecies">
+                <div class="card-header blocks" id="headingThreatenedSpecies">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapseThreatenedSpecies" aria-expanded="true"
+                            aria-controls="collapseThreatenedSpecies">
                         <h1>
                             <div class="icon-rounded shadow bg-primary-light">
                                 <i class="fas fa-exclamation"></i>
                             </div>
-                            <span data-toggle="tooltip" data-placement="right" data-html="true" title="Les graphiques suivants font l'état des espèces menacées du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment).">
+                            <span data-toggle="tooltip" data-placement="right" data-html="true"
+                                  title="Les graphiques suivants font l'état des espèces menacées du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment).">
                                 Espèces menacées du territoire
                             </span>
                             <span class="float-right">
                                 <i class="fas fa-angle-double-down accordion-chevron" aria-hidden="true"></i>
                             </span>
                         </h1>
-                    </button>                    
-                </div>            
-                <div id="collapseThreatenedSpecies" class="collapse" aria-labelledby="headingThreatenedSpecies" data-parent="#blocks">
+                    </button>
+                </div>
+                <div id="collapseThreatenedSpecies" class="collapse" aria-labelledby="headingThreatenedSpecies"
+                     data-parent="#blocks">
                     <div class="card-body">
                         <div class="col">
                             <div class="card border-primary mb-3 shadow">
                                 <div class="card-header info">
                                     <i class="fas fa-info text-primary"></i>
                                     Les graphiques suivants font l'état des <abbr data-toggle="tooltip"
-                                                                                    data-placement="bottom"
-                                                                                    title="Taxons à statuts de conservation défavorable">espèces
-                                    menacées</abbr> du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment).
+                                                                                  data-placement="bottom"
+                                                                                  title="Taxons à statuts de conservation défavorable">espèces
+                                    menacées</abbr> du territoire <u>et</u> de sa zone tampon (sélectionnée
+                                    précédemment).
                                 </div>
                             </div>
                             <div class="card text-white bg-dark mb-3 shadow">
                                 <div class="card-header info">
                                     <i class="fas fa-drafting-compass"></i>
-                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a href="#territoryIntro">ici</a> la distance tampon de votre choix.
+                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a
+                                        href="#territoryIntro">ici</a> la distance tampon de votre choix.
                                 </div>
                             </div>
                         </div>
@@ -147,7 +153,9 @@
             <!-- Block 2 -->
             <div class="card">
                 <div class="card-header blocks" id="headingObservationsDistribution">
-                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseObservationsDistribution" aria-expanded="true" aria-controls="collapseObservationsDistribution">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapseObservationsDistribution" aria-expanded="true"
+                            aria-controls="collapseObservationsDistribution">
                         <h1>
                             <div class="icon-rounded shadow bg-primary-light">
                                 <i class="fas fa-map-marked-alt"></i>
@@ -162,8 +170,9 @@
                             </span>
                         </h1>
                     </button>
-                </div>            
-                <div id="collapseObservationsDistribution" class="collapse" aria-labelledby="headingObservationsDistribution" data-parent="#blocks">
+                </div>
+                <div id="collapseObservationsDistribution" class="collapse"
+                     aria-labelledby="headingObservationsDistribution" data-parent="#blocks">
                     <div class="card-body">
                         <div class="col">
                             <div class="row">
@@ -171,7 +180,7 @@
                                     <div class="card border-primary shadow h-100">
                                         <div class="card-header info h-100">
                                             <i class="fas fa-info text-primary"></i>
-                                            La carte suivante illustre la répartition des données sur le territoire 
+                                            La carte suivante illustre la répartition des données sur le territoire
                                             <u>et</u> sur sa zone tampon (sélectionnée précédemment).<br/>
                                             <i class="fas fa-info text-primary"></i>
                                             Les graphiques situés en dessous illustrent quant à eux la
@@ -183,20 +192,30 @@
                                     <div class="card border-warning shadow h-100">
                                         <div class="card-header info h-100">
                                             <i class="fas fa-lightbulb text-warning"></i>
-                                            Sur la carte, vous pouvez choisir la couche thématique (nombre de taxons, nombre d'observations, etc.) et 
+                                            Sur la carte, vous pouvez choisir la couche thématique (nombre de taxons,
+                                            nombre d'observations, etc.) et
                                             le fond de carte qui vous intéressent.<br/>
                                             <i class="fas fa-lightbulb text-warning"></i>
-                                            Cliquez sur une maille de la carte pour accéder à la liste des espèces observées sur cette dernière : les lignes en <span
-                                            class="bg-danger text-light">rouge</span> qui s'affichent mettent en évidence les taxons qui présentent un
+                                            Cliquez sur une maille de la carte pour accéder à la liste des espèces
+                                            observées sur cette dernière : les lignes en <span
+                                                class="bg-danger text-light">rouge</span> qui s'affichent mettent en
+                                            évidence les taxons qui présentent un
                                             statut de conservation défavorable.<br/>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="card border-danger shadow mt-3 mb-3  h-100">
+                                <div class="card-header info h-100">
+                                    <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    <span class="text-danger"><strong>La liste des espèces par maille n'affiche que les données "non cachées" du territoire. Les données cachées sont des données cachées à la demande de l'observateur ou des données d'espèces sensibles à fort enjeu de conservation.</strong></span>
+                                </div>
+                            </div>
                             <div class="card text-white bg-dark mt-3 mb-3 shadow">
                                 <div class="card-header info">
                                     <i class="fas fa-drafting-compass"></i>
-                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a href="#territoryIntro">ici</a> la distance tampon de votre choix.
+                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a
+                                        href="#territoryIntro">ici</a> la distance tampon de votre choix.
                                 </div>
                             </div>
                         </div>
@@ -209,12 +228,14 @@
             <!-- Block 3 -->
             <div class="card">
                 <div class="card-header blocks" id="headingSpeciesList">
-                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseSpeciesList" aria-expanded="true" aria-controls="collapseSpeciesList">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapseSpeciesList" aria-expanded="true" aria-controls="collapseSpeciesList">
                         <h1>
                             <div class="icon-rounded shadow bg-primary-light">
                                 <i class="fas fa-list"></i>
                             </div>
-                            <span data-toggle="tooltip" data-placement="right" data-html="true" title="Le tableau suivant liste l'ensemble des espèces observées sur le territoire.">
+                            <span data-toggle="tooltip" data-placement="right" data-html="true"
+                                  title="Le tableau suivant liste l'ensemble des espèces observées sur le territoire.">
                                 Liste des espèces
                             </span>
                             <span class="float-right">
@@ -222,8 +243,9 @@
                             </span>
                         </h1>
                     </button>
-                </div>            
-                <div id="collapseSpeciesList" class="collapse" aria-labelledby="headingSpeciesList" data-parent="#blocks">
+                </div>
+                <div id="collapseSpeciesList" class="collapse" aria-labelledby="headingSpeciesList"
+                     data-parent="#blocks">
                     <div class="card-body">
                         <div class="col">
                             <div class="row">
@@ -233,7 +255,8 @@
                                             <i class="fas fa-info text-primary"></i>
                                             Le tableau suivant liste l'ensemble des espèces observées sur le territoire.
                                             Les lignes en
-                                            <span class="bg-danger text-light">rouge</span> mettent en évidence les taxons qui présentent un
+                                            <span class="bg-danger text-light">rouge</span> mettent en évidence les
+                                            taxons qui présentent un
                                             statut de conservation défavorable.
                                         </div>
                                     </div>
@@ -243,6 +266,16 @@
                                         <div class="card-header info h-100">
                                             <i class="fas fa-lightbulb text-warning"></i>
                                             Vous pouvez télécharger le tableau sous différents formats (CSV, PDF).
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-12 pt-2">
+                                    <div class="card border-danger shadow h-100">
+                                        <div class="card-header info h-100">
+                                            <i class="fas fa-exclamation-triangle text-danger"></i>
+                                            <span class="text-danger"><strong>Ce tableau n'affiche que les données "non cachées" du territoire. Les données cachées sont des données cachées à la demande de l'observateur ou des données d'espèces sensibles à fort enjeu de conservation.</strong></span>
                                         </div>
                                     </div>
                                 </div>
@@ -257,7 +290,9 @@
             <!-- Block 4 -->
             <div class="card">
                 <div class="card-header blocks" id="headingSurroundingAreas">
-                    <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseSurroundingAreas" aria-expanded="true" aria-controls="collapseSurroundingAreas">
+                    <button class="btn btn-block text-left" type="button" data-toggle="collapse"
+                            data-target="#collapseSurroundingAreas" aria-expanded="true"
+                            aria-controls="collapseSurroundingAreas">
                         <h1>
                             <div class="icon-rounded shadow bg-primary-light">
                                 <i class="fas fa-map-signs"></i>
@@ -271,8 +306,9 @@
                             </span>
                         </h1>
                     </button>
-                </div>            
-                <div id="collapseSurroundingAreas" class="collapse" aria-labelledby="headingSurroundingAreas" data-parent="#blocks">
+                </div>
+                <div id="collapseSurroundingAreas" class="collapse" aria-labelledby="headingSurroundingAreas"
+                     data-parent="#blocks">
                     <div class="card-body">
                         <div class="col">
                             <div class="row">
@@ -280,8 +316,10 @@
                                     <div class="card border-primary shadow h-100">
                                         <div class="card-header info h-100">
                                             <i class="fas fa-info text-primary"></i>
-                                            Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
-                                            par rapport au territoire courant <u>et</u> à sa zone tampon. Le nombre de territoires associés est donc dépendant de la
+                                            Le tableau suivant liste l'ensemble des territoires en recouvrement ou
+                                            limitrophes (communes voisines, zones naturelles, etc.)
+                                            par rapport au territoire courant <u>et</u> à sa zone tampon. Le nombre de
+                                            territoires associés est donc dépendant de la
                                             distance tampon (sélectionnée précédemment).
                                         </div>
                                     </div>
@@ -298,7 +336,8 @@
                             <div class="card text-white bg-dark mt-3 mb-3 shadow">
                                 <div class="card-header info">
                                     <i class="fas fa-drafting-compass"></i>
-                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a href="#territoryIntro">ici</a> la distance tampon de votre choix.
+                                    Vous pouvez modifier l'emprise de l'analyse en sélectionnant <a
+                                        href="#territoryIntro">ici</a> la distance tampon de votre choix.
                                 </div>
                             </div>
                         </div>
@@ -323,14 +362,25 @@
             getGridArea('taxa');
         });
 
-        $(document).ready(function(){ 
-            $(".collapse").on('show.bs.collapse', function(){
-              $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
-              $(this).prev(".card-header").addClass("bg-gradient-info");
-            }).on('hide.bs.collapse', function(){
-              $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
-              $(this).prev(".card-header").removeClass("bg-gradient-info");
+        $(document).ready(function () {
+            $(".collapse").on('show.bs.collapse', function () {
+                $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
+                $(this).prev(".card-header").addClass("bg-gradient-info");
+            }).on('hide.bs.collapse', function () {
+                $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
+                $(this).prev(".card-header").removeClass("bg-gradient-info");
             });
-          });
+        });
+
+
+        $(document).ready(function () {
+            $(".collapse").on('show.bs.collapse', function () {
+                $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
+                $(this).prev(".card-header").addClass("bg-gradient-info");
+            }).on('hide.bs.collapse', function () {
+                $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
+                $(this).prev(".card-header").removeClass("bg-gradient-info");
+            });
+        });
     </script>
 {% endblock %}

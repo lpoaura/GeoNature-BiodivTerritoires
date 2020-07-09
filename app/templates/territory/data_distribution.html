@@ -208,6 +208,7 @@
                 var situationObject = L.geoJson(response.data, {
                     style: territoryStyle
                 });
+                {#datasMap.fitBounds(situationObject.getBounds());#}
                 situationObject.addTo(datasMap).bringToBack();
             })
             .catch(function (error) {
