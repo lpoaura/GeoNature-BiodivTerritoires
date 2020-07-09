@@ -1,19 +1,22 @@
-<div class="chart-container  col col-lg-6" style="position: relative; height:500px; width:50vw">
-    <canvas id="threatenedSpeciesGlobal"></canvas>
-    <div id="threatenedSpeciesGlobalSpinner">
-        <div class="loader-1"></div>
-        <div class="loader-2"></div>
-        <div class="loader-3"></div>
+<div class="row">
+    <div class="chart-container col col-lg-6 col-sm-12" style="position: relative; height:500px; width:50vw">
+        <canvas id="threatenedSpeciesGlobal"></canvas>
+        <div id="threatenedSpeciesGlobalSpinner">
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
+    </div>
+    <div class="chart-container col col-lg-6 col-sm-12" style="position: relative; height:500px; width:50vw">
+        <canvas id="threatenedSpeciesByTaxoGroup"></canvas>
+        <div id="threatenedSpeciesByTaxoGroupSpinner">
+            <div class="loader-1"></div>
+            <div class="loader-2"></div>
+            <div class="loader-3"></div>
+        </div>
     </div>
 </div>
-<div class="chart-container col col-lg-6" style="position: relative; height:500px; width:50vw">
-    <canvas id="threatenedSpeciesByTaxoGroup"></canvas>
-    <div id="threatenedSpeciesByTaxoGroupSpinner">
-        <div class="loader-1"></div>
-        <div class="loader-2"></div>
-        <div class="loader-3"></div>
-    </div>
-</div>
+
 <script>
     var threatenedSpeciesGlobal = document.getElementById('threatenedSpeciesGlobal').getContext('2d');
     var threatenedSpeciesByTaxoGroup = document.getElementById('threatenedSpeciesByTaxoGroup').getContext('2d');
@@ -26,7 +29,7 @@
     var threatenedSpeciesGlobalChart = new Chart(threatenedSpeciesGlobal, {
         type: 'bar',
         data: {
-            labels: ['Chargemet en cours'],
+            labels: ['Chargement en cours'],
             datasets: [{
                 label: 'Espèces menacées',
                 data: [0, 0],
@@ -75,14 +78,14 @@
                 threatenedSpeciesGlobalChart.update();
                 $('#threatenedSpeciesGlobalSpinner').hide();
             }).catch(function (error) {
-            console.log(error);
+            debugLog(error);
         });
     };
 
     var threatenedSpeciesByTaxoGroupChart = new Chart(threatenedSpeciesByTaxoGroup, {
         type: 'bar',
         data: {
-            labels: ['chargement en cours'],
+            labels: ['Chargement en cours'],
             datasets: [{
                 label: 'Espèces menacées',
                 data: [0, 0],
@@ -141,14 +144,14 @@
                 threatenedSpeciesByTaxoGroupUpdate(source_data, 10000);
                 $('#threatenedSpeciesByTaxoGroupSpinner').hide();
             }).catch(function (error) {
-            console.log(error);
+            debugLog(error);
         });
 
     };
 
     var threatenedSpeciesByTaxoGroupUpdate = function (source_data) {
         $('#threatenedSpeciesByTaxoGroupSpinner').show();
-        console.log(threatenedSpeciesByTaxoGroupDatas)
+        debugLog(threatenedSpeciesByTaxoGroupDatas)
         threatenedSpeciesByTaxoGroupChart.data.labels = threatenedSpeciesByTaxoGroupDatas['labels'];
         threatenedSpeciesByTaxoGroupChart.data.datasets[0].label = 'Espèces menacées';
         threatenedSpeciesByTaxoGroupChart.data.datasets[0].data = threatenedSpeciesByTaxoGroupDatas[source_data]['threatened'];

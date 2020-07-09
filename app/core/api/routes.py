@@ -1,11 +1,14 @@
+import threading
+import time
+
 from flask import Blueprint, jsonify, redirect, url_for, request, current_app
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 from sqlalchemy import and_, or_, distinct
 from sqlalchemy.dialects.postgresql import aggregate_order_by
-from sqlalchemy.sql import func, case, funcfilter
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql import func, case, funcfilter
 
 from app.core.env import DB
 from app.core.utils import (
@@ -13,6 +16,7 @@ from app.core.utils import (
     get_redlist_status,
     redlist_is_not_null,
     redlist_list_is_null,
+    get_nomenclature_id,
 )
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import (
@@ -28,9 +32,76 @@ from app.models.taxonomy import (
     TaxrefProtectionEspeces,
     TMaxThreatenedStatus,
 )
-from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
+from app.models.territory import (
+    MVTerritoryGeneralStats,
+    MVAreaNtileLimit,
+    MVGeneralStats,
+)
 
 api = Blueprint("api", __name__)
+
+genStats = {}
+
+
+#
+#
+# @current_app.before_first_request
+# def activate_job():
+#     """ refresh hourly general datas """
+#     with current_app.app_context():
+#
+#         def refresh_genstats():
+#             while True:
+#                 try:
+#                     print("start querying genstats")
+#                     taxa = aliased(
+#                         (
+#                             DB.session.query(Synthese.cd_nom)
+#                             .distinct()
+#                             .cte(name="taxa", recursive=False)
+#                         ),
+#                         name="taxa_cte",
+#                     )
+#                     observers = aliased(
+#                         (
+#                             DB.session.query(Synthese.observers)
+#                             .distinct()
+#                             .cte(name="observers", recursive=False)
+#                         ),
+#                         name="observers_cte",
+#                     )
+#                     # dataset = aliased(
+#                     #     (
+#                     #         DB.session.query(Synthese.id_dataset)
+#                     #         .distinct()
+#                     #         .cte(name="dataset", recursive=False)
+#                     #     ),
+#                     #     name="dataset_cte",
+#                     # )
+#                     genStats["count_taxa"] = DB.session.query(
+#                         func.count(taxa.c.cd_nom)
+#                     ).one()[0]
+#                     print(genStats["count_taxa"])
+#                     genStats["count_occtax"] = DB.session.query(
+#                         func.count(Synthese.id_synthese)
+#                     ).one()[0]
+#                     # genStats["count_dataset"] = DB.session.query(
+#                     #     func.count(dataset.c.id_dataset)
+#                     # ).one()[0]
+#                     genStats["count_observers"] = DB.session.query(
+#                         func.count(observers.c.observers)
+#                     ).one()[0]
+#                     for k, v in genStats.items():
+#                         print(k, v)
+#
+#                 except Exception as e:
+#                     print("<refresh_genstats> {}".format(str(e)))
+#                     raise (e)
+#
+#             time.sleep(3600)
+#
+#         thread = threading.Thread(target=refresh_genstats)
+#         thread.start()
 
 
 @api.route("/find/area")
@@ -99,80 +170,92 @@ def redirect_area(id_area):
         current_app.logger.error("<redirect_area> ERROR:", e)
 
 
+# @api.route("/homestats")
+# def home_stats():
+#     """
+#
+#     :return:
+#     """
+#     # result = genStats
+#     try:
+#     taxa = aliased(
+#         (
+#             DB.session.query(Synthese.cd_nom)
+#             .distinct()
+#             .cte(name="taxa", recursive=False)
+#         ),
+#         name="taxa_cte",
+#     )
+#     # taxa = DB.session.query(Synthese.cd_nom).distinct()
+#     # occtax = aliased(
+#     #     (
+#     #         DB.session.query(Synthese.id_synthese)
+#     #         .distinct()
+#     #         .cte(name="occtax", recursive=False)
+#     #     ),
+#     #     name="occtax_cte",
+#     # )
+#     observers = aliased(
+#         (
+#             DB.session.query(Synthese.observers)
+#             .distinct()
+#             .cte(name="observers", recursive=False)
+#         ),
+#         name="observers_cte",
+#     )
+#     dataset = aliased(
+#         (
+#             DB.session.query(Synthese.id_dataset)
+#             .distinct()
+#             .cte(name="dataset", recursive=False)
+#         ),
+#         name="dataset_cte",
+#     )
+#     result["count_taxa"] = DB.session.query(func.count(taxa.c.cd_nom)).one()[0]
+#     current_app.logger.debug("<CountObserversQuery> {}".format(observers))
+#     current_app.logger.info(
+#         "<homestats query> {}".format(DB.session.query(func.count(taxa.c.cd_nom)))
+#     )
+#     result["count_occtax"] = DB.session.query(
+#         func.count(Synthese.id_synthese)
+#     ).one()[0]
+#     result["count_dataset"] = DB.session.query(
+#         func.count(dataset.c.id_dataset)
+#     ).one()[0]
+#     result["count_observers"] = DB.session.query(
+#         func.count(observers.c.observers)
+#     ).one()[0]
+
+# query = DB.session.query(
+#     func.count(taxa.c.cd_nom).label("count_taxa"),
+#     func.count(occtax.c.id_synthese).label("count_occtax"),
+#     func.count(dataset.c.id_dataset).label("count_dataset"),
+#     func.count(observers.c.observers).label("count_observers"),
+# )
+# current_app.logger.info("<homestat query>: {}".format(query))
+# result = query.one()
+# return jsonify(result._asdict())
+#     return jsonify(genStats)
+#
+# except Exception as e:
+#     current_app.logger.error("<main_area_info> ERROR: {}".format(e))
+#     return {"Error": str(e)}, 400
+
+
 @api.route("/homestats")
 def home_stats():
     """
 
+
     :return:
     """
-    data_to_count = [
-        {"label": "count_dataset", "column": Synthese.id_dataset},
-        {"label": "count_occtax", "column": Synthese.id_synthese},
-        {"label": "count_taxa", "column": Synthese.cd_nom},
-        {"label": "count_observers", "column": Synthese.observers},
-    ]
-    result = {}
+
     try:
-        taxa = aliased(
-            (
-                DB.session.query(Synthese.cd_nom)
-                .distinct()
-                .cte(name="taxa", recursive=False)
-            ),
-            name="taxa_cte",
-        )
-        # taxa = DB.session.query(Synthese.cd_nom).distinct()
-        # occtax = aliased(
-        #     (
-        #         DB.session.query(Synthese.id_synthese)
-        #         .distinct()
-        #         .cte(name="occtax", recursive=False)
-        #     ),
-        #     name="occtax_cte",
-        # )
-        observers = aliased(
-            (
-                DB.session.query(Synthese.observers)
-                .distinct()
-                .cte(name="observers", recursive=False)
-            ),
-            name="observers_cte",
-        )
-        dataset = aliased(
-            (
-                DB.session.query(Synthese.id_dataset)
-                .distinct()
-                .cte(name="dataset", recursive=False)
-            ),
-            name="dataset_cte",
-        )
-        result["count_taxa"] = DB.session.query(func.count(taxa.c.cd_nom)).one()[0]
-        current_app.logger.info(
-            "<homestats query> {}".format(DB.session.query(func.count(taxa.c.cd_nom)))
-        )
-        result["count_occtax"] = DB.session.query(
-            func.count(Synthese.id_synthese)
-        ).one()[0]
-        result["count_dataset"] = DB.session.query(
-            func.count(dataset.c.id_dataset)
-        ).one()[0]
-        result["count_observers"] = DB.session.query(
-            func.count(observers.c.observers)
-        ).one()[0]
-
-        # query = DB.session.query(
-        #     func.count(taxa.c.cd_nom).label("count_taxa"),
-        #     func.count(occtax.c.id_synthese).label("count_occtax"),
-        #     func.count(dataset.c.id_dataset).label("count_dataset"),
-        #     func.count(observers.c.observers).label("count_observers"),
-        # )
-        # current_app.logger.info("<homestat query>: {}".format(query))
-        # result = query.one()
-        # return jsonify(result._asdict())
-        return jsonify(result)
-
+        query = MVGeneralStats.query
+        stats = query.one()
+        return jsonify(stats.as_dict())
     except Exception as e:
-        current_app.logger.error("<main_area_info> ERROR: {}".format(e))
+        current_app.logger.error("<home_stats> ERROR:", e)
         return {"Error": str(e)}, 400
 
 
@@ -407,35 +490,86 @@ def get_taxa_list(id_area):
     :return:
     """
     try:
-        reproduction_id = (
-            (
-                DB.session.query(TNomenclatures.id_nomenclature)
-                .join(
-                    BibNomenclaturesTypes,
-                    TNomenclatures.id_type == BibNomenclaturesTypes.id_type,
-                )
-                .filter(
-                    and_(
-                        BibNomenclaturesTypes.mnemonique.like("STATUT_BIO"),
-                        TNomenclatures.cd_nomenclature.like("3"),
-                    )
-                )
-            )
-            .first()
-            .id_nomenclature
-        )
+        reproduction_id = get_nomenclature_id("STATUT_BIO", "3")
+        diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
 
         print("reproduction_id", reproduction_id)
         query_territory = (
+            # DB.session.query(
+            #     Taxref.cd_ref.label("id"),
+            #     LAreas.id_area,
+            #     LAreas.area_code,
+            #     Taxref.cd_ref,
+            #     func.split_part(Taxref.nom_vern, ",", 1).label("nom_vern"),
+            #     Taxref.nom_valide,
+            #     Taxref.group1_inpn,
+            #     Taxref.group2_inpn,
+            #     func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
+            #     func.count(distinct(Synthese.observers)).label("count_observer"),
+            #     func.count(distinct(Synthese.date_min)).label("count_date"),
+            #     func.count(distinct(Synthese.id_dataset)).label("count_dataset"),
+            #     func.max(distinct(func.extract("year", Synthese.date_min))).label(
+            #         "last_year"
+            #     ),
+            #     func.array_agg(
+            #         aggregate_order_by(
+            #             distinct(func.extract("year", Synthese.date_min)),
+            #             func.extract("year", Synthese.date_min).desc(),
+            #         )
+            #     ).label("list_years"),
+            #     func.array_agg(
+            #         aggregate_order_by(
+            #             distinct(func.extract("month", Synthese.date_min)),
+            #             func.extract("month", Synthese.date_min).asc(),
+            #         )
+            #     ).label("list_months"),
+            #     func.bool_or(
+            #         Synthese.id_nomenclature_bio_status == reproduction_id
+            #     ).label("reproduction"),
+            #     func.max(distinct(func.extract("year", Synthese.date_min)))
+            #     .filter(Synthese.id_nomenclature_bio_status == reproduction_id)
+            #     .label("last_year_reproduction"),
+            #     func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
+            #         "bio_status_id"
+            #     ),
+            #     case(
+            #         [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
+            #         else_=False,
+            #     ).label("protection"),
+            # )
+            # .select_from(CorAreaSynthese)
+            # .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            # .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
+            # .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
+            # .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
+            # .outerjoin(
+            #     TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
+            # )
+            # .filter(LAreas.id_area == id_area)
+            # .group_by(
+            #     LAreas.id_area,
+            #     LAreas.area_code,
+            #     Taxref.cd_ref,
+            #     Taxref.nom_vern,
+            #     Taxref.nom_valide,
+            #     Taxref.group1_inpn,
+            #     Taxref.group2_inpn,
+            # )
+            # .order_by(
+            #     func.count(distinct(Synthese.id_synthese)).desc(),
+            #     Taxref.group1_inpn,
+            #     Taxref.group2_inpn,
+            #     Taxref.nom_valide,
+            # )
             DB.session.query(
                 Taxref.cd_ref.label("id"),
-                LAreas.id_area,
-                LAreas.area_code,
                 Taxref.cd_ref,
                 func.split_part(Taxref.nom_vern, ",", 1).label("nom_vern"),
-                Taxref.nom_valide,
-                Taxref.group1_inpn,
+                Taxref.lb_nom,
                 Taxref.group2_inpn,
+                func.coalesce(TMaxThreatenedStatus.threatened, False).label(
+                    "threatened"
+                ),
                 func.count(distinct(Synthese.id_synthese)).label("count_occtax"),
                 func.count(distinct(Synthese.observers)).label("count_observer"),
                 func.count(distinct(Synthese.date_min)).label("count_date"),
@@ -461,37 +595,38 @@ def get_taxa_list(id_area):
                 func.max(distinct(func.extract("year", Synthese.date_min)))
                 .filter(Synthese.id_nomenclature_bio_status == reproduction_id)
                 .label("last_year_reproduction"),
-                func.array_agg(distinct(Synthese.id_nomenclature_bio_status)).label(
-                    "bio_status_id"
-                ),
+                func.array_agg(distinct(TNomenclatures.mnemonique)).label("bio_status"),
                 case(
                     [(func.count(TaxrefProtectionEspeces.cd_nom) > 0, True)],
                     else_=False,
                 ).label("protection"),
             )
-            .select_from(CorAreaSynthese)
-            .join(Synthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
-            .join(Taxref, Synthese.cd_nom == Taxref.cd_nom)
-            .join(LAreas, LAreas.id_area == CorAreaSynthese.id_area)
-            .outerjoin(TaxrefLR, TaxrefLR.cd_nom == Taxref.cd_ref)
+            .select_from(Taxref)
+            .join(Synthese, Synthese.cd_nom == Taxref.cd_nom)
+            .join(CorAreaSynthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
+            .outerjoin(
+                TNomenclatures,
+                TNomenclatures.id_nomenclature == Synthese.id_nomenclature_bio_status,
+            )
+            .outerjoin(
+                TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_nom
+            )
             .outerjoin(
                 TaxrefProtectionEspeces, TaxrefProtectionEspeces.cd_nom == Taxref.cd_nom
             )
-            .filter(LAreas.id_area == id_area)
+            .filter(CorAreaSynthese.id_area == id_area)
+            .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
             .group_by(
-                LAreas.id_area,
-                LAreas.area_code,
+                func.coalesce(TMaxThreatenedStatus.threatened, False),
                 Taxref.cd_ref,
                 Taxref.nom_vern,
-                Taxref.nom_valide,
-                Taxref.group1_inpn,
+                Taxref.lb_nom,
                 Taxref.group2_inpn,
             )
             .order_by(
+                func.coalesce(TMaxThreatenedStatus.threatened, False).desc(),
                 func.count(distinct(Synthese.id_synthese)).desc(),
-                Taxref.group1_inpn,
                 Taxref.group2_inpn,
-                Taxref.nom_valide,
             )
         )
         print("query_territory", query_territory)
@@ -500,27 +635,27 @@ def get_taxa_list(id_area):
         data = []
         for r in result:
             dict = r._asdict()
-            bio_status = []
-            for s in r.bio_status_id:
-                bio_status.append(get_nomenclature(s))
-                dict["bio_status"] = bio_status
-            redlist = get_redlist_status(r.cd_ref)
-            dict["redlist"] = redlist
+            # bio_status = []
+            # for s in r.bio_status_id:
+            #     bio_status.append(get_nomenclature(s))
+            #     dict["bio_status"] = bio_status
+            # redlist = get_redlist_status(r.cd_ref)
+            # dict["redlist"] = redlist
             data.append(dict)
-
-        redlistless_data = list(filter(redlist_list_is_null, data))
-        print("redlistless_data", len(redlistless_data))
-        redlist_data = list(filter(redlist_is_not_null, data))
-        print("redlist_data", len(redlist_data))
-        redlist_sorted_data = sorted(
-            redlist_data,
-            key=lambda k: (
-                k["redlist"][0]["priority_order"],
-                k["redlist"][0]["threatened"],
-            ),
-        )
-        sorted_data = redlist_sorted_data + list(redlistless_data)
-        return jsonify({"count": count, "data": sorted_data}), 200
+        #
+        # redlistless_data = list(filter(redlist_list_is_null, data))
+        # print("redlistless_data", len(redlistless_data))
+        # redlist_data = list(filter(redlist_is_not_null, data))
+        # print("redlist_data", len(redlist_data))
+        # redlist_sorted_data = sorted(
+        #     redlist_data,
+        #     key=lambda k: (
+        #         k["redlist"][0]["priority_order"],
+        #         k["redlist"][0]["threatened"],
+        #     ),
+        # )
+        # sorted_data = redlist_sorted_data + list(redlistless_data)
+        return jsonify({"count": count, "data": data}), 200
 
     except Exception as e:
         error = "<get_taxa_list> ERROR: {}".format(e)
@@ -535,7 +670,9 @@ def get_taxa_simple_list(id_area):
     :param type:
     :return:
     """
+
     try:
+        diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
         query_area = (
             DB.session.query(
                 Taxref.cd_ref.label("id"),
@@ -555,12 +692,13 @@ def get_taxa_simple_list(id_area):
                 ),
             )
             .select_from(Taxref)
+            .join(Synthese, Synthese.cd_nom == Taxref.cd_nom)
+            .join(CorAreaSynthese, Synthese.id_synthese == CorAreaSynthese.id_synthese)
             .outerjoin(
                 TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_nom
             )
-            .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
-            .filter(Synthese.cd_nom == Taxref.cd_nom)
             .filter(CorAreaSynthese.id_area == id_area)
+            .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
             .distinct()
             .group_by(
                 func.coalesce(TMaxThreatenedStatus.threatened, False),
@@ -701,6 +839,11 @@ def get_surrounding_count_species_by_group2inpn(id_area, buffer=10000):
         .group_by(Taxref.group2_inpn)
         .order_by(Taxref.group2_inpn)
     )
+    current_app.logger.debug(
+        "<get_surrounding_count_species_by_group2inpn> query_surrounding_territory: {} ".format(
+            query_surrounding_territory
+        )
+    )
     surrounding_territory_data = query_surrounding_territory.all()
 
     query_territory = (
@@ -723,6 +866,12 @@ def get_surrounding_count_species_by_group2inpn(id_area, buffer=10000):
         .outerjoin(TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref)
         .group_by(Taxref.group2_inpn)
         .order_by(Taxref.group2_inpn)
+    )
+
+    current_app.logger.debug(
+        "<get_surrounding_count_species_by_group2inpn> query_territory: {} ".format(
+            query_territory
+        )
     )
 
     territory_data = query_territory.all()

@@ -215,7 +215,32 @@ CREATE INDEX ON public.test USING gist(centroid);
 SELECT populate_geometry_columns();
 
 
+/*******************************
+ *   GLOBAL GENERAL STATS      *
+ *******************************/
 
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_general_stats;
+
+CREATE MATERIALIZED VIEW gn_biodivterritory.mv_general_stats AS
+WITH
+    count_occtax AS (SELECT count(*) AS count FROM (SELECT DISTINCT id_synthese FROM gn_synthese.synthese) AS t)
+  , count_observer AS (SELECT count(*) AS count FROM (SELECT DISTINCT observers FROM gn_synthese.synthese) AS t)
+  , count_taxa AS (SELECT count(*) AS count
+                   FROM
+                       (SELECT DISTINCT cd_ref
+                        FROM
+                            gn_synthese.synthese
+                                JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom) AS t)
+  , count_dataset AS (SELECT count(*) AS count FROM (SELECT DISTINCT id_dataset FROM gn_synthese.synthese) AS t)
+SELECT
+    row_number() OVER () as id,
+    count_occtax.count   AS count_occtax
+  , count_observer.count AS count_observer
+  , count_taxa.count     AS count_taxa
+  , count_dataset.count  AS count_dataset
+FROM count_occtax, count_observer, count_dataset, count_taxa;
+
+select * from gn_biodivterritory.mv_general_stats;
 /*******************************
  *   TERRITORY GENERAL STATS   *
  *******************************/
@@ -271,10 +296,14 @@ FROM
         JOIN gn_synthese.cor_area_synthese ON l_areas.id_area = cor_area_synthese.id_area
         JOIN gn_synthese.synthese ON cor_area_synthese.id_synthese = synthese.id_synthese
         JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
+        JOIN ref_nomenclatures.t_nomenclatures nom_df on synthese.id_nomenclature_diffusion_level = t_nomenclatures.id_nomenclature
+        JOIN taxonomie.bib_taxref_rangs on taxref.id_rang = bib_taxref_rangs.id_rang
         LEFT JOIN taxonomie.t_redlist ON taxref.cd_nom = t_redlist.cd_nom
         JOIN taxonomie.bib_redlist_categories ON t_redlist.category = bib_redlist_categories.code_category
         JOIN taxonomie.bib_redlist_source ON t_redlist.id_source = bib_redlist_source.id_source
 --         JOIN observers ON observers.id_area = l_areas.id_area
+WHERE bib_taxref_rangs like 'ES'
+    AND mnemonique like ''
 GROUP BY
     l_areas.id_area
   , bib_areas_types.type_code
