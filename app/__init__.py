@@ -1,9 +1,8 @@
 # Import flask and template operators
 from flask import Flask, render_template
-
 import config
 from app.core.env import create_schemas, DB, assets, admin, ckeditor
-
+import coloredlogs
 
 # Import SQLAlchemy
 
@@ -16,10 +15,12 @@ def create_app():
         static_folder="static",
         template_folder="templates",
     )
+    # Add Colored logs
+    coloredlogs.install(level="DEBUG")
     app.app_context().push()
     app.secret_key = config.SECRET_KEY
 
-    # Configurations
+    # Load config
     try:
         app.config.from_object(config)
     except Exception as e:
