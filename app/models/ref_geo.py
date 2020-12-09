@@ -12,7 +12,7 @@ from sqlalchemy import (
     Float,
 )
 from sqlalchemy.orm import relationship
-import config
+from app import config
 from app.core.env import DB
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
