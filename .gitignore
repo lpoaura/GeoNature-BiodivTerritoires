@@ -118,3 +118,6 @@ app/static/.webassets-cache
 #Docker config file
 .env
 
+# Gunicorn pid
+*.pid
+
