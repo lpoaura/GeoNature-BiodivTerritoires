@@ -84,7 +84,7 @@ class LiMunicipalities(DB.Model):
 @serializable
 class MVLAreasAutocomplete(DB.Model):
     __tablename__ = "mv_l_areas_autocomplete"
-    __table_args__ = {"schema": "ref_geo", "extend_existing": True}
+    __table_args__ = {"schema": "gn_biodivterritory", "extend_existing": True}
     id = Column(Integer, primary_key=True)
     type_name = Column(String)
     search_area_name = Column(String)
@@ -94,9 +94,14 @@ class MVLAreasAutocomplete(DB.Model):
     area_code = Column(String)
 
 
+from sqlalchemy import UniqueConstraint
+
+
 @serializable
 class LAreasTypeSelection(DB.Model):
     __tablename__ = "l_areas_type_selection"
-    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
+    __table_args__ = ({"schema": "gn_biodivterritory"},)
     id_selection = Column(Integer, primary_key=True)
-    id_type = Column(Integer, ForeignKey("ref_geo.bib_areas_types.id_type"))
+    id_type = Column(
+        Integer, ForeignKey("ref_geo.bib_areas_types.id_type"), unique=True
+    )
