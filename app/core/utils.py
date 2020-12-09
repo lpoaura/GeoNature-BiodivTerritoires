@@ -6,8 +6,39 @@ from shapely.geometry import asShape
 from sqlalchemy import and_
 
 from app.core.env import DB
-from app.models.dynamic_content import TDynamicPages
-from app.models.taxonomy import TRedlist, BibRedlistSource, BibRedlistCategories
+from app.models.dynamic_content import TDynamicPages, BibDynamicPagesCategory
+from app.models.datas import TReleasedDatas, BibDatasTypes
+from app.models.taxonomy import (
+    TRedlist,
+    BibRedlistSource,
+    BibRedlistCategories,
+    TMaxThreatenedStatus,
+)
+from app.models.ref_geo import LAreasTypeSelection
+
+
+def create_tables(db):
+    """[summary]
+
+    Args:
+        db ([type]): [description]
+    """
+    db = db
+    db.metadata.create_all(
+        db.engine,
+        tables=[
+            TDynamicPages.__table__,
+            BibDynamicPagesCategory.__table__,
+            TReleasedDatas.__table__,
+            BibDatasTypes.__table__,
+            LAreasTypeSelection.__table__,
+            TRedlist.__table__,
+            BibRedlistSource.__table__,
+            BibRedlistCategories.__table__,
+            TMaxThreatenedStatus.__table__,
+        ],
+    )
+    return None
 
 
 def get_nomenclature_id(mnemonique, cd_nomenclature):
