@@ -1,5 +1,10 @@
+# ENV
 .env
+# Python venv
 venv
+# config
 config.py
 configs/settings.ini
 configs/config.py
+# Gunicorn pid
+*.pid

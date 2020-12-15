@@ -24,17 +24,13 @@ CSRF_SESSION_KEY = "mysecret"
 
 # Nom du Site
 SITE_NAME = "Biodiv'Territoires"
-# SITE_NAME = SITE_NAME.encode('utf-8') # Fonction permettant d'encoder ce nom en utf-8, à ne pas modifier
 SITE_DESC = (
     "Une plateforme de porté à connaissance de la <b>biodiversité</b> des territoires"
 )
 
-
-# URL de l'application depuis la racine du domaine
-# ex "/atlas" pour une URL: http://mon-domaine/atlas OU "" si l'application est accessible à la racine du domaine
-URL_APPLICATION = ""
-
 SECRET_KEY = "mySecretKey"
+
+TAXHUB_URL ="taxhubUrl"
 
 ###########################
 ###### Cartographie #######
@@ -51,7 +47,6 @@ DEFAULT_BUFFER = "2000"
 IGNAPIKEY = "myIGNkey"
 
 # Configuration des cartes (centre du territoire, couches CARTE et ORTHO, échelle par défaut...)
-
 
 
 MAP = {
@@ -78,23 +73,3 @@ MAP = {
     "BORDERS_WEIGHT": 3,
 }
 
-# Affichage des observations par maille ou point
-# True = maille / False = point
-AFFICHAGE_MAILLE = False
-
-# Niveau de zoom à partir duquel on passe à l'affichage en point (si AFFICHAGE_MAILLE = False)
-ZOOM_LEVEL_POINT = 11
-
-# Limite du  nombre d'observations à partir duquel on passe à l'affichage en cluster
-LIMIT_CLUSTER_POINT = 1000
-
-# URL d'accès aux photos et autres médias (URL racine). Par exemple l'url d'accès à Taxhub
-# Cette url sera cachée aux utilisateurs de l'atlas
-REMOTE_MEDIAS_URL = "http://mondomaine.fr/taxhub/"
-# Racine du chemin des fichiers médias stockés dans le champ "chemin" de "atlas.vm_medias"
-# Seule cette partie de l'url sera visible pour les utilisateurs de l'atlas
-REMOTE_MEDIAS_PATH = "static/medias/"
-
-# URL de TaxHub (pour génération à la volée des vignettes des images).
-# Si le service Taxhub n'est pas utilisé, commenter la variable
-TAXHUB_URL = "http://mondomaine.fr/taxhub"

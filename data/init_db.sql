@@ -1,8 +1,139 @@
+/********************************************************
+ *   CREATION DES PRINCIPALES TABLES DE L'APPLIUCATION  *
+ ********************************************************/
+
+CREATE SCHEMA gn_biodivterritory;
+
+CREATE TABLE IF NOT EXISTS gn_biodivterritory.bib_dynamic_pages_category (
+    id_category   SERIAL NOT NULL,
+    category_name VARCHAR,
+    category_desc VARCHAR,
+    PRIMARY KEY (id_category)
+);
+
+CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_dynamic_pages (
+    id_page           SERIAL NOT NULL,
+    id_category       INTEGER,
+    title             VARCHAR,
+    link_name         VARCHAR,
+    navbar_link       BOOLEAN,
+    navbar_link_order INTEGER,
+    url               VARCHAR,
+    short_desc        VARCHAR,
+    ts_create         TIMESTAMP WITHOUT TIME ZONE,
+    ts_update         TIMESTAMP WITHOUT TIME ZONE,
+    creator           VARCHAR,
+    is_active         BOOLEAN,
+    content           TEXT,
+    PRIMARY KEY (id_page),
+    FOREIGN KEY (id_category) REFERENCES gn_biodivterritory.bib_dynamic_pages_category(id_category),
+    UNIQUE (link_name),
+    UNIQUE (url)
+);
+
+CREATE TABLE IF NOT EXISTS gn_biodivterritory.bib_datas_types (
+    id_type       SERIAL NOT NULL,
+    type_name     VARCHAR,
+    type_protocol VARCHAR,
+    type_desc     VARCHAR,
+    PRIMARY KEY (id_type)
+);
+
+CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_released_datas (
+    id_data_release SERIAL NOT NULL,
+    id_type         INTEGER,
+    data_name       VARCHAR,
+    data_desc       TEXT,
+    data_url        VARCHAR,
+    PRIMARY KEY (id_data_release),
+    FOREIGN KEY (id_type) REFERENCES gn_biodivterritory.bib_datas_types(id_type)
+);
+
+CREATE TABLE IF NOT EXISTS gn_biodivterritory.l_areas_type_selection (
+    id_selection SERIAL NOT NULL,
+    id_type      INTEGER,
+    PRIMARY KEY (id_selection),
+    UNIQUE (id_type),
+    FOREIGN KEY (id_type) REFERENCES ref_geo.bib_areas_types(id_type)
+);
+
+CREATE TABLE IF NOT EXISTS taxonomie.t_redlist (
+    id_redlist   SERIAL NOT NULL,
+    status_order INTEGER,
+    cd_nom       INTEGER,
+    cd_ref       INTEGER,
+    category     VARCHAR,
+    criteria     VARCHAR,
+    id_source    INTEGER,
+    PRIMARY KEY (id_redlist)
+);
+
+CREATE TABLE IF NOT EXISTS taxonomie.bib_redlist_source (
+    id_source   SERIAL NOT NULL,
+    name_source VARCHAR,
+    desc_source VARCHAR,
+    url_source  VARCHAR,
+    context     VARCHAR,
+    area_name   VARCHAR,
+    area_code   VARCHAR,
+    area_type   VARCHAR,
+    priority    INTEGER,
+    PRIMARY KEY (id_source)
+);
+
+CREATE TABLE IF NOT EXISTS taxonomie.bib_redlist_categories (
+    code_category  VARCHAR NOT NULL,
+    threatened     BOOLEAN,
+    sup_category   VARCHAR,
+    priority_order INTEGER,
+    name_fr        VARCHAR,
+    desc_fr        VARCHAR,
+    PRIMARY KEY (code_category)
+);
+
+CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_max_threatened_status (
+    cd_nom          SERIAL  NOT NULL,
+    threatened      BOOLEAN NOT NULL,
+    redlist_statut  VARCHAR,
+    redlist_context VARCHAR,
+    id_source       INTEGER,
+    PRIMARY KEY (cd_nom),
+    FOREIGN KEY (id_source) REFERENCES taxonomie.bib_redlist_source(id_source)
+);
+
+/* Création des zonages régionaux et nationaux pour associer aux listes rouges */
+INSERT INTO
+    ref_geo.bib_areas_types (type_name, type_code, type_desc)
+VALUES
+    ('Régions', 'REG', 'Type région')
+  , ('Pays', 'PAY', 'Type pays')
+ON CONFLICT DO NOTHING
+;
+
+
 /***************************************************
  *   CREATION D'UNE TABLE DE RECHERCHE DES ZONAGES  *
- ***************************************************/
-DROP MATERIALIZED VIEW IF EXISTS ref_geo.mv_l_areas_autocomplete;
-CREATE MATERIALIZED VIEW ref_geo.mv_l_areas_autocomplete AS
+ *  La variable _areas est issue de la commande psql
+ *  psql -v _areas=$AREAS monscript.sql
+
+  ***************************************************/
+
+INSERT INTO
+    gn_biodivterritory.l_areas_type_selection (id_type)
+SELECT
+    id_type
+FROM
+    ref_geo.bib_areas_types
+WHERE
+    type_code IN (SELECT unnest(string_to_array(:'_areas', ' ')))
+ON CONFLICT DO NOTHING
+;
+
+
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_l_areas_autocomplete
+;
+
+CREATE MATERIALIZED VIEW gn_biodivterritory.mv_l_areas_autocomplete AS
 (
 SELECT DISTINCT
     l_areas.id_area                    AS id
@@ -19,228 +150,52 @@ FROM
         JOIN gn_biodivterritory.l_areas_type_selection ON l_areas.id_type = l_areas_type_selection.id_type
 WHERE
     cor_area_synthese.id_area IS NOT NULL
-    );
-
-CREATE UNIQUE INDEX index_unique_search_area_id_area ON ref_geo.mv_l_areas_autocomplete(id);
-CREATE INDEX index_search_area_code ON ref_geo.mv_l_areas_autocomplete(area_code);
-CREATE INDEX index_search_area_name_trgm ON ref_geo.mv_l_areas_autocomplete USING gist(search_area_name gist_trgm_ops);
-
-/***************************************************
- *   OUTILS POUR CREER DES MAILLES PERSONNALISEES  *
- ***************************************************/
-
-
-/* Create required type */
-DROP TYPE IF EXISTS PUBLIC.T_GRID CASCADE
+    )
 ;
 
-CREATE TYPE public.T_GRID AS (
-    gcol INT4,
-    grow INT4,
-    geom GEOMETRY
-);
 
-/* Drop function is exists */
-DROP FUNCTION IF EXISTS ref_geo.ST_SquareGrid(GEOMETRY, NUMERIC, NUMERIC, BOOLEAN);
-
-/* Now create the function */
-CREATE OR REPLACE FUNCTION ref_geo.ST_SquareGrid(p_geometry GEOMETRY, p_TileSizeX NUMERIC, p_TileSizeY NUMERIC
-                                                , p_point BOOLEAN DEFAULT TRUE)
-    RETURNS SETOF T_GRID AS
-$BODY$
-DECLARE
-    v_mbr   GEOMETRY;
-    v_srid  INT4;
-    v_halfX NUMERIC := p_TileSizeX / 2.0;
-    v_halfY NUMERIC := p_TileSizeY / 2.0;
-    v_loCol INT4;
-    v_hiCol INT4;
-    v_loRow INT4;
-    v_hiRow INT4;
-    v_grid  T_GRID;
-BEGIN
-    IF (p_geometry IS NULL)
-    THEN
-        RETURN
-        ;
-    END IF;
-    v_srid := ST_SRID(p_geometry);
-    v_mbr := ST_Envelope(p_geometry);
-    v_loCol := trunc((ST_XMIN(v_mbr) / p_TileSizeX) :: NUMERIC);
-    v_hiCol := CEIL((ST_XMAX(v_mbr) / p_TileSizeX) :: NUMERIC) - 1;
-    v_loRow := trunc((ST_YMIN(v_mbr) / p_TileSizeY) :: NUMERIC);
-    v_hiRow := CEIL((ST_YMAX(v_mbr) / p_TileSizeY) :: NUMERIC) - 1;
-
-    FOR v_col IN v_loCol..v_hiCol
-        LOOP
-            FOR v_row IN v_loRow..v_hiRow
-                LOOP
-                    v_grid.gcol := v_col;
-                    v_grid.grow := v_row;
-
-                    IF (p_point)
-                    THEN
-                        v_grid.geom := ST_SetSRID(
-                                ST_MakePoint((v_col * p_TileSizeX) + v_halfX,
-                                             (v_row * p_TileSizeY) + V_HalfY),
-                                v_srid);
-                    ELSE
-                        v_grid.geom := ST_SetSRID(
-                                ST_MakeEnvelope((v_col * p_TileSizeX),
-                                                (v_row * p_TileSizeY),
-                                                (v_col * p_TileSizeX) + p_TileSizeX,
-                                                (v_row * p_TileSizeY) + p_TileSizeY),
-                                v_srid);
-                    END IF;
-                    RETURN NEXT v_grid;
-                END LOOP;
-        END LOOP;
-END;
-$BODY$ LANGUAGE plpgsql
-    IMMUTABLE
-    COST 100
-    ROWS 1000;
-
-/*  Assign ownership */
-    ALTER FUNCTION ref_geo.ST_SquareGrid(GEOMETRY, NUMERIC, NUMERIC, BOOLEAN)
-    OWNER TO postgres;
-
-/***********************************************
- * CREATION D'UN MAILLAGE DE 500m              *
- ***********************************************/
-
-
-SELECT *
-FROM ref_geo.bib_areas_types;
-
-CREATE INDEX index_l_areas_area_name ON ref_geo.l_areas(area_name);
-CREATE INDEX index_l_areas_area_code ON ref_geo.l_areas(area_code);
-CREATE INDEX index_l_areas_id_type ON ref_geo.l_areas(id_type);
-
-
-
-INSERT INTO
-    ref_geo.bib_areas_types(type_name, type_code, type_desc)
-VALUES
-('Mailles0.5*0.5', 'M0.5', 'Mailles (non officielles de 500m basées sur le référentiel RGF93 - 2154)')
-
-INSERT INTO
-    ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, meta_create_date, meta_update_date)
-WITH
-    area AS (SELECT st_simplify(st_union(geom), 100) AS geom
-             FROM
-                 ref_geo.l_areas
-             WHERE LEFT(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
---             WHERE LEFT(area_code, 2) IN ('07'))
-SELECT
-    bib_areas_types.id_type
-  , 'Maille 500m l' || grow || 'c' || gcol AS NAME
-  , 'l' || grow || 'c' || gcol             AS code
-  , st_multi(sg.geom)                      AS geom
-  , st_centroid(sg.geom)                   AS centroid
-  , 'auto-généré'                          AS source
-  , 'auto-genéré'                          AS comment
-  , now()                                  AS tscreate
-  , now()                                  AS tsupdate
-FROM
-    ref_geo.ST_SquareGrid(
-                (SELECT geom FROM area)
-        , 500
-        , 500
-        , FALSE) AS sg
-  , ref_geo.bib_areas_types
-  , area
-WHERE
-    type_code LIKE 'M0.5' AND
-    st_intersects(st_buffer(area.geom, 1000), sg.geom)
+CREATE UNIQUE INDEX index_unique_search_area_id_area ON gn_biodivterritory.mv_l_areas_autocomplete(id)
 ;
 
-WITH
-    area AS (SELECT st_simplify(st_union(geom), 100) AS geom
-             FROM
-                 ref_geo.l_areas
-             WHERE LEFT(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
-  , select_areas AS (
-    SELECT id_area
-    FROM
-        ref_geo.l_areas
-            NATURAL JOIN ref_geo.bib_areas_types
-      , area
-    WHERE type_code LIKE 'M0.5' AND st_disjoint(l_areas.geom, area.geom))
-DELETE
-FROM ref_geo.l_areas
-WHERE
-        id_area IN (SELECT id_area
-                    FROM
-                        select_areas);
-
-
-DROP TABLE IF EXISTS PUBLIC.test;
-CREATE TABLE public.test AS
-WITH
-    area AS (SELECT st_simplify(st_union(geom), 100) AS geom
-             FROM
-                 ref_geo.l_areas
---              WHERE LEFT(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
-             WHERE LEFT(area_code, 2) IN ('07'))
-SELECT
-    row_number() OVER ()                   AS id
-  , bib_areas_types.id_type
-  , 'Maille 500m l' || grow || 'c' || gcol AS name
-  , 'l' || grow || 'c' || gcol             AS code
-  , sg.geom                                AS geom
-  , st_centroid(sg.geom)                   AS centroid
-  , 'auto-généré'                          AS source
-  , 'auto-genéré'                          AS comment
-  , now()                                  AS tscreate
-  , now()                                  AS tsupdate
-FROM
-    ref_geo.ST_SquareGrid(
-                (SELECT geom FROM area)
-        , 500
-        , 500
-        , FALSE) AS sg
-  , ref_geo.bib_areas_types
-  , area
-WHERE
-    type_code LIKE 'M0.5' AND
-    st_intersects(st_buffer(area.geom, 1000), sg.geom)
+CREATE INDEX index_search_area_code ON gn_biodivterritory.mv_l_areas_autocomplete(area_code)
 ;
 
-ALTER TABLE public.test
-    ADD PRIMARY KEY (id);
-CREATE INDEX ON public.test USING gist(geom);
-CREATE INDEX ON public.test USING gist(centroid);
-
-SELECT populate_geometry_columns();
-
+CREATE INDEX index_search_area_name_trgm ON gn_biodivterritory.mv_l_areas_autocomplete USING gist(search_area_name gist_trgm_ops)
+;
 
 /*******************************
  *   GLOBAL GENERAL STATS      *
  *******************************/
 
-DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_general_stats;
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_general_stats
+;
 
 CREATE MATERIALIZED VIEW gn_biodivterritory.mv_general_stats AS
 WITH
     count_occtax AS (SELECT count(*) AS count FROM (SELECT DISTINCT id_synthese FROM gn_synthese.synthese) AS t)
   , count_observer AS (SELECT count(*) AS count FROM (SELECT DISTINCT observers FROM gn_synthese.synthese) AS t)
-  , count_taxa AS (SELECT count(*) AS count
+  , count_taxa AS (SELECT
+                       count(*) AS count
                    FROM
-                       (SELECT DISTINCT cd_ref
+                       (SELECT DISTINCT
+                            cd_ref
                         FROM
                             gn_synthese.synthese
                                 JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom) AS t)
   , count_dataset AS (SELECT count(*) AS count FROM (SELECT DISTINCT id_dataset FROM gn_synthese.synthese) AS t)
 SELECT
-    row_number() OVER () as id,
-    count_occtax.count   AS count_occtax
+    row_number() OVER () AS id
+  , count_occtax.count   AS count_occtax
   , count_observer.count AS count_observer
   , count_taxa.count     AS count_taxa
   , count_dataset.count  AS count_dataset
-FROM count_occtax, count_observer, count_dataset, count_taxa;
+FROM
+    count_occtax
+  , count_observer
+  , count_dataset
+  , count_taxa
+;
 
-select * from gn_biodivterritory.mv_general_stats;
 /*******************************
  *   TERRITORY GENERAL STATS   *
  *******************************/
@@ -260,21 +215,42 @@ select * from gn_biodivterritory.mv_general_stats;
 -- WHERE
 --         a.id_type = (SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code LIKE 'M0.5');
 
+SET enable_hashjoin = OFF
+;
+
+RESET enable_mergejoin
+;
+
+RESET enable_nestloop
+;
+
 
 DROP
-    MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
+    MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE
+;
+
+-- CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
+-- (
+--     )
+;
+
+EXPLAIN (COSTS, VERBOSE, FORMAT JSON)
+
+DROP
+    MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE
+;
 
 CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
-    -- (
--- WITH
---     observers AS (
---         SELECT DISTINCT
---             cor_area_synthese.id_area
---           , unaccent(trim(regexp_split_to_table(synthese.observers, ','))) AS observer
---         FROM
---             gn_synthese.synthese
---                 JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
---     )
+
+WITH
+    observers AS (
+        SELECT DISTINCT
+            cor_area_synthese.id_area
+          , unaccent(trim(regexp_split_to_table(synthese.observers, ','))) AS observer
+        FROM
+            gn_synthese.synthese
+                JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
+    )
 SELECT
     l_areas.id_area
   , bib_areas_types.type_code
@@ -296,41 +272,116 @@ FROM
         JOIN gn_synthese.cor_area_synthese ON l_areas.id_area = cor_area_synthese.id_area
         JOIN gn_synthese.synthese ON cor_area_synthese.id_synthese = synthese.id_synthese
         JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
-        JOIN ref_nomenclatures.t_nomenclatures nom_df on synthese.id_nomenclature_diffusion_level = t_nomenclatures.id_nomenclature
-        JOIN taxonomie.bib_taxref_rangs on taxref.id_rang = bib_taxref_rangs.id_rang
+        --             JOIN ref_nomenclatures.t_nomenclatures nom_df
+--                  on synthese.id_nomenclature_diffusion_level = nom_df.id_nomenclature
+        JOIN taxonomie.bib_taxref_rangs ON taxref.id_rang LIKE bib_taxref_rangs.id_rang
         LEFT JOIN taxonomie.t_redlist ON taxref.cd_nom = t_redlist.cd_nom
         JOIN taxonomie.bib_redlist_categories ON t_redlist.category = bib_redlist_categories.code_category
         JOIN taxonomie.bib_redlist_source ON t_redlist.id_source = bib_redlist_source.id_source
---         JOIN observers ON observers.id_area = l_areas.id_area
-WHERE bib_taxref_rangs like 'ES'
-    AND mnemonique like ''
+        JOIN observers ON observers.id_area = l_areas.id_area
+WHERE
+    bib_taxref_rangs.id_rang LIKE 'ES'
+--       AND nom_df.cd_nomenclature like '5'
 GROUP BY
     l_areas.id_area
   , bib_areas_types.type_code
   , l_areas.area_code
   , l_areas.area_name
-  , l_areas.geom;
+  , l_areas.geom
+;
 
+DROP
+    MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_territory_general_stats CASCADE
+;
 
-CREATE UNIQUE INDEX ON gn_biodivterritory.mv_territory_general_stats(id_area);
-CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(type_code);
-CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(area_name);
-CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(area_code);
-CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats USING gist(geom_local);
-CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats USING gist(geom_4326);
+CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
+WITH
+    observers AS (
+        SELECT DISTINCT
+            cor_area_synthese.id_area
+          , unaccent(trim(regexp_split_to_table(synthese.observers, ','))) AS observer
+        FROM
+            gn_synthese.synthese
+                JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
+    )
 
-SELECT populate_geometry_columns();
-
-SELECT type_code, count(*)
+SELECT
+    l_areas.id_area
+  , bib_areas_types.type_code
+  , l_areas.area_code
+  , l_areas.area_name
+  , count(DISTINCT synthese.id_synthese)                                                        AS count_data
+  , count(DISTINCT synthese.cd_nom)                                                             AS count_taxa
+  , count(DISTINCT synthese.cd_nom)
+    FILTER (WHERE bib_redlist_categories.threatened AND bib_redlist_source.area_code LIKE 'FR') AS count_threatened
+  , count(DISTINCT synthese.id_synthese)                                                        AS count_occtax
+  , count(DISTINCT synthese.id_dataset)                                                         AS count_dataset
+  , count(DISTINCT synthese.date_min)                                                           AS count_date
+  , count(DISTINCT observers.observer)                                                          AS count_observer
+  , max(date_min)                                                                               AS last_obs
+  , l_areas.geom                                                                                AS geom_local
+  , st_transform(l_areas.geom, 4326)                                                            AS geom_4326
 FROM
-    gn_synthese.cor_area_synthese
+    gn_synthese.synthese
+        JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
         JOIN ref_geo.l_areas ON cor_area_synthese.id_area = l_areas.id_area
-        JOIN ref_geo.bib_areas_types ON l_areas.id_type = bib_areas_types.id_type
+        JOIN gn_biodivterritory.l_areas_type_selection ON l_areas_type_selection.id_type = l_areas.id_type
+        JOIN ref_geo.bib_areas_types ON l_areas_type_selection.id_type = bib_areas_types.id_type
+        JOIN observers ON observers.id_area = l_areas.id_area
+        JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
+        LEFT JOIN taxonomie.t_redlist ON taxref.cd_nom = t_redlist.cd_nom
+        JOIN taxonomie.bib_redlist_categories ON t_redlist.category = bib_redlist_categories.code_category
+        JOIN taxonomie.bib_redlist_source ON t_redlist.id_source = bib_redlist_source.id_source
+WHERE
+    taxref.id_rang LIKE 'ES' AND
+    synthese.id_nomenclature_diffusion_level = ref_nomenclatures.get_id_nomenclature('NIV_PRECIS', '5')
 GROUP BY
-    type_code;
+    l_areas.id_area
+  , l_areas.area_code
+  , l_areas.area_name
+  , bib_areas_types.type_code
+  , l_areas.geom
+;
 
 
-DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_area_ntile_limit CASCADE;
+SELECT *
+FROM
+    gn_biodivterritory.mv_territory_general_stat
+;
+
+CREATE UNIQUE INDEX ON gn_biodivterritory.mv_territory_general_stats(id_area)
+;
+
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(type_code)
+;
+
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(area_name)
+;
+
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats(area_code)
+;
+
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats USING gist(geom_local)
+;
+
+CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats USING gist(geom_4326)
+;
+
+SELECT populate_geometry_columns()
+;
+
+-- SELECT type_code, count(*)
+-- FROM
+--     gn_synthese.cor_area_synthese
+--         JOIN ref_geo.l_areas ON cor_area_synthese.id_area = l_areas.id_area
+--         JOIN ref_geo.bib_areas_types ON l_areas.id_type = bib_areas_types.id_type
+-- GROUP BY
+--     type_code;
+
+
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_area_ntile_limit CASCADE
+;
+
 CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS
 (
 WITH
@@ -339,62 +390,96 @@ WITH
             id_area
           , type_code
           , count_occtax                          AS count
-          , NTILE(5) OVER (ORDER BY count_occtax) AS ntile
-        FROM gn_biodivterritory.mv_territory_general_stats)
+          , ntile(5) OVER (ORDER BY count_occtax) AS ntile
+        FROM
+            gn_biodivterritory.mv_territory_general_stats)
   , taxa AS (
     SELECT
         id_area
       , type_code
       , count_taxa                          AS count
-      , NTILE(5) OVER (ORDER BY count_taxa) AS ntile
-    FROM gn_biodivterritory.mv_territory_general_stats)
+      , ntile(5) OVER (ORDER BY count_taxa) AS ntile
+    FROM
+        gn_biodivterritory.mv_territory_general_stats)
   , threatened AS (
     SELECT
         id_area
       , type_code
       , count_taxa                                AS count
-      , NTILE(5) OVER (ORDER BY count_threatened) AS ntile
-    FROM gn_biodivterritory.mv_territory_general_stats)
+      , ntile(5) OVER (ORDER BY count_threatened) AS ntile
+    FROM
+        gn_biodivterritory.mv_territory_general_stats)
   , observer AS (
     SELECT
         id_area
       , type_code
       , count_observer                          AS count
-      , NTILE(5) OVER (ORDER BY count_observer) AS ntile
-    FROM gn_biodivterritory.mv_territory_general_stats)
+      , ntile(5) OVER (ORDER BY count_observer) AS ntile
+    FROM
+        gn_biodivterritory.mv_territory_general_stats)
   , date AS (
     SELECT
         id_area
       , type_code
       , count_date                          AS count
-      , NTILE(5) OVER (ORDER BY count_date) AS ntile
-    FROM gn_biodivterritory.mv_territory_general_stats)
+      , ntile(5) OVER (ORDER BY count_date) AS ntile
+    FROM
+        gn_biodivterritory.mv_territory_general_stats)
   , u AS (
-    SELECT 'occtax' AS type, MIN(count) AS min, max(count) AS max, ntile
-    FROM occtax
+    SELECT
+        'occtax'   AS type
+      , min(count) AS min
+      , max(count) AS max
+      , ntile
+    FROM
+        occtax
     GROUP BY ntile
     UNION
-    SELECT 'taxa', MIN(count), max(count), ntile
-    FROM taxa
+    SELECT
+        'taxa'
+      , min(count)
+      , max(count)
+      , ntile
+    FROM
+        taxa
     GROUP BY ntile
     UNION
-    SELECT 'threatened', MIN(count), max(count), ntile
-    FROM taxa
+    SELECT
+        'threatened'
+      , min(count)
+      , max(count)
+      , ntile
+    FROM
+        taxa
     GROUP BY ntile
     UNION
-    SELECT 'observer', MIN(count), max(count), ntile
-    FROM observer
+    SELECT
+        'observer'
+      , min(count)
+      , max(count)
+      , ntile
+    FROM
+        observer
     GROUP BY ntile
     UNION
-    SELECT 'date', MIN(count), max(count), ntile
-    FROM date
+    SELECT
+        'date'
+      , min(count)
+      , max(count)
+      , ntile
+    FROM
+        date
     GROUP BY ntile
 )
-SELECT row_number() OVER () AS id, *
-FROM u
+SELECT
+    row_number() OVER () AS id
+  , *
+FROM
+    u
 ORDER BY
     type
-  , ntile);
+  , ntile)
+;
 
 
 /*******************************
@@ -403,7 +488,10 @@ ORDER BY
 
 
 /* Création de la table de statuts BDC Statuts */
-DROP TABLE IF EXISTS taxonomie.bib_bdc_type_statut;
+
+DROP TABLE IF EXISTS taxonomie.bib_bdc_type_statut
+;
+
 CREATE TABLE taxonomie.bib_bdc_type_statut (
     id_type_statut    VARCHAR(50) PRIMARY KEY NOT NULL,
     cd_type_statut    VARCHAR(50),
@@ -411,7 +499,8 @@ CREATE TABLE taxonomie.bib_bdc_type_statut (
     regroupement_type VARCHAR(254),
     thematique        VARCHAR(50),
     type_value        VARCHAR(20)
-);
+)
+;
 
 
 CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
@@ -447,11 +536,14 @@ CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
     thematique        VARCHAR(50),
     type_value        VARCHAR(50),
     id_area           INTEGER REFERENCES ref_geo.l_areas(id_area)
-);
+)
+;
 
 
 /* Déjà présent dans taxonomie.bib_taxref_categories_fr */
-DROP TABLE IF EXISTS taxonomie.bib_redlist_categories;
+DROP TABLE IF EXISTS taxonomie.bib_redlist_categories
+;
+
 CREATE TABLE taxonomie.bib_redlist_categories (
     code_category  VARCHAR(2) PRIMARY KEY,
     sup_category   VARCHAR(30),
@@ -461,7 +553,8 @@ CREATE TABLE taxonomie.bib_redlist_categories (
     desc_fr        VARCHAR(254),
     name_en        VARCHAR(100),
     desc_en        VARCHAR(254)
-);
+)
+;
 
 INSERT INTO
     taxonomie.bib_redlist_categories(code_category, threatened, sup_category, priority_order)
@@ -500,7 +593,9 @@ SELECT DISTINCT
             THEN 100
         WHEN 'NA'
             THEN 110 END AS priority_order
-FROM taxonomie.taxref_liste_rouge_fr;
+FROM
+    taxonomie.taxref_liste_rouge_fr
+;
 
 
 CREATE TABLE taxonomie.bib_redlist_source (
@@ -513,16 +608,20 @@ CREATE TABLE taxonomie.bib_redlist_source (
     area_code   VARCHAR(50),
     area_type   VARCHAR(50),
     priority    INTEGER
-);
+)
+;
 
 /* Optional matching with */
 CREATE TABLE taxonomie.cor_redlist_source_area (
     id_cor_redlist_source_area SERIAL PRIMARY KEY,
     id_area                    INTEGER REFERENCES ref_geo.l_areas(id_area),
     id_source                  INTEGER REFERENCES taxonomie.bib_redlist_source(id_source)
-);
+)
+;
 
-DROP TABLE IF EXISTS taxonomie.t_redlist;
+DROP TABLE IF EXISTS taxonomie.t_redlist
+;
+
 CREATE TABLE taxonomie.t_redlist (
     id_redlist   SERIAL  NOT NULL PRIMARY KEY,
     status_order INTEGER,
@@ -531,28 +630,41 @@ CREATE TABLE taxonomie.t_redlist (
     category     CHAR(2) NOT NULL REFERENCES taxonomie.bib_taxref_categories_lr(id_categorie_france),
     criteria     VARCHAR(50),
     id_source    INTEGER REFERENCES taxonomie.bib_redlist_source(id_source)
-);
+)
+;
 
 
 /* Insertion de la source UICN France*/
 INSERT INTO
     taxonomie.bib_redlist_source (name_source, area_code)
-SELECT DISTINCT liste_rouge_source, 'FR'
-FROM taxonomie.taxref_liste_rouge_fr;
+SELECT DISTINCT
+    liste_rouge_source
+  , 'FR'
+FROM
+    taxonomie.taxref_liste_rouge_fr
+;
 
 INSERT INTO
     taxonomie.bib_redlist_source(name_source, area_code, area_name)
 VALUES
     ('Liste rouge mondiale des espèces menacées (2019.1)', 'WORLD', 'Monde')
-  , ('Liste rouge européenne des espèces menacées (2019.1)', 'EUROPE', 'Europe');
+  , ('Liste rouge européenne des espèces menacées (2019.1)', 'EUROPE', 'Europe')
+;
 
 INSERT INTO
     taxonomie.t_redlist(status_order, cd_nom, cd_ref, category, criteria, id_source)
-SELECT ordre_statut, taxref.cd_nom, taxref.cd_ref, id_categorie_france, criteres_france, id_source
+SELECT
+    ordre_statut
+  , taxref.cd_nom
+  , taxref.cd_ref
+  , id_categorie_france
+  , criteres_france
+  , id_source
 FROM
     taxonomie.taxref_liste_rouge_fr
         JOIN taxonomie.bib_redlist_source ON liste_rouge_source = bib_redlist_source.name_source
-        JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom;
+        JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom
+;
 
 
 INSERT INTO
@@ -573,7 +685,8 @@ FROM
              ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom
   , (SELECT id_source FROM taxonomie.bib_redlist_source WHERE area_code LIKE 'WORLD') AS source
 WHERE
-    length(categorie_lr_mondiale) > 0;
+    length(categorie_lr_mondiale) > 0
+;
 
 
 INSERT INTO
@@ -594,37 +707,9 @@ FROM
              ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom
   , (SELECT id_source FROM taxonomie.bib_redlist_source WHERE area_code LIKE 'EUROPE') AS source
 WHERE
-    length(categorie_lr_europe) > 0;
+    length(categorie_lr_europe) > 0
+;
 
-
-/* Taxons problématiques (pb de correspondance TaxRef) */
-SELECT count(*)
-FROM taxonomie.taxref_liste_rouge_fr;
-
-SELECT taxref_liste_rouge_fr.*
-FROM taxonomie.taxref_liste_rouge_fr
-WHERE
-        taxref_liste_rouge_fr.cd_nom NOT IN (SELECT cd_nom FROM taxonomie.taxref);
-
-/*
-cd_nom 2967 cité Tetrao urogallus urogallus est en fait Tetrao urogallus crassirostris (cd_nom 886111)
-cd_nom 199314 cité Pterodroma madeira est une sous-espèce de Pterodroma mollis (espèce des iles de Madère)
-
- */
-
-INSERT INTO
-    ref_geo.bib_areas_types (type_name, type_code, type_desc)
-VALUES
-    ('Régions', 'REG', 'Type région')
-  , ('Pays', 'PAY', 'Type pays');
-
-
-
-INSERT INTO
-    taxonomie.cor_redlist_source_area(id_area, id_source)
-
-SELECT *
-FROM ref_geo.bib_areas_types;
 
 DO
 $$
@@ -655,24 +740,3 @@ $$
             END LOOP;
     END;
 $$
-SELECT DISTINCT
-    cd_ref
-  , threatened
-  , id_source
-  , taxonomie.bib_redlist_categories.threatened AS taxonomie_bib_redlist_categories_threatened
-  ,
-
-FROM
-    taxonomie.bib_redlist_categories
-  , taxonomie.bib_redlist_source
-  , taxonomie.t_redlist
-WHERE
-    taxonomie.t_redlist.cd_ref = 79305 AND
-    taxonomie.bib_redlist_source.id_source = taxonomie.t_redlist.id_source AND
-    taxonomie.bib_redlist_categories.code_category = taxonomie.t_redlist.category
-ORDER BY
-    taxonomie.bib_redlist_source.priority
-  , taxonomie.bib_redlist_categories.priority_order
-LIMIT 1
-
-

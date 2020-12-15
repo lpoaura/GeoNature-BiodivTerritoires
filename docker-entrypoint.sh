@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "|-------------------------------------------|"
 echo "|               GeoNature                   |"
@@ -15,7 +15,7 @@ export SECRETKEY=${SECRETKEY:-$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c50)}
 export SRID=${SRID:-4326}
 
 
-if [ ! -f /config/config.py ]; then
+function create_config {
     echo "Generate new config file"
     cp /app/configs/config.py.sample /config/config.py
     sed -i "s/dbHost/${DBHOST}/g" /config/config.py
@@ -25,8 +25,18 @@ if [ ! -f /config/config.py ]; then
     sed -i "s/dbPort/${DBPORT}/g" /config/config.py
     sed -i "s/secretKey/${SECRETKEY}/g" /config/config.py
     sed -i "s/2154/${SRID}/g" /config/config.py
+    sed -i "s/taxhubUrl/${TAXHUB_URL}/g" /config/config.py
+}
+
+
+if [ ! -f /config/config.py ]; then
+    create_config
 else
     echo "config file already exists" 
+    if $DEBUG; then
+      echo "DEBUG mode, delete reinit config file"
+      create_config
+    fi
 fi
 
 rm /app/config.py
@@ -43,4 +53,10 @@ sleep 2
 
 cd /app
 
-python -m wsgi
+if $DEBUG; then
+  echo "Debug mode"
+  python -m wsgi
+else 
+  echo "Production mode"
+  gunicorn wsgi:app --error-log - --access-logfile - --pid="${app_name:-gnbt}.pid" -w "${gun_num_workers:-4}" -t ${gun_timeout:-30} -b "${gun_host:-0.0.0.0}:${gun_port:-8080}"  -n "${app_name:-gnbt}"
+fi

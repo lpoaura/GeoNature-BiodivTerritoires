@@ -1,9 +1,8 @@
 # Import flask and template operators
 from flask import Flask, render_template
-
 import config
 from app.core.env import create_schemas, DB, assets, admin, ckeditor
-
+import coloredlogs
 
 # Import SQLAlchemy
 
@@ -16,10 +15,12 @@ def create_app():
         static_folder="static",
         template_folder="templates",
     )
+    # Add Colored logs
+    coloredlogs.install(level="DEBUG")
     app.app_context().push()
     app.secret_key = config.SECRET_KEY
 
-    # Configurations
+    # Load config
     try:
         app.config.from_object(config)
     except Exception as e:
@@ -45,19 +46,21 @@ def create_app():
     with app.app_context():
         from app.core.api.routes import api
         from app.core.frontend.routes import rendered
-        from pypnusershub.routes import routes as users_routes
+
+        # from pypnusershub.routes import routes as users_routes
         from pypnnomenclature.routes import routes as nom_routes
-        from app.core.utils import create_special_pages
+        from app.core.utils import create_special_pages, create_tables
 
         create_schemas(DB)
-        DB.create_all()
+
+        create_tables(DB)
 
         create_special_pages()
 
         # Register blueprint(s)
         app.register_blueprint(rendered)
         app.register_blueprint(api, url_prefix="/api")
-        app.register_blueprint(users_routes, url_prefix="/auth")
+        # app.register_blueprint(users_routes, url_prefix="/auth")
         app.register_blueprint(nom_routes, url_prefix="/api/nomenclatures")
 
         return app
