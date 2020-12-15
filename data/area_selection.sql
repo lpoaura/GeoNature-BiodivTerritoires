@@ -4,6 +4,5 @@ SELECT id_type
 FROM
     ref_geo.bib_areas_types
 WHERE
-        type_code IN
-        ('ZC', 'ZNIEFF2', 'ZNIEFF1', 'APB', 'RNN', 'RNR', 'ZPS', 'SIC', 'ZICO', 'RNCFS', 'RIPN', 'SCEN', 'SCL', 'PNM',
-         'PNR', 'RBIOL', 'RBIOS', 'RNC', 'SRAM', 'AA', 'ZSC', 'PSIC', 'PEC', 'UG', 'COM', 'DEP');
+        type_code IN (select unnest(string_to_array(:'_areas',' ')))
+ON CONFLICT DO NOTHING;
