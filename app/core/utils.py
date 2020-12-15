@@ -15,6 +15,8 @@ from app.models.taxonomy import (
     TMaxThreatenedStatus,
 )
 from app.models.ref_geo import LAreasTypeSelection
+from sqlalchemy.schema import CreateTable
+from sqlalchemy.dialects import postgresql
 
 
 def create_tables(db):
@@ -24,6 +26,17 @@ def create_tables(db):
         db ([type]): [description]
     """
     db = db
+    tables = [
+        TDynamicPages.__table__,
+        BibDynamicPagesCategory.__table__,
+        TReleasedDatas.__table__,
+        BibDatasTypes.__table__,
+        LAreasTypeSelection.__table__,
+        TRedlist.__table__,
+        BibRedlistSource.__table__,
+        BibRedlistCategories.__table__,
+        TMaxThreatenedStatus.__table__,
+    ]
     db.metadata.create_all(
         db.engine,
         tables=[
@@ -86,7 +99,7 @@ def geom_from_geojson(data):
 
 
 def get_geojson_feature(wkb):
-    """ return a geojson feature from WKB
+    """return a geojson feature from WKB
 
     :param wkb: wkb geometry
     :type wkb: str
