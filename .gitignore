@@ -100,10 +100,6 @@ GitHub.sublime-settings
 
 # Visual Studio Code # 
 .vscode/* 
-!.vscode/settings.json 
-!.vscode/tasks.json 
-!.vscode/launch.json 
-!.vscode/extensions.json 
 .history
 
 # Config files
@@ -114,7 +110,11 @@ config/settings.ini
 #generated static files
 app/static/bundle.*
 app/static/.webassets-cache
+app/static/assets/node_modules
 
 #Docker config file
 .env
+
+# Gunicorn pid
+*.pid
 

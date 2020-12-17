@@ -153,7 +153,7 @@ class TRedlist(DB.Model):
 
 class TMaxThreatenedStatus(DB.Model):
     __tablename__ = "t_max_threatened_status"
-    __table_args__ = {"schema": config.APP_SCHEMA_NAME}
+    __table_args__ = {"schema": "gn_biodivterritory"}
     cd_nom = Column(Integer, primary_key=True)
     threatened = Column(Boolean, default=False, nullable=False)
     redlist_statut = Column(String)
