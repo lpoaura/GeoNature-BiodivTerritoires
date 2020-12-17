@@ -8,3 +8,5 @@ configs/settings.ini
 configs/config.py
 # Gunicorn pid
 *.pid
+
+app/static/assets/node_modules
