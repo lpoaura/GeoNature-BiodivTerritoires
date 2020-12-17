@@ -110,6 +110,7 @@ config/settings.ini
 #generated static files
 app/static/bundle.*
 app/static/.webassets-cache
+app/static/assets/node_modules
 
 #Docker config file
 .env
