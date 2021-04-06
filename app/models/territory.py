@@ -1,6 +1,6 @@
 from flask import current_app
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Date, Integer, String
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 

@@ -1,23 +1,20 @@
 # coding: utf-8
 from geoalchemy2 import Geometry
-from flask import current_app
 from sqlalchemy import (
-    Table,
+    BigInteger,
     Column,
+    DateTime,
+    Float,
     ForeignKey,
     Integer,
     String,
-    BigInteger,
-    DateTime,
-    Float,
 )
 from sqlalchemy.orm import relationship
-from app import config
-from app.core.env import DB
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
-from app import admin
-from flask_admin.contrib.sqla import ModelView
+
+from app import config
+from app.core.env import DB
 
 
 @serializable
@@ -44,7 +41,8 @@ class LAreas(DB.Model):
     geom = Column(Geometry("GEOMETRY", config.LOCAL_SRID))
     source = Column(String)
     area_type = relationship(
-        "BibAreasTypes", backref=DB.backref("ref_geo.bib_areas_types", lazy=True),
+        "BibAreasTypes",
+        backref=DB.backref("ref_geo.bib_areas_types", lazy=True),
     )
 
     def get_geofeature(self, recursif=True, columns=None):
@@ -92,9 +90,6 @@ class MVLAreasAutocomplete(DB.Model):
     type_code = Column(String)
     area_name = Column(String)
     area_code = Column(String)
-
-
-from sqlalchemy import UniqueConstraint
 
 
 @serializable

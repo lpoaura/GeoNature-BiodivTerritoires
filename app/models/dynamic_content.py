@@ -1,9 +1,17 @@
 # coding: utf-8
 from datetime import datetime
+
 from flask import current_app
 from flask_admin.contrib.sqla import ModelView
-from flask_ckeditor import CKEditorField
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime, Boolean
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from utils_flask_sqla.serializers import serializable
 
 from app import admin
@@ -27,7 +35,10 @@ class TDynamicPages(DB.Model):
 
     id_page = Column(Integer, primary_key=True)
     id_category = Column(
-        Integer, ForeignKey("gn_biodivterritory.bib_dynamic_pages_category.id_category")
+        Integer,
+        ForeignKey(
+            "gn_biodivterritory.bib_dynamic_pages_category.id_category"
+        ),
     )
     title = Column(String)
     link_name = Column(String, unique=True)
@@ -41,7 +52,8 @@ class TDynamicPages(DB.Model):
     is_active = Column(Boolean)
     content = Column(Text)
     category = DB.relationship(
-        "BibDynamicPagesCategory", backref=DB.backref("category", lazy="dynamic")
+        "BibDynamicPagesCategory",
+        backref=DB.backref("category", lazy="dynamic"),
     )
 
 
@@ -55,7 +67,10 @@ class TDynamicPages(DB.Model):
 
 admin.add_view(
     ModelView(
-        BibDynamicPagesCategory, DB.session, "Category", category="Dynamic content"
+        BibDynamicPagesCategory,
+        DB.session,
+        "Category",
+        category="Dynamic content",
     )
 )
 admin.add_view(

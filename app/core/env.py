@@ -1,8 +1,8 @@
+from flask import current_app
 from flask_admin import Admin
 from flask_assets import Environment
-from flask_sqlalchemy import SQLAlchemy
 from flask_ckeditor import CKEditor
-
+from flask_sqlalchemy import SQLAlchemy
 
 DB = SQLAlchemy()
 admin = Admin(name="GnBT", template_mode="bootstrap3")
@@ -17,6 +17,6 @@ def create_schemas(db):
     """
     schemas = ["gn_biodivterritory"]
     for schema in schemas:
-        print("create DB schema {}".format(schema))
+        current_app.logger.info("create DB schema {}".format(schema))
         db.session.execute("CREATE SCHEMA IF NOT EXISTS {}".format(schema))
     db.session.commit()
