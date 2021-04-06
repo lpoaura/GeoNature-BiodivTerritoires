@@ -1,520 +1,507 @@
 <div class="row">
-    <div class="col col-sm-12 col-lg-6 mt-2">
-        <div id="datasMap" class="card">
-            <div id="mapSpinner">
-                <div class="loader-1"></div>
-                <div class="loader-2"></div>
-                <div class="loader-3"></div>
-            </div>
-        </div>
+  <div class="col col-sm-12 col-lg-6 mt-2">
+    <div id="datasMap" class="card">
+      <div id="mapSpinner">
+        <div class="loader-1"></div>
+        <div class="loader-2"></div>
+        <div class="loader-3"></div>
+      </div>
     </div>
-    <div class="col col-sm-12 col-lg-6 mt-2">
-        <div id="gridListSpeciesSpinner">
-            <p class="lead alert alert-info"><i class="fas fa-arrow-circle-left" style="margin-right: 3px;"></i>
-                Cliquez sur une maille de la carte pour accéder à la liste des espèces observées sur cette dernière !
-            </p>
-        </div>
-        <div class="table-responsive table-responsive-sm">
-            <table id="gridListSpeciesTable" class="table table-striped table-hover table-sm">
-                <thead class="thead-dark">
-                <tr>
-                    <th>Groupe 2 INPN</th>
-                    <th>Nom vernaculaire</th>
-                    <th>Nom scientifique</th>
-                    <th>Nombre d'occurences</th>
-                    <th>Nombre d'observateurs</th>
-                    <th>Nombre de dates</th>
-                    <th>Dernière observation</th>
-                </tr>
-                </thead>
-            </table>
-        </div>
+  </div>
+  <div class="col col-sm-12 col-lg-6 mt-2">
+    <div id="gridListSpeciesSpinner">
+      <p class="lead alert alert-info">
+        <i class="fas fa-arrow-circle-left" style="margin-right: 3px"></i>
+        Cliquez sur une maille de la carte pour accéder à la liste des espèces
+        observées sur cette dernière !
+      </p>
     </div>
+    <div class="table-responsive table-responsive-sm">
+      <table
+        id="gridListSpeciesTable"
+        class="table table-striped table-hover table-sm"
+      >
+        <thead class="thead-dark">
+          <tr>
+            <th>Groupe 2 INPN</th>
+            <th>Nom vernaculaire</th>
+            <th>Nom scientifique</th>
+            <th>Nombre d'occurences</th>
+            <th>Nombre d'observateurs</th>
+            <th>Nombre de dates</th>
+            <th>Dernière observation</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
 </div>
 <div class="row mt-3">
-    <div class="chart-container col col-sm-12 col-lg-6" style="position: relative; height:500px; width:50vw">
-        <canvas id="temporalDistrib"></canvas>
-        <div class="chart-select-form">
-            <select class="custom-select custom-select-sm mt-1" id="datasChartChooseTimeUnit"
-                    name="timeUnit">
-                <option value="year">par année</option>
-                <option value="month">par mois</option>
-                <option value="week">par semaine</option>
-            </select>
-        </div>
+  <div
+    class="chart-container col col-sm-12 col-lg-6"
+    style="position: relative; height: 500px; width: 50vw"
+  >
+    <canvas id="temporalDistrib"></canvas>
+    <div class="chart-select-form">
+      <select
+        class="custom-select custom-select-sm mt-1"
+        id="datasChartChooseTimeUnit"
+        name="timeUnit"
+      >
+        <option value="year">par année</option>
+        <option value="month">par mois</option>
+        <option value="week">par semaine</option>
+      </select>
     </div>
-    <div class="chart-container col col-sm-12 col-lg-6" style="position: relative; height:500px; width:50vw">
-        <canvas id="taxoGroupDistrib"></canvas>
-    </div>
+  </div>
+  <div
+    class="chart-container col col-sm-12 col-lg-6"
+    style="position: relative; height: 500px; width: 50vw"
+  >
+    <canvas id="taxoGroupDistrib"></canvas>
+  </div>
 </div>
 <script>
 
-    var datasMap = baseMap('datasMap');
+  var datasMap = baseMap('datasMap');
 
-    var styleDesc = {
-        'taxa': {
-            'color': '#bf01a6',
-            'desc': 'Nombre de taxons'
-        },
-        'occtax': {
-            'color': '#3e05fc',
-            'desc': 'Nombre d\'observations'
-        },
-        'threatened': {
-            'color': '#db0205',
-            'desc': 'Nombre de taxons menacés'
-        },
-        'observer': {
-            'color': '#08aa03',
-            'desc': 'Nombre d\'observateurs'
-        },
-        'date': {
-            'color': '#e29002',
-            'desc': 'Nombre de dates d\'observations'
-        }
-    };
+  var styleDesc = {
+      'taxa': {
+          'color': '#bf01a6',
+          'desc': 'Nombre de taxons'
+      },
+      'occtax': {
+          'color': '#3e05fc',
+          'desc': 'Nombre d\'observations'
+      },
+      'threatened': {
+          'color': '#db0205',
+          'desc': 'Nombre de taxons menacés'
+      },
+      'observer': {
+          'color': '#08aa03',
+          'desc': 'Nombre d\'observateurs'
+      },
+      'date': {
+          'color': '#e29002',
+          'desc': 'Nombre de dates d\'observations'
+      }
+  };
 
-    var datasMapValues = {
-        'baseLayerType': 'carte',
-        'rendered_color': null,
-        'areaGridDatas': null,
-        'areaGridLegend': null
-    };
+  var datasMapValues = {
+      'baseLayerType': 'carte',
+      'rendered_color': null,
+      'areaGridDatas': null,
+      'areaGridLegend': null
+  };
 
-    $('#gridListSpeciesTable').hide();
+  $('#gridListSpeciesTable').hide();
 
-    var styleStorage = window.localStorage;
+  var styleStorage = window.localStorage;
 
-    var gridListSpeciesTable = null;
+  var gridListSpeciesTable = null;
 
-    createGridListSpeciesTable = function (id_area) {
-        gridListSpeciesTable = $('#gridListSpeciesTable').DataTable({
-            serverSide: false,
-            ajax: {
-                url: '/api/list_taxa/simp/' + id_area,
-                dataSrc: "data"
-            },
-            deferLoading: 0,
-            scrollY: "440px",
-            fixedHeader: true,
-            scrollCollapse: true,
-            paging: false,
-            order: [],
-            dom: 'trp',
-            language: dataTableFr,
-            columnDefs: [
-                {className: "text-center align-middle", targets: '_all'},
-            ],
-            createdRow: function (row, data, dataIndex) {
-                if (data.threatened == true) {
-                    $(row).addClass('table-danger');
-                }
-            },
-            columns: [
-                {data: "group2_inpn"},
-                {data: "nom_vern"},
-                {
-                    data: function (row) {
-                        return '<i>' + row.lb_nom + '</i>';
-                    }
-                },
-                {data: "count_occtax"},
-                {data: "count_observer"},
-                {data: "count_date"},
-                {data: "last_year"}
-            ]
-        });
-    };
+  createGridListSpeciesTable = function (id_area) {
+      gridListSpeciesTable = $('#gridListSpeciesTable').DataTable({
+          serverSide: false,
+          ajax: {
+              url: '/api/list_taxa/simp/' + id_area,
+              dataSrc: "data"
+          },
+          deferLoading: 0,
+          scrollY: "440px",
+          fixedHeader: true,
+          scrollCollapse: true,
+          paging: false,
+          order: [],
+          dom: 'trp',
+          language: dataTableFr,
+          columnDefs: [
+              {className: "text-center align-middle", targets: '_all'},
+          ],
+          createdRow: function (row, data, dataIndex) {
+              if (data.threatened == true) {
+                  $(row).addClass('table-danger');
+              }
+          },
+          columns: [
+              {data: "group2_inpn"},
+              {data: "nom_vern"},
+              {
+                  data: function (row) {
+                      return '<i>' + row.lb_nom + '</i>';
+                  }
+              },
+              {data: "count_occtax"},
+              {data: "count_observer"},
+              {data: "count_date"},
+              {data: "last_year"}
+          ]
+      });
+  };
 
-    var listSpeciesUpdate = function (id_area) {
-        if (gridListSpeciesTable == null) {
-            debugLog('CREATE TABLE with' + id_area);
-            $('#gridListSpeciesTable').show();
-            createGridListSpeciesTable(id_area);
-        }
-        $('#gridListSpeciesSpinner').show();
-        $('#gridListSpeciesTable').show();
-        gridListSpeciesTable.clear();
-        gridListSpeciesTable.ajax.url('/api/list_taxa/simp/' + id_area);
-        gridListSpeciesTable.ajax.reload();
-        $('#gridListSpeciesSpinner').hide();
-    }
+  var listSpeciesUpdate = function (id_area) {
+      if (gridListSpeciesTable == null) {
+          debugLog('CREATE TABLE with' + id_area);
+          $('#gridListSpeciesTable').show();
+          createGridListSpeciesTable(id_area);
+      }
+      $('#gridListSpeciesSpinner').show();
+      $('#gridListSpeciesTable').show();
+      gridListSpeciesTable.clear();
+      gridListSpeciesTable.ajax.url('/api/list_taxa/simp/' + id_area);
+      gridListSpeciesTable.ajax.reload();
+      $('#gridListSpeciesSpinner').hide();
+  }
 
-    function storeStyles() {
-        axios
-            .get('/api/territory/conf/ntile/')
-            .then(function (response) {
-                    // list style types
-                    var lookup = {};
-                    var items = response.data;
-                    var types = [];
+  function storeStyles() {
+      axios
+          .get('/api/territory/conf/ntile/')
+          .then(function (response) {
+                  // list style types
+                  var lookup = {};
+                  var items = response.data;
+                  var types = [];
 
-                    for (var item, i = 0; item = items[i++];) {
-                        var name = item.type;
+                  for (var item, i = 0; item = items[i++];) {
+                      var name = item.type;
 
-                        if (!(name in lookup)) {
-                            lookup[name] = 1;
-                            types.push(name);
-                        }
-                    }
-                    // store each style conditions for each style type in localStorage
-                    for (var type, i = 0; type = types[i++];) {
-                        var typeData = items.filter(function (items) {
-                            return items.type == type;
-                        });
-                        styleStorage.setItem(type, JSON.stringify(typeData));
-                    }
-                }
-            )
-            .catch(function (error) {
-                debugLog('<getColor> Error', error);
-            });
-    };
+                      if (!(name in lookup)) {
+                          lookup[name] = 1;
+                          types.push(name);
+                      }
+                  }
+                  // store each style conditions for each style type in localStorage
+                  for (var type, i = 0; type = types[i++];) {
+                      var typeData = items.filter(function (items) {
+                          return items.type == type;
+                      });
+                      styleStorage.setItem(type, JSON.stringify(typeData));
+                  }
+              }
+          )
+          .catch(function (error) {
+              debugLog('<getColor> Error', error);
+          });
+  };
 
-    storeStyles();
+  storeStyles();
 
-    function getColor(data, type, color) {
-        // Apply color for each map object using style conditions and datas, color is the main color of the gradient
-        colorGradiant = generateColor(color, '#ffffff', 5);
-        var styleCondition = JSON.parse(styleStorage.getItem(type));
-        for (var i = 0; i < styleCondition.length; i++) {
-            if (data >= styleCondition[i].min && data < styleCondition[i].max) {
-                datasMap.rendered_color = '#' + colorGradiant[i];
-                return datasMap.rendered_color;
-            }
-            ;
-        }
-    };
+  function getColor(data, type, color) {
+      // Apply color for each map object using style conditions and datas, color is the main color of the gradient
+      colorGradiant = generateColor(color, '#ffffff', 5);
+      var styleCondition = JSON.parse(styleStorage.getItem(type));
+      for (var i = 0; i < styleCondition.length; i++) {
+          if (data >= styleCondition[i].min && data < styleCondition[i].max) {
+              datasMap.rendered_color = '#' + colorGradiant[i];
+              return datasMap.rendered_color;
+          }
+          ;
+      }
+  };
 
-    // [Carte d'état des connaissances du territoire] <LEGENDE> :  Génère la liste des valeurs palier utilisées pour les classes de la carte de restitution par mailles, par type de représentation
-    function areaGridDatasGrades(type) {
-        var styleData = JSON.parse(styleStorage.getItem(type));
-        {#debugLog('<Styledata>', styleData);#}
-        grade = []
-        for (var i = 0, size = styleData.length; i < size; i++) {
-            var item = styleData[i];
-            {#debugLog('<item>',item)#}
-            grade.push(item.min)
-        }
-        {#debugLog('<grade>',grade);#}
-        return grade
-    }
+  // [Carte d'état des connaissances du territoire] <LEGENDE> :  Génère la liste des valeurs palier utilisées pour les classes de la carte de restitution par mailles, par type de représentation
+  function areaGridDatasGrades(type) {
+      var styleData = JSON.parse(styleStorage.getItem(type));
+      {#debugLog('<Styledata>', styleData);#}
+      grade = []
+      for (var i = 0, size = styleData.length; i < size; i++) {
+          var item = styleData[i];
+          {#debugLog('<item>',item)#}
+          grade.push(item.min)
+      }
+      {#debugLog('<grade>',grade);#}
+      return grade
+  }
 
-    // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche le zonage du territoire
-    function getTerritoryArea() {
-        axios
-            .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
-            .then(function (response) {
-                var situationObject = L.geoJson(response.data, {
-                    style: territoryStyle
-                });
-                {#datasMap.fitBounds(situationObject.getBounds());#}
-                situationObject.addTo(datasMap).bringToBack();
-            })
-            .catch(function (error) {
-                debugLog('<getTerritoryArea> Error', error);
-            });
+  // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche le zonage du territoire
+  function getTerritoryArea() {
+      axios
+          .get('/api/geom/{{ area_info.type_code }}/{{ area_info.area_code }}')
+          .then(function (response) {
+              var situationObject = L.geoJson(response.data, {
+                  style: territoryStyle
+              });
+              {#datasMap.fitBounds(situationObject.getBounds());#}
+              situationObject.addTo(datasMap).bringToBack();
+          })
+          .catch(function (error) {
+              debugLog('<getTerritoryArea> Error', error);
+          });
 
-    };
+  };
 
-    // [Carte d'état des connaissances du territoire] <STYLE> :Styles des mailles
-    function areaGridStyle(feature, type, color) {
-        {#debugLog('<areaGridStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
-        var field = 'count_' + type
-        return {
-            fillColor: getColor(feature.properties[field], type, color),
-            weight: 1,
-            opacity: 0.7,
-            color: 'white',
-            fillOpacity: 0.7
-        };
-    }
+  // [Carte d'état des connaissances du territoire] <STYLE> :Styles des mailles
+  function areaGridStyle(feature, type, color) {
+      {#debugLog('<areaGridStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
+      var field = 'count_' + type
+      return {
+          fillColor: getColor(feature.properties[field], type, color),
+          weight: 1,
+          opacity: 0.7,
+          color: 'white',
+          fillOpacity: 0.7
+      };
+  }
 
-    // [Carte d'état des connaissances du territoire] <POPUP> Affiche les données détaillées des mailles
-    function areaGridPopup(feature, layer, type) {
-        var keys = Object.keys(styleDesc);
-        {#debugLog(type);#}
-        var dataResult = '';
-        for (var i = 0; i < keys.length; i++) {
-            dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
-        }
+  // [Carte d'état des connaissances du territoire] <POPUP> Affiche les données détaillées des mailles
+  function areaGridPopup(feature, layer, type) {
+      var keys = Object.keys(styleDesc);
+      {#debugLog(type);#}
+      var dataResult = '';
+      for (var i = 0; i < keys.length; i++) {
+          dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
+      }
 
-        layer.bindPopup(dataResult);
+      layer.bindPopup(dataResult);
 
-    }
+  }
 
-    // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche les mailles du territoire sur un rayon défini 'default_buffer'
-    function getGridArea(type) {
-        $('#mapSpinner').show();
-        axios
-            .get('/api/grid_data/{{ area_info.id_area }}/' + buffer + '/' + grid)
-            .then(function (response) {
-                    if (datasMapValues.areaGridDatas !== null) {
-                        datasMap.removeLayer(datasMapValues.areaGridDatas);
-                    }
-                    ;
-                    if (datasMapValues.areaGridLegend !== null) {
-                        datasMap.removeControl(datasMapValues.areaGridLegend);
-                    }
-                    ;
-                    datasMapValues.areaGridDatas = L.geoJson(response.data, {
-                        style: function (feature) {
-                            return areaGridStyle(feature, type, styleDesc[type].color)
-                        }, onEachFeature: function (feature, layer) {
-                            areaGridPopup(feature, layer, type);
-                        }
-                    });
-                    datasMapValues.areaGridDatas.addTo(datasMap);
-                    datasMapValues.areaGridLegend = L.control({
-                        position: 'bottomright'
-                    });
-                    datasMapValues.areaGridLegend.onAdd = function () {
-                        var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
-                        var grades = areaGridDatasGrades(type);
-                        div.innerHTML += '<strong>' + styleDesc[type].desc + '</strong><br/>';
-                        for (var i = 0; i < grades.length; i++) {
-                            div.innerHTML +=
-                                '<canvas width="20" height="15" style="background-color: '
-                                + getColor(grades[i], type, styleDesc[type].color)
-                                + '"></canvas>\n' +
-                                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-                        }
-                        return div
-                    };
-                    datasMapValues.areaGridLegend.addTo(datasMap);
-                    datasMap.invalidateSize();
-                    datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
-                    datasMap.setMaxBounds(datasMapValues.areaGridDatas.getBounds());
-                    datasMapValues.areaGridDatas.bringToFront();
-                    $('#mapSpinner').hide();
-                    datasMapValues.areaGridDatas.on('click', function (e) {
-                        listSpeciesUpdate(e.layer.feature.properties.id_area)
-                    });
-                }
-            )
-            .catch(function (error) {
-                debugLog('getTerritoryArea Error', error);
-            })
-    };
-
-
-    var select = L.control({
-        position: 'topright'
-    });
-
-    select.onAdd = function () {
-        var div = L.DomUtil.create('div', 'form-group form-group-sm');
-        var keys = Object.keys(styleDesc);
-        {#debugLog(keys);#}
-        var options = '';
-        for (var i = 0; i < keys.length; i++) {
-            {#debugLog(keys[i], styleDesc[keys[i]].desc);#}
-            options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
-        }
-        {#debugLog('<options>', options)#}
-        div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="datasMapDatasSelect" name="title">'
-            + options
-            + '</select>';
-        return div
-    };
-    select.addTo(datasMap);
-
-    getTerritoryArea();
-    getGridArea('taxa', '#bf01a6');
-    datasMap.invalidateSize();
+  // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche les mailles du territoire sur un rayon défini 'default_buffer'
+  function getGridArea(type) {
+      $('#mapSpinner').show();
+      axios
+          .get('/api/grid_data/{{ area_info.id_area }}/' + buffer + '/' + grid)
+          .then(function (response) {
+                  if (datasMapValues.areaGridDatas !== null) {
+                      datasMap.removeLayer(datasMapValues.areaGridDatas);
+                  }
+                  ;
+                  if (datasMapValues.areaGridLegend !== null) {
+                      datasMap.removeControl(datasMapValues.areaGridLegend);
+                  }
+                  ;
+                  datasMapValues.areaGridDatas = L.geoJson(response.data, {
+                      style: function (feature) {
+                          return areaGridStyle(feature, type, styleDesc[type].color)
+                      }, onEachFeature: function (feature, layer) {
+                          areaGridPopup(feature, layer, type);
+                      }
+                  });
+                  datasMapValues.areaGridDatas.addTo(datasMap);
+                  datasMapValues.areaGridLegend = L.control({
+                      position: 'bottomright'
+                  });
+                  datasMapValues.areaGridLegend.onAdd = function () {
+                      var div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
+                      var grades = areaGridDatasGrades(type);
+                      div.innerHTML += '<strong>' + styleDesc[type].desc + '</strong><br/>';
+                      for (var i = 0; i < grades.length; i++) {
+                          div.innerHTML +=
+                              '<canvas width="20" height="15" style="background-color: '
+                              + getColor(grades[i], type, styleDesc[type].color)
+                              + '"></canvas>\n' +
+                              grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                      }
+                      return div
+                  };
+                  datasMapValues.areaGridLegend.addTo(datasMap);
+                  datasMap.invalidateSize();
+                  datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
+                  datasMap.setMaxBounds(datasMapValues.areaGridDatas.getBounds());
+                  datasMapValues.areaGridDatas.bringToFront();
+                  $('#mapSpinner').hide();
+                  datasMapValues.areaGridDatas.on('click', function (e) {
+                      listSpeciesUpdate(e.layer.feature.properties.id_area)
+                  });
+              }
+          )
+          .catch(function (error) {
+              debugLog('getTerritoryArea Error', error);
+          })
+  };
 
 
-    var temporalDistrib = document.getElementById('temporalDistrib').getContext('2d');
-    var taxoGroupDistrib = document.getElementById('taxoGroupDistrib').getContext('2d');
+  var select = L.control({
+      position: 'topright'
+  });
 
-    var distribColors = {
-        countOcctax: {background: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)'},
-        countTaxa: {background: 'rgba(145,203,133, 0.2)', border: 'rgb(145,203,133,1 )'},
-        countDate: {background: 'rgba(235,155,65, 0.2)', border: 'rgb(235,155,65,1)'},
-        countDataset: {background: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)'}
-    }
+  select.onAdd = function () {
+      var div = L.DomUtil.create('div', 'form-group form-group-sm');
+      var keys = Object.keys(styleDesc);
+      {#debugLog(keys);#}
+      var options = '';
+      for (var i = 0; i < keys.length; i++) {
+          {#debugLog(keys[i], styleDesc[keys[i]].desc);#}
+          options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
+      }
+      {#debugLog('<options>', options)#}
+      div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="datasMapDatasSelect" name="title">'
+          + options
+          + '</select>';
+      return div
+  };
+  select.addTo(datasMap);
 
-    var temporalDistribChart = new Chart(temporalDistrib, {
-        type: 'bar',
-        data: {
-            labels: ['Chargement en cours'],
-            datasets: [{
-                label: 'Nombre d\'observations',
-                data: [0],
-                backgroundColor: distribColors.countOcctax.background,
-                borderColor: distribColors.countOcctax.border,
-                borderWidth: 1
-            },
-                {
-                    label: 'Nombre d\'espèces',
-                    data: [0],
-                    backgroundColor: distribColors.countTaxa.background,
-                    borderColor: distribColors.countTaxa.border,
-                    borderWidth: 1
-                },
-                {
-                    label: 'Nombre de dates',
-                    data: [0],
-                    backgroundColor: distribColors.countDate.background,
-                    borderColor: distribColors.countDate.border,
-                    borderWidth: 1
-                },
-                {
-                    label: 'Nombre de jeux de données',
-                    data: [0],
-                    backgroundColor: distribColors.countDataset.background,
-                    borderColor: distribColors.countDataset.border,
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            title: {
-                display: true,
-                text: "Nombre d'observations par pas de temps",
-                position: "top",
-                fontSize: 20,
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
-    var temporalUnit = 'year';
-    var temporalDistribChartUpdate = function (id_area, temporalUnit) {
-        $('#temporalDistribChartSpinner').show();
-        axios.get('/api/charts/synthesis/' + temporalUnit + '/' + id_area)
-            .then(function (response) {
-                var data = response.data;
-                var labels = [];
-                var dataOcctax = [];
-                var colorOcctax = []
-                var dataTaxa = [];
-                var dataDate = [];
-                var dataDataset = [];
-                for (var i = 0; i < data.length; i++) {
-                    labels.push(data[i][0]);
-                    dataOcctax.push(data[i][1]);
-                    dataTaxa.push(data[i][2]);
-                    dataDate.push(data[i][3]);
-                    dataDataset.push(data[i][4]);
-                }
-                debugLog(labels, dataOcctax);
-                temporalDistribChart.data.datasets[0].data = dataOcctax;
-                temporalDistribChart.data.datasets[1].data = dataTaxa;
-                temporalDistribChart.data.datasets[2].data = dataDate;
-                temporalDistribChart.data.datasets[3].data = dataDataset;
-                temporalDistribChart.data.labels = labels;
-                temporalDistribChart.update();
-                debugLog('chart', temporalDistribChart);
-                $('#temporalDistribChartSpinner').hide();
-            }).catch(function (error) {
-            debugLog(error);
-        });
-    };
-
-    temporalDistribChartUpdate({{ area_info.id_area }}, temporalUnit);
-
-    var taxoGroupDistribChart = new Chart(taxoGroupDistrib, {
-        type: 'bar',
-        data: {
-            labels: ['Chargement en cours'],
-            datasets: [
-                {
-                    label: 'Nombre d\'observations',
-                    data: [0],
-                    backgroundColor: distribColors.countOcctax.background,
-                    borderColor: distribColors.countOcctax.border,
-                    borderWidth: 1
-                },
-                {
-                    label: 'Nombre d\'espèces',
-                    data: [0],
-                    backgroundColor: distribColors.countTaxa.background,
-                    borderColor: distribColors.countTaxa.border,
-                    borderWidth: 1
-                },
-                {
-                    label: 'Nombre de dates',
-                    data: [0],
-                    backgroundColor: distribColors.countDate.background,
-                    borderColor: distribColors.countDate.border,
-                    borderWidth: 1
-                },
-                {
-                    label: 'Nombre de jeux de données',
-                    data: [0],
-                    backgroundColor: distribColors.countDataset.background,
-                    borderColor: distribColors.countDataset.border,
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            title: {
-                display: true,
-                text: "Nombre d'observations par groupe taxonomique",
-                position: "top",
-                fontSize: 20,
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
-
-    var taxoGroupDistribChartUpdate = function (id_area) {
-        $('#temporalDistribChartSpinner').show();
-        axios.get('/api/charts/synthesis/taxogroup/' + id_area)
-            .then(function (response) {
-                var data = response.data;
-                var labels = [];
-                var dataOcctax = [];
-                var dataTaxa = [];
-                var dataDate = [];
-                var dataDataset = [];
-                for (var i = 0; i < data.length; i++) {
-                    labels.push(data[i][0]);
-                    dataOcctax.push(data[i][1]);
-                    dataTaxa.push(data[i][2]);
-                    dataDate.push(data[i][3]);
-                    dataDataset.push(data[i][4]);
-                }
-                debugLog(labels, dataOcctax);
-                taxoGroupDistribChart.data.datasets[0].data = dataOcctax;
-                taxoGroupDistribChart.data.datasets[1].data = dataTaxa;
-                taxoGroupDistribChart.data.datasets[2].data = dataDate;
-                taxoGroupDistribChart.data.datasets[3].data = dataDataset;
-                taxoGroupDistribChart.data.labels = labels;
-                taxoGroupDistribChart.update();
-                debugLog('chart', taxoGroupDistribChart);
-                $('#taxoGroupDistribChartSpinner').hide();
-            }).catch(function (error) {
-            debugLog(error);
-        });
-    };
-
-    temporalDistribChartUpdate({{ area_info.id_area }}, temporalUnit);
-    taxoGroupDistribChartUpdate({{ area_info.id_area }});
-
-    $(document).on('change', '#datasMapDatasSelect', function () {
-        getGridArea(this.value, '#bf01a6');
-    });
-
-    $('#datasChartChooseTimeUnit').on('change', function () {
-        debugLog('selected', this.value);
-        temporalDistribChartUpdate({{ area_info.id_area }}, this.value);
-    });
+  getTerritoryArea();
+  getGridArea('taxa', '#bf01a6');
+  datasMap.invalidateSize();
 
 
-    debugLog('<before mapSize>',datasMap.getSize());
+  var temporalDistrib = document.getElementById('temporalDistrib').getContext('2d');
+  var taxoGroupDistrib = document.getElementById('taxoGroupDistrib').getContext('2d');
 
-    $(document).ready(function () {
-        $("#collapseObservationsDistribution").on('show.bs.collapse', function () {
-            setTimeout(function() {
-                debugLog('<collapseObservationsDistribution>', $("#collapseObservationsDistribution"));
-                    debugLog('<before mapSize>',datasMap.getSize());
-                    datasMap.invalidateSize();
-                    datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
-              }, 10);
-        })
-    });
+  var distribColors = {
+      countOcctax: {background: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)'},
+      countTaxa: {background: 'rgba(145,203,133, 0.2)', border: 'rgb(145,203,133,1 )'},
+      countDate: {background: 'rgba(235,155,65, 0.2)', border: 'rgb(235,155,65,1)'},
+      countDataset: {background: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)'}
+  }
+
+  var temporalDistribChart = new Chart(temporalDistrib, {
+      type: 'bar',
+      data: {
+          labels: ['Chargement en cours'],
+          datasets: [{
+              label: 'Nombre d\'observations',
+              data: [0],
+              backgroundColor: distribColors.countOcctax.background,
+              borderColor: distribColors.countOcctax.border,
+              borderWidth: 1
+          },
+              {
+                  label: 'Nombre d\'espèces',
+                  data: [0],
+                  backgroundColor: distribColors.countTaxa.background,
+                  borderColor: distribColors.countTaxa.border,
+                  borderWidth: 1
+              },
+              {
+                  label: 'Nombre de dates',
+                  data: [0],
+                  backgroundColor: distribColors.countDate.background,
+                  borderColor: distribColors.countDate.border,
+                  borderWidth: 1
+              },
+              {
+                  label: 'Nombre de jeux de données',
+                  data: [0],
+                  backgroundColor: distribColors.countDataset.background,
+                  borderColor: distribColors.countDataset.border,
+                  borderWidth: 1
+              }
+          ]
+      },
+      options: {
+          title: {
+              display: true,
+              text: "Nombre d'observations par pas de temps",
+              position: "top",
+              fontSize: 20,
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+      }
+  });
+  var temporalUnit = 'year';
+  var temporalDistribChartUpdate = function (id_area, temporalUnit) {
+      $('#temporalDistribChartSpinner').show();
+      axios.get('/api/charts/synthesis/' + temporalUnit + '/' + id_area)
+          .then(function (response) {
+              var data = response.data;
+              temporalDistribChart.data.datasets[0].data = data.map(e => e.count_occtax);
+              temporalDistribChart.data.datasets[1].data = data.map(e => e.count_taxa);
+              temporalDistribChart.data.datasets[2].data = data.map(e => e.count_date);
+              temporalDistribChart.data.datasets[3].data = data.map(e => e.count_dataset);
+              temporalDistribChart.data.labels = data.map(e => e.label);
+              temporalDistribChart.update();
+              debugLog('chart', temporalDistribChart);
+              $('#temporalDistribChartSpinner').hide();
+          }).catch(function (error) {
+          debugLog(error);
+      });
+  };
+
+  temporalDistribChartUpdate({{ area_info.id_area }}, temporalUnit);
+
+  var taxoGroupDistribChart = new Chart(taxoGroupDistrib, {
+      type: 'bar',
+      data: {
+          labels: ['Chargement en cours'],
+          datasets: [
+              {
+                  label: 'Nombre d\'observations',
+                  data: [0],
+                  backgroundColor: distribColors.countOcctax.background,
+                  borderColor: distribColors.countOcctax.border,
+                  borderWidth: 1
+              },
+              {
+                  label: 'Nombre d\'espèces',
+                  data: [0],
+                  backgroundColor: distribColors.countTaxa.background,
+                  borderColor: distribColors.countTaxa.border,
+                  borderWidth: 1
+              },
+              {
+                  label: 'Nombre de dates',
+                  data: [0],
+                  backgroundColor: distribColors.countDate.background,
+                  borderColor: distribColors.countDate.border,
+                  borderWidth: 1
+              },
+              {
+                  label: 'Nombre de jeux de données',
+                  data: [0],
+                  backgroundColor: distribColors.countDataset.background,
+                  borderColor: distribColors.countDataset.border,
+                  borderWidth: 1
+              }
+          ]
+      },
+      options: {
+          title: {
+              display: true,
+              text: "Nombre d'observations par groupe taxonomique",
+              position: "top",
+              fontSize: 20,
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+      }
+  });
+
+  var taxoGroupDistribChartUpdate = function (id_area) {
+      $('#temporalDistribChartSpinner').show();
+      axios.get('/api/charts/synthesis/taxogroup/' + id_area)
+          .then(function (response) {
+              var data = response.data;
+              taxoGroupDistribChart.data.datasets[0].data = data.map(e => e.count_occtax);
+              taxoGroupDistribChart.data.datasets[1].data = data.map(e => e.count_taxa);
+              taxoGroupDistribChart.data.datasets[2].data = data.map(e => e.count_date);
+              taxoGroupDistribChart.data.datasets[3].data = data.map(e => e.count_dataset);
+              taxoGroupDistribChart.data.labels = data.map(e => e.label);
+              taxoGroupDistribChart.update();
+              debugLog('chart', taxoGroupDistribChart);
+              $('#taxoGroupDistribChartSpinner').hide();
+          }).catch(function (error) {
+          debugLog(error);
+      });
+  };
+
+  temporalDistribChartUpdate({{ area_info.id_area }}, temporalUnit);
+  taxoGroupDistribChartUpdate({{ area_info.id_area }});
+
+  $(document).on('change', '#datasMapDatasSelect', function () {
+      getGridArea(this.value, '#bf01a6');
+  });
+
+  $('#datasChartChooseTimeUnit').on('change', function () {
+      debugLog('selected', this.value);
+      temporalDistribChartUpdate({{ area_info.id_area }}, this.value);
+  });
+
+
+  debugLog('<before mapSize>',datasMap.getSize());
+
+  $(document).ready(function () {
+      $("#collapseObservationsDistribution").on('show.bs.collapse', function () {
+          setTimeout(function() {
+              debugLog('<collapseObservationsDistribution>', $("#collapseObservationsDistribution"));
+                  debugLog('<before mapSize>',datasMap.getSize());
+                  datasMap.invalidateSize();
+                  datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
+            }, 10);
+      })
+  });
 </script>

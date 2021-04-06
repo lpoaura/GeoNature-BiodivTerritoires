@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from flask import current_app
 from geoalchemy2 import Geometry
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.dialects.postgresql import UUID
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
-from app.core.env import DB
-from flask import current_app
+
 import config
+from app.core.env import DB
 
 
 @serializable

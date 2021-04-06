@@ -1,8 +1,12 @@
 # Import flask and template operators
+import logging
+
 from flask import Flask, render_template
+
 import config
-from app.core.env import create_schemas, DB, assets, admin, ckeditor
-import coloredlogs
+from app.core.env import DB, admin, assets, cache, ckeditor, create_schemas
+
+logger = logging.getLogger(__name__)
 
 # Import SQLAlchemy
 
@@ -16,24 +20,32 @@ def create_app():
         template_folder="templates",
     )
     # Add Colored logs
-    coloredlogs.install(level="DEBUG")
+    if app.debug:
+        import coloredlogs
+        import flask_monitoringdashboard as dashboard
+
+        coloredlogs.install(level="DEBUG")
+        dashboard.bind(app)
+
     app.app_context().push()
     app.secret_key = config.SECRET_KEY
 
     # Load config
     try:
-        app.config.from_object(config)
+        app.config.from_object("config")
     except Exception as e:
-        print("<create_app> Import config error : ", e)
+        app.logger.critical("<create_app> Import config error : ", e)
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["PYSCSS_STYLE"] = "compressed"
+    app.config["SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS"] = True
     # Define the database object which is imported
     # by modules and controllers
     DB.init_app(app)
     assets.init_app(app)
     admin.init_app(app)
     ckeditor.init_app(app)
+    cache.init_app(app)
 
     # pass parameters to the usershub authenfication sub-module, DONT CHANGE THIS
     app.config["DB"] = DB
@@ -44,11 +56,11 @@ def create_app():
         return render_template("404.html"), 404
 
     with app.app_context():
-        from app.core.api.routes import api
-        from app.core.frontend.routes import rendered
-
         # from pypnusershub.routes import routes as users_routes
         from pypnnomenclature.routes import routes as nom_routes
+
+        from app.core.api.routes import api
+        from app.core.frontend.routes import rendered
         from app.core.utils import create_special_pages, create_tables
 
         create_schemas(DB)

@@ -1,8 +1,6 @@
 # coding: utf-8
-from flask import current_app
 from flask_admin.contrib.sqla import ModelView
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from utils_flask_sqla.serializers import serializable
 
@@ -27,7 +25,9 @@ class TReleasedDatas(DB.Model):
     __table_args__ = {"schema": "gn_biodivterritory"}
 
     id_data_release = Column(Integer, primary_key=True)
-    id_type = Column(Integer, ForeignKey("gn_biodivterritory.bib_datas_types.id_type"))
+    id_type = Column(
+        Integer, ForeignKey("gn_biodivterritory.bib_datas_types.id_type")
+    )
     data_name = Column(String)
     data_desc = Column(Text)
     data_url = Column(String)
@@ -37,5 +37,9 @@ class TReleasedDatas(DB.Model):
         return self.data_name
 
 
-admin.add_view(ModelView(BibDatasTypes, DB.session, category="Data", name="Data types"))
-admin.add_view(ModelView(TReleasedDatas, DB.session, category="Data", name="Data"))
+admin.add_view(
+    ModelView(BibDatasTypes, DB.session, category="Data", name="Data types")
+)
+admin.add_view(
+    ModelView(TReleasedDatas, DB.session, category="Data", name="Data")
+)
