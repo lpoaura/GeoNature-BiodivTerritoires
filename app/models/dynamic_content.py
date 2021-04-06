@@ -14,6 +14,7 @@ from sqlalchemy import (
 )
 from utils_flask_sqla.serializers import serializable
 
+import config
 from app import admin
 from app.core.env import DB
 

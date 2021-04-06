@@ -1,10 +1,13 @@
 # Import flask and template operators
+import logging
+
 from flask import Flask, render_template
 
 import config
 from app.core.env import DB, admin, assets, ckeditor, create_schemas
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+print(f"config import  {config}")
 
 # Import SQLAlchemy
 
@@ -27,10 +30,11 @@ def create_app():
 
     app.app_context().push()
     app.secret_key = config.SECRET_KEY
+    print(f"SECRET KEY {config.SECRET_KEY}")
 
     # Load config
     try:
-        app.config.from_object(config)
+        app.config.from_object("config")
     except Exception as e:
         app.logger.critical("<create_app> Import config error : ", e)
 

@@ -36,8 +36,8 @@ else
   fi
 fi
 
-rm /app/config.py
-ln -s /config/config.py /app/config.py
+rm /app/config/config.py
+ln -s /config/config.py /app/config/config.py
 
 ls -alh /app
 
