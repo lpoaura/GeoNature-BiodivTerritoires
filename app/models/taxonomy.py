@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 from utils_flask_sqla.serializers import serializable
-import config
 
+import config
 from app.core.env import DB
 
 
@@ -158,4 +158,6 @@ class TMaxThreatenedStatus(DB.Model):
     threatened = Column(Boolean, default=False, nullable=False)
     redlist_statut = Column(String)
     redlist_context = Column(String)
-    id_source = Column(Integer, ForeignKey("taxonomie.bib_redlist_source.id_source"))
+    id_source = Column(
+        Integer, ForeignKey("taxonomie.bib_redlist_source.id_source")
+    )

@@ -1,22 +1,22 @@
 from flask import current_app
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
-from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
+from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from shapely.geometry import asShape
 from sqlalchemy import and_
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.schema import CreateTable
 
 from app.core.env import DB
-from app.models.dynamic_content import TDynamicPages, BibDynamicPagesCategory
-from app.models.datas import TReleasedDatas, BibDatasTypes
-from app.models.taxonomy import (
-    TRedlist,
-    BibRedlistSource,
-    BibRedlistCategories,
-    TMaxThreatenedStatus,
-)
+from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import LAreasTypeSelection
-from sqlalchemy.schema import CreateTable
-from sqlalchemy.dialects import postgresql
+from app.models.taxonomy import (
+    BibRedlistCategories,
+    BibRedlistSource,
+    TMaxThreatenedStatus,
+    TRedlist,
+)
 
 
 def create_tables(db):
@@ -148,16 +148,20 @@ def get_redlist_status(cdref):
         )
         .distinct()
         .filter(TRedlist.cd_ref == cdref)
-        .join(BibRedlistSource, BibRedlistSource.id_source == TRedlist.id_source)
+        .join(
+            BibRedlistSource, BibRedlistSource.id_source == TRedlist.id_source
+        )
         .join(
             BibRedlistCategories,
             BibRedlistCategories.code_category == TRedlist.category,
         )
-        .order_by(BibRedlistSource.priority, BibRedlistCategories.priority_order)
-        .all()
+        .order_by(
+            BibRedlistSource.priority, BibRedlistCategories.priority_order
+        )
     )
+    current_app.logger.debug(query)
     list = []
-    for r in query:
+    for r in query.all():
         list.append(r._asdict())
     return list
 
@@ -169,9 +173,11 @@ def get_max_threatened_status(cdref):
         .filter(TRedlist.cd_ref == cdref)
         .filter(BibRedlistSource.id_source == TRedlist.id_source)
         .filter(BibRedlistCategories.code_category == TRedlist.category)
-        .order_by(BibRedlistSource.priority, BibRedlistCategories.priority_order)
+        .order_by(
+            BibRedlistSource.priority, BibRedlistCategories.priority_order
+        )
     )
-    print(query)
+    current_app.logger.debug(query)
     result = query.first()
     if result == None:
         return False
@@ -291,7 +297,12 @@ def create_special_pages():
     ]
 
     for p in pages:
-        if len(TDynamicPages.query.filter(TDynamicPages.url == p["url"]).all()) == 0:
+        if (
+            len(
+                TDynamicPages.query.filter(TDynamicPages.url == p["url"]).all()
+            )
+            == 0
+        ):
             page = TDynamicPages(**p)
             DB.session.add(page)
 

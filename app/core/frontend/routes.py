@@ -2,26 +2,47 @@ import json
 import threading
 import time
 
-from flask import Blueprint, redirect, render_template, url_for, flash, current_app
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    url_for,
+)
 from sqlalchemy import and_
 
 import config
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
-from app.models.dynamic_content import TDynamicPages, BibDynamicPagesCategory
+from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import BibAreasTypes, LAreas
-from app.models.territory import MVTerritoryGeneralStats, MVAreaNtileLimit
+from app.models.territory import MVAreaNtileLimit, MVTerritoryGeneralStats
 
 rendered = Blueprint("rendered", __name__)
 
 
-def get_legend_classes(type):
-    query = MVAreaNtileLimit.query.filter_by(type=type).order_by(MVAreaNtileLimit.ntile)
-    ntiles = query.all()
-    datas = []
-    for r in ntiles:
-        datas.append(r.as_dict())
-    return datas
+def get_legend_classes(type: str):
+    try:
+        query = MVAreaNtileLimit.query.filter_by(type=type).order_by(
+            MVAreaNtileLimit.ntile
+        )
+        current_app.logger.debug(query)
+        ntiles = query.all()
+        current_app.logger.debug(f"<get_legend_classes> query.all() {ntiles}")
+        datas = []
+        for r in ntiles:
+            current_app.logger.debug(f"<get_legend_classes> r {r}")
+            current_app.logger.debug(
+                f"<get_legend_classes> r.as_dict() {r.as_dict()}"
+            )
+            datas.append(r.as_dict())
+        current_app.logger.debug(
+            f"<get_legend_classes> type of return : {datas}"
+        )
+        return datas
+    except Exception as e:
+        current_app.logger.critical(f"<get_legend_classes> ERROR {e}")
 
 
 @rendered.context_processor
@@ -52,7 +73,8 @@ def global_variables():
 
     categories = (
         DB.session.query(
-            BibDynamicPagesCategory.category_name, BibDynamicPagesCategory.category_desc
+            BibDynamicPagesCategory.category_name,
+            BibDynamicPagesCategory.category_desc,
         )
         .join(
             TDynamicPages,
@@ -82,23 +104,29 @@ def global_variables():
 
 
 @rendered.route("/")
-def index():
+def index() -> str:
     bonus_block = (
         DB.session.query(
-            TDynamicPages.title, TDynamicPages.short_desc, TDynamicPages.content
+            TDynamicPages.title,
+            TDynamicPages.short_desc,
+            TDynamicPages.content,
         )
         .filter(TDynamicPages.url == "home-bonus")
         .first()
     )
 
-    print("bonus", bonus_block)
+    current_app.logger.debug(f"bonus {bonus_block}")
     # re_grid_codes = r"M(\d+)"
+    current_app.logger.debug(
+        f'TYPE OF INDEX {type(render_template("home.html", name=config.SITE_NAME, bonus_block=bonus_block))}'
+    )
+    return render_template(
+        "home.html", name=config.SITE_NAME, bonus_block=bonus_block
+    )
 
-    return render_template("home.html", name=config.SITE_NAME, bonus_block=bonus_block)
 
-
-@rendered.route("/<string:url>")
-def special_pages(url):
+@rendered.route("/page/<string:url>")
+def special_pages(url: str) -> str:
     """
 
     :return:
@@ -108,7 +136,7 @@ def special_pages(url):
 
 
 @rendered.route("/datas")
-def datas():
+def datas() -> str:
     qdatas = DB.session.query(
         BibDatasTypes.type_desc,
         BibDatasTypes.type_name,
@@ -117,11 +145,17 @@ def datas():
         TReleasedDatas.data_name,
         TReleasedDatas.data_type,
         TReleasedDatas.data_url,
-    ).join(BibDatasTypes, TReleasedDatas.id_type == BibDatasTypes.id_type, isouter=True)
+    ).join(
+        BibDatasTypes,
+        TReleasedDatas.id_type == BibDatasTypes.id_type,
+        isouter=True,
+    )
     datas = qdatas.all()
     intro = (
         DB.session.query(
-            TDynamicPages.title, TDynamicPages.short_desc, TDynamicPages.content
+            TDynamicPages.title,
+            TDynamicPages.short_desc,
+            TDynamicPages.content,
         )
         .filter(TDynamicPages.url == "datas-intro")
         .first()
@@ -130,9 +164,8 @@ def datas():
 
 
 @rendered.route("/territory/<string:type_code>/<string:area_code>")
-def territory(type_code, area_code):
-    """
-    """
+def territory(type_code: str, area_code: str) -> str:
+    """"""
     try:
         q_area_info = (
             DB.session.query(
@@ -143,7 +176,9 @@ def territory(type_code, area_code):
                 LAreas.area_name,
                 LAreas.area_code,
             )
-            .join(LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True)
+            .join(
+                LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True
+            )
             .filter(
                 and_(BibAreasTypes.type_code == type_code.upper()),
                 LAreas.area_code == area_code,
@@ -155,21 +190,21 @@ def territory(type_code, area_code):
         q_gen_stats = DB.session.query(MVTerritoryGeneralStats).filter(
             MVTerritoryGeneralStats.id_area == area_info.id_area
         )
+        current_app.logger.debug(q_gen_stats)
         gen_stats = q_gen_stats.one()
-
         # generate Legend Dict
         legend_dict = {}
         for type in DB.session.query(MVAreaNtileLimit.type).distinct():
             legend_dict[type[0]] = get_legend_classes(type)
-
         intro = (
             DB.session.query(
-                TDynamicPages.title, TDynamicPages.short_desc, TDynamicPages.content
+                TDynamicPages.title,
+                TDynamicPages.short_desc,
+                TDynamicPages.content,
             )
             .filter(TDynamicPages.url == "territory-intro")
             .first()
         )
-
         return render_template(
             "territory/_main.html",
             area_info=area_info,
@@ -180,5 +215,5 @@ def territory(type_code, area_code):
 
     except Exception as e:
         flash("Erreur: {}".format(e))
-        print("<territory> ERROR: ", e)
+        current_app.logger.critical(f"<territory> ERROR: {str(e)}")
         return redirect(url_for("rendered.index"))

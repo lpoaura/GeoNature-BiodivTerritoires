@@ -118,3 +118,5 @@ app/static/assets/node_modules
 # Gunicorn pid
 *.pid
 
+#Monitoring
+*.db

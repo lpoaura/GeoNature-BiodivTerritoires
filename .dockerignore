@@ -10,3 +10,6 @@ configs/config.py
 *.pid
 
 app/static/assets/node_modules
+
+#Monitoring
+*.db

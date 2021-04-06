@@ -73,3 +73,9 @@ MAP = {
     "BORDERS_WEIGHT": 3,
 }
 
+###########################
+###### Caching      #######
+###########################
+
+CACHE_TIMEOUT = cacheTimeout
+CACHE_REDIS_HOST = redisHost
