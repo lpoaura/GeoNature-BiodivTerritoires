@@ -36,8 +36,7 @@ genStats = {}
 
 diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
 
-# CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
-CACHE_TIMEOUT = 600
+CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
 
 
 @api.route("/find/area")
