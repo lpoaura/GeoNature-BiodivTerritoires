@@ -261,6 +261,17 @@ Flask = ">=0.8"
 webassets = ">=2.0"
 
 [[package]]
+name = "flask-caching"
+version = "1.10.1"
+description = "Adds caching support to your Flask application"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[package.dependencies]
+Flask = "*"
+
+[[package]]
 name = "flask-ckeditor"
 version = "0.4.4.1"
 description = "CKEditor integration for Flask."
@@ -587,6 +598,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "redis"
+version = "3.5.3"
+description = "Python client for Redis key-value store"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[package.extras]
+hiredis = ["hiredis (>=0.1.3)"]
+
+[[package]]
 name = "regex"
 version = "2021.3.17"
 description = "Alternative regular expression module, to replace re."
@@ -779,7 +801,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "29960eef3a72e632a5c5ca62e7a3df0f000c46d0fa4a3abb89af19652f53a9d1"
+content-hash = "412e227ff14a09b10203568e81fe25d5fd24ccedd4b41a410ca950787898cf19"
 
 [metadata.files]
 appdirs = [
@@ -864,6 +886,10 @@ flask-admin = [
 flask-assets = [
     {file = "Flask-Assets-2.0.tar.gz", hash = "sha256:1dfdea35e40744d46aada72831f7613d67bf38e8b20ccaaa9e91fdc37aa3b8c2"},
     {file = "Flask_Assets-2.0-py3-none-any.whl", hash = "sha256:2845bd3b479be9db8556801e7ebc2746ce2d9edb4e7b64a1c786ecbfc1e5867b"},
+]
+flask-caching = [
+    {file = "Flask-Caching-1.10.1.tar.gz", hash = "sha256:cf19b722fcebc2ba03e4ae7c55b532ed53f0cbf683ce36fafe5e881789a01c00"},
+    {file = "Flask_Caching-1.10.1-py3-none-any.whl", hash = "sha256:bcda8acbc7508e31e50f63e9b1ab83185b446f6b6318bd9dd1d45626fba2e903"},
 ]
 flask-ckeditor = [
     {file = "Flask-CKEditor-0.4.4.1.tar.gz", hash = "sha256:d29ebd38c3fac5460e48eb70ca6d579188a3090e44d88b1683aa0d510029f08e"},
@@ -1193,6 +1219,10 @@ pyreadline = [
 pytz = [
     {file = "pytz-2021.1-py2.py3-none-any.whl", hash = "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"},
     {file = "pytz-2021.1.tar.gz", hash = "sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da"},
+]
+redis = [
+    {file = "redis-3.5.3-py2.py3-none-any.whl", hash = "sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24"},
+    {file = "redis-3.5.3.tar.gz", hash = "sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2"},
 ]
 regex = [
     {file = "regex-2021.3.17-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:b97ec5d299c10d96617cc851b2e0f81ba5d9d6248413cd374ef7f3a8871ee4a6"},

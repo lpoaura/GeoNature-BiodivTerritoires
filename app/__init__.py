@@ -4,10 +4,9 @@ import logging
 from flask import Flask, render_template
 
 import config
-from app.core.env import DB, admin, assets, ckeditor, create_schemas
+from app.core.env import DB, admin, assets, cache, ckeditor, create_schemas
 
 logger = logging.getLogger(__name__)
-print(f"config import  {config}")
 
 # Import SQLAlchemy
 
@@ -30,7 +29,6 @@ def create_app():
 
     app.app_context().push()
     app.secret_key = config.SECRET_KEY
-    print(f"SECRET KEY {config.SECRET_KEY}")
 
     # Load config
     try:
@@ -40,12 +38,14 @@ def create_app():
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["PYSCSS_STYLE"] = "compressed"
+    app.config["SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS"] = True
     # Define the database object which is imported
     # by modules and controllers
     DB.init_app(app)
     assets.init_app(app)
     admin.init_app(app)
     ckeditor.init_app(app)
+    cache.init_app(app)
 
     # pass parameters to the usershub authenfication sub-module, DONT CHANGE THIS
     app.config["DB"] = DB

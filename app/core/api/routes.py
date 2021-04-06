@@ -7,7 +7,7 @@ from sqlalchemy import and_, distinct, or_
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.sql import case, func, funcfilter
 
-from app.core.env import DB
+from app.core.env import DB, cache
 from app.core.utils import get_nomenclature_id, get_redlist_status
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import (
@@ -36,6 +36,9 @@ genStats = {}
 
 diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
 
+# CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
+CACHE_TIMEOUT = 600
+
 
 @api.route("/find/area")
 def find_area() -> Response:
@@ -63,6 +66,7 @@ def find_area() -> Response:
                     MVLAreasAutocomplete.area_code == search_code,
                 )
             )
+            .order_by(func.length(MVLAreasAutocomplete.area_name))
             .limit(20)
         )
         current_app.logger.debug(qarea)
@@ -79,6 +83,7 @@ def find_area() -> Response:
 
 
 @api.route("/area/<id_area>")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def redirect_area(id_area: int) -> Response:
     """
     redirect tu human readable territory url based on type_code and area_code from id_area, for select2 searches
@@ -181,6 +186,7 @@ def redirect_area(id_area: int) -> Response:
 
 
 @api.route("/homestats")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def home_stats() -> Response:
     """Home page general stats
 
@@ -201,6 +207,7 @@ def home_stats() -> Response:
 
 
 @api.route("/<type_code>/<area_code>")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def main_area_info(type_code: str, area_code: str) -> Response:
 
     try:
@@ -234,6 +241,7 @@ def main_area_info(type_code: str, area_code: str) -> Response:
 @api.route(
     "/surrounding_areas/<string:type_code>/<string:area_code>/<int:buffer>"
 )
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_surrounding_area(
     type_code: str, area_code: str, buffer: int = 10000
 ) -> Response:
@@ -293,6 +301,7 @@ def get_surrounding_area(
 
 
 @api.route("/type")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def datas_types() -> Response:
     """"""
     try:
@@ -316,6 +325,7 @@ def datas_types() -> Response:
 
 @api.route("/geom/<string:type_code>/<string:area_code>", methods=["GET"])
 # def get_geojson_area(type_code: str, area_code: str) -> Response:
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_geojson_area(type_code: str, area_code: str) -> Response:
     """Get one enabled municipality by insee code
     ---
@@ -369,6 +379,8 @@ def get_geojson_area(type_code: str, area_code: str) -> Response:
 @api.route(
     "/grid_data/<int:id_area>/<int:buffer>/<string:grid>", methods=["GET"]
 )
+@cache.cached(timeout=CACHE_TIMEOUT)
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
     """Get one enabled municipality by insee code
     ---
@@ -417,6 +429,7 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
 
 
 @api.route("/territory/conf/ntile/", methods=["GET"])
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_ntile() -> Response:
     """
 
@@ -440,6 +453,7 @@ def get_ntile() -> Response:
 
 
 @api.route("/list_taxa/<int:id_area>", methods=["GET"])
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_taxa_list(id_area: int) -> Response:
     """
 
@@ -572,6 +586,7 @@ def get_taxa_list(id_area: int) -> Response:
 
 
 @api.route("/list_taxa/simp/<int:id_area>", methods=["GET"])
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_taxa_simple_list(id_area: int) -> Response:
     """
 
@@ -651,6 +666,7 @@ def get_taxa_simple_list(id_area: int) -> Response:
 
 
 @api.route("/statut/taxa/<int:cd_nom>/redlist", methods=["GET"])
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_redlist_taxa_status(cd_nom: int) -> Response:
     """
 
@@ -667,6 +683,7 @@ def get_redlist_taxa_status(cd_nom: int) -> Response:
 
 
 @api.route("/charts/synthesis/<string:timeinterval>/<int:id_area>")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
     """
 
@@ -709,6 +726,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
 
 
 @api.route("/charts/synthesis/taxogroup/<int:id_area>")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_data_over_taxogroup(id_area: int) -> Response:
     """[summary]
 
@@ -759,6 +777,7 @@ def get_data_over_taxogroup(id_area: int) -> Response:
 
 @api.route("/charts/synthesis/group2_inpn_species/<int:id_area>/<int:buffer>")
 @api.route("/charts/synthesis/group2_inpn_species/<int:id_area>")
+@cache.cached(timeout=CACHE_TIMEOUT)
 def get_surrounding_count_species_by_group2inpn(
     id_area: int, buffer: int = 10000
 ) -> Response:

@@ -1,13 +1,15 @@
 from flask import current_app
 from flask_admin import Admin
 from flask_assets import Environment
+from flask_caching import Cache
 from flask_ckeditor import CKEditor
 from flask_sqlalchemy import SQLAlchemy
 
 DB = SQLAlchemy()
-admin = Admin(name="GnBT", template_mode="bootstrap3")
+admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap3")
 assets = Environment()
 ckeditor = CKEditor()
+cache = Cache(config={"CACHE_TYPE": "RedisCache"})
 
 
 def create_schemas(db):

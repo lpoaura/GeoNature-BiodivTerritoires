@@ -24,6 +24,8 @@ function create_config() {
   sed -i "s/secretKey/${SECRETKEY}/g" /config/config.py
   sed -i "s/2154/${SRID}/g" /config/config.py
   sed -i "s/taxhubUrl/${TAXHUB_URL}/g" /config/config.py
+  sed -i "s/redisHost/${REDIS_HOST:-redis}/g" /config/config.py
+  sed -i "s/cacheTimeout/${CACHE_TIMEOUT:-86400}/g" /config/config.py
 }
 
 if [ ! -f /config/config.py ]; then
