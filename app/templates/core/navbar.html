@@ -1,31 +1,53 @@
 {% block navbar %}
-    <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
-        <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='custom/images/logo.png') }}"
-                                              height="50px" style="min-height: 50px" alt="#Logo"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if  request.path=='/'  %}active{% endif %}" href="/">Accueil<span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if  request.path=='/datas'  %}active{% endif %}" href="/datas">Données</a>
-                </li>
-                {% for page in special_pages %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if  request.path=='/'+page.url  %}active{% endif %}" href="{{ page.url }}">{{ page.link_name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-            <form class="form-inline">
-                <!-- <select class="form-control mr-sm-2" type="text" placeholder="Rechercher un territoire" aria-label="Search"> -->
-                {% include "core/search_territory.html" %}
-                <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button> -->
-            </form>
-        </div>
-    </nav>
+<nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
+  <a class="navbar-brand" href="/"
+    ><img
+      src="{{ url_for('static', filename='custom/images/logo.png') }}"
+      height="50px"
+      style="min-height: 50px"
+      alt="#Logo"
+  /></a>
+  <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#navbarCollapse"
+    aria-controls="navbarCollapse"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarCollapse">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link {% if request.path=='/' %}active{% endif %}" href="/"
+          >Accueil<span class="sr-only">(current)</span></a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link {% if request.path=='/datas' %}active{% endif %}"
+          href="/datas"
+          >Données</a
+        >
+      </li>
+      {% for page in special_pages %}
+      <li class="nav-item">
+        <a
+          class="nav-link {% if request.path=='/'+page.url %}active{% endif %}"
+          href="{{ page.url }}"
+          >{{ page.link_name }}</a
+        >
+      </li>
+      {% endfor %}
+    </ul>
+    <form class="form-inline">
+      <!-- <select class="form-control mr-sm-2" type="text" placeholder="Rechercher un territoire" aria-label="Search"> -->
+      {% include "core/search_territory.html" %}
+      <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button> -->
+    </form>
+  </div>
+</nav>
 
 {% endblock %}

@@ -1,7 +1,9 @@
 from flask import current_app
+from flask_admin.contrib import rediscli
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
+from redis import Redis
 from shapely.geometry import asShape
 from sqlalchemy import and_
 from sqlalchemy.dialects import postgresql
@@ -17,6 +19,10 @@ from app.models.taxonomy import (
     TMaxThreatenedStatus,
     TRedlist,
 )
+
+from .env import admin
+
+admin.add_view(rediscli.RedisCli(Redis()))
 
 
 def create_tables(db):
@@ -258,12 +264,47 @@ def create_special_pages():
             "is_active": True,
         },
         {
-            "url": "home-bonus",
-            "link_name": "Complément de l'accueil",
+            "url": "financial_partners",
+            "link_name": "Partenaires financiers",
             "navbar_link": False,
             "is_active": False,
             "content": """
-            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/" target="_blank">interface d'administration</a> (<b>url = home-bonus</b>)</p>
+            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/" 
+            target="_blank">interface d'administration</a> (<b>url = financial_partners</b>)</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed 
+                do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor 
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat 
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident, 
+                sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            """,
+        },
+        {
+            "url": "home_desc",
+            "link_name": "Description de la plateforme",
+            "navbar_link": False,
+            "is_active": False,
+            "content": """
+            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/" 
+            target="_blank">interface d'administration</a> (<b>url = home_desc</b>)</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed 
+                do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor 
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat 
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident, 
+                sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            """,
+        },
+        {
+            "url": "technical_partners",
+            "link_name": "Partenaires techniques",
+            "navbar_link": False,
+            "is_active": False,
+            "content": """
+            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/" 
+            target="_blank">interface d'administration</a> (<b>url = technical_partners</b>)</p>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed 
                 do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
                 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
