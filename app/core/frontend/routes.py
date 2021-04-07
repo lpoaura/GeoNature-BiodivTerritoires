@@ -1,6 +1,4 @@
 import json
-import threading
-import time
 
 from flask import (
     Blueprint,
@@ -105,23 +103,41 @@ def global_variables():
 
 @rendered.route("/")
 def index() -> str:
-    bonus_block = (
+    home_desc = (
         DB.session.query(
             TDynamicPages.title,
             TDynamicPages.short_desc,
             TDynamicPages.content,
         )
-        .filter(TDynamicPages.url == "home-bonus")
+        .filter(TDynamicPages.url == "home_desc")
+        .first()
+    )
+    financial_partners = (
+        DB.session.query(
+            TDynamicPages.title,
+            TDynamicPages.short_desc,
+            TDynamicPages.content,
+        )
+        .filter(TDynamicPages.url == "financial_partners")
         .first()
     )
 
-    current_app.logger.debug(f"bonus {bonus_block}")
-    # re_grid_codes = r"M(\d+)"
-    current_app.logger.debug(
-        f'TYPE OF INDEX {type(render_template("home.html", name=config.SITE_NAME, bonus_block=bonus_block))}'
+    technical_partners = (
+        DB.session.query(
+            TDynamicPages.title,
+            TDynamicPages.short_desc,
+            TDynamicPages.content,
+        )
+        .filter(TDynamicPages.url == "technical_partners")
+        .first()
     )
+
     return render_template(
-        "home.html", name=config.SITE_NAME, bonus_block=bonus_block
+        "home.html",
+        name=config.SITE_NAME,
+        home_desc=home_desc,
+        financial_partners=financial_partners,
+        technical_partners=technical_partners,
     )
 
 
