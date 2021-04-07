@@ -36,7 +36,7 @@
       <li class="nav-item">
         <a
           class="nav-link {% if request.path=='/'+page.url %}active{% endif %}"
-          href="{{ page.url }}"
+          href="{{ url_for('.special_pages', url=page.url) }}"
           >{{ page.link_name }}</a
         >
       </li>

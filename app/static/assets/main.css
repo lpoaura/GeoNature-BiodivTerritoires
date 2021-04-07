@@ -169,6 +169,11 @@ h4 {
   padding: 20px 5px;
 }
 
+.active {
+  font-weight: bold;
+  border-bottom: 5px solid black;
+}
+
 #homeStats .count {
   font-size: 3rem;
   font-weight: bolder;

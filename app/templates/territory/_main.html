@@ -6,13 +6,6 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
   {#debugLog('<baseLayersList>', baseLayersList);#}
 </script>
 
-{#
-<script
-  src="{{ url_for('static', filename='base_map.js') }}"
-  type="text/javascript"
-></script>
-#}
-
 <script type="text/javascript">
   var buffer = {{ default_buffer }};
   var grid = '{{ default_grid }}';
