@@ -1,14 +1,25 @@
 version: "3"
 
 services:
+  cachedb:
+    image: redis:latest
+    container_name: gnbt_cachedb
+    volumes:
+      - gnbt_cachedb_vol:/data
 
   gnbt:
     image: lpoaura/gnbt:dev
-    container_name: gnbt
+    container_name: gnbt_app
     volumes:
-      - gnbt-config:/config
+      - gnbt_app_vol:/config
     ports:
       - 8080:8080
+    environment:
+      REDIS_HOST: "cachedb"
+    depends_on:
+      - "cachedb"
+
 
 volumes:
-  gnbt-config:
+  gnbt_app_vol:
+  gnbt_cachedb_vol:
