@@ -23,6 +23,7 @@ main {
   margin-bottom: 0px;
   border-radius: 0px;
   background-color: whitesmoke;
+  border-bottom: 1px solid grey;
 }
 
 /* Header Parallax Element Style*/
