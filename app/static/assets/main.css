@@ -329,6 +329,51 @@ h1.page-title {
   --dd-color: #dad7cb;
 }
 
+.ex {
+  background-color: var(--ex-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.ew {
+  background-color: var(--ew-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.re {
+  background-color: var(--re-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.cr {
+  background-color: var(--cr-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.en {
+  background-color: var(--en-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.vu {
+  background-color: var(--vu-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.nt {
+  background-color: var(--nt-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.lc {
+  background-color: var(--lc-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.dd {
+  background-color: var(--dd-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
 @media (min-width: 768px) {
   .seven-cols .col-md-1,
   .seven-cols .col-sm-1,
@@ -451,4 +496,8 @@ h1.page-title {
   top: 0px;
   right: 0px;
   z-index: 10;
+}
+
+#modalInfoBody ul > li {
+  border-bottom: 1px solid #bbb;
 }
