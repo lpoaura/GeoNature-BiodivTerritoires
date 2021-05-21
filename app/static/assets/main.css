@@ -23,6 +23,7 @@ main {
   margin-bottom: 0px;
   border-radius: 0px;
   background-color: whitesmoke;
+  border-bottom: 1px solid grey;
 }
 
 /* Header Parallax Element Style*/
@@ -69,7 +70,7 @@ main {
 }
 
 .paral_img  {
-  color: #f5f5f5;
+  color: rgba(255, 255, 255, 1);
   line-height: 60px;
 }
 
@@ -80,6 +81,10 @@ main {
   text-align: center;
   padding-top: 60px;
   line-height: 100px;
+}
+
+.paral_img p {
+  color: rgba(255, 255, 255, 1);
 }
 
 /* Paragraph for Parallax Section */
@@ -163,6 +168,11 @@ h4 {
   background-color: rgba(255, 255, 255, 0.9);
   margin: 10px;
   padding: 20px 5px;
+}
+
+.active {
+  font-weight: bold;
+  border-bottom: 5px solid black;
 }
 
 #homeStats .count {
@@ -319,6 +329,51 @@ h1.page-title {
   --dd-color: #dad7cb;
 }
 
+.ex {
+  background-color: var(--ex-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.ew {
+  background-color: var(--ew-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.re {
+  background-color: var(--re-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.cr {
+  background-color: var(--cr-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.en {
+  background-color: var(--en-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.vu {
+  background-color: var(--vu-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.nt {
+  background-color: var(--nt-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.lc {
+  background-color: var(--lc-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.dd {
+  background-color: var(--dd-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
 @media (min-width: 768px) {
   .seven-cols .col-md-1,
   .seven-cols .col-sm-1,
@@ -441,4 +496,8 @@ h1.page-title {
   top: 0px;
   right: 0px;
   z-index: 10;
+}
+
+#modalInfoBody ul > li {
+  border-bottom: 1px solid #bbb;
 }

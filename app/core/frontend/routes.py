@@ -11,7 +11,7 @@ from flask import (
 from sqlalchemy import and_
 
 import config
-from app.core.env import DB
+from app.core.env import DB, cache
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import BibAreasTypes, LAreas
@@ -44,6 +44,7 @@ def get_legend_classes(type: str):
 
 
 @rendered.context_processor
+# @cache.cached(timeout=600)
 def global_variables():
     values = {}
     values["debug"] = json.dumps(config.DEBUG)
@@ -102,6 +103,7 @@ def global_variables():
 
 
 @rendered.route("/")
+# @cache.cached(timeout=600)
 def index() -> str:
     home_desc = (
         DB.session.query(
