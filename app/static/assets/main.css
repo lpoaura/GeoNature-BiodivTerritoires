@@ -3,400 +3,501 @@
  */
 
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 main {
-    flex: 1;
+  flex: 1;
 }
 
 .navbar {
-    border-bottom: 1px rgba(1, 1, 1, 0.2) solid;
-    background: white;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-
-/* Header Parallax Element Style*/
-@media (max-width: 768px) {
-    .paral {
-        height: 100vh;
-        background-position: 50% 50%;
-        background-attachment: fixed;
-        background-size: cover;
-    }
-}
-
-@media (max-width: 768px) {
-    .paral {
-        min-height: 100vh;
-        background-position: 50% 50%;
-        background-attachment: fixed;
-        background-size: cover;
-    }
-}
-
-@media (min-width: 768px) {
-    .paral {
-        height: 600px;
-        background-position: 50% 50%;
-        background-attachment: fixed;
-        background-size: cover;
-    }
-}
-
-@media (min-width: 768px) {
-    .paral-adaptative {
-        min-height: 600px;
-        background-position: 50% 50%;
-        background-attachment: fixed;
-        background-size: cover;
-    }
-}
-
-/* Paragraph for Parallax Section */
-.paral p {
-    font-size: 24px;
-    color: #f5f5f5;
-    text-align: center;
-    line-height: 60px;
-}
-
-/* Heading for Parallax Section */
-.paral h1 {
-    color: rgba(255, 255, 255, 1);
-    font-size: 60px;
-    text-align: center;
-    padding-top: 60px;
-    line-height: 100px;
-}
-
-
-/* Paragraph for Parallax Section */
-.paral-adaptative .content {
-    color: #f5f5f5;
-    text-align: justify;
-}
-
-.paral-adaptative p {
-    font-size: 24px;
-    line-height: 30px;
-    text-align: center;
-}
-
-
-/* Heading for Parallax Section */
-.paral-adaptative h1, h2, h3, h4 {
-    color: rgba(255, 255, 255, 1);
-}
-
-.paral-adaptative h1 {
-    font-size: 60px;
-    line-height: 100px;
-    text-align: center;
-}
-
-.paral-adaptative h2 {
-    font-size: 50px;
-    line-height: 80px;
-}
-
-.paral-adaptative h3 {
-    font-size: 40px;
-    line-height: 60px;
+  border-bottom: 1px rgba(1, 1, 1, 0.2) solid;
+  background: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 /* Remove Bottom Margin from Jumbotron */
 .jumbotron {
-    margin-bottom: 0px;
-    border-radius: 0px;
+  margin-bottom: 0px;
+  border-radius: 0px;
+  background-color: whitesmoke;
+  border-bottom: 1px solid grey;
+}
+
+/* Header Parallax Element Style*/
+@media (max-width: 768px) {
+  .jumbotron {
+    height: 100vh;
+    background-position: 50% 50%;
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}
+
+@media (max-width: 768px) {
+  .jumbotron {
+    min-height: 100vh;
+    background-position: 50% 50%;
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}
+
+@media (min-width: 768px) {
+  .jumbotron {
+    height: 600px;
+    background-position: 50% 50%;
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}
+
+@media (min-width: 768px) {
+  .paral-adaptative {
+    min-height: 600px;
+    background-position: 50% 50%;
+    background-attachment: fixed;
+    background-size: cover;
+  }
+}
+
+/* Paragraph for Parallax Section */
+.jumbotron p {
+  font-size: 24px;
+  text-align: center;
+}
+
+.paral_img  {
+  color: rgba(255, 255, 255, 1);
+  line-height: 60px;
+}
+
+/* Heading for Parallax Section */
+.paral_img h1 {
+  color: rgba(255, 255, 255, 1);
+  font-size: 60px;
+  text-align: center;
+  padding-top: 60px;
+  line-height: 100px;
+}
+
+.paral_img p {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Paragraph for Parallax Section */
+.paral-adaptative .content {
+  color: #f5f5f5;
+  text-align: justify;
+}
+
+.paral-adaptative p {
+  font-size: 24px;
+  line-height: 30px;
+  text-align: center;
+}
+
+/* Heading for Parallax Section */
+.paral-adaptative h1,
+h2,
+h3,
+h4 {
+  color: rgba(255, 255, 255, 1);
+}
+
+.paral-adaptative h1 {
+  font-size: 60px;
+  line-height: 100px;
+  text-align: center;
+}
+
+.paral-adaptative h2 {
+  font-size: 50px;
+  line-height: 80px;
+}
+
+.paral-adaptative h3 {
+  font-size: 40px;
+  line-height: 60px;
+}
+
+.jumbotron > .anchorLink {
+  position: relative;
+  text-align: center;
+  top: calc(100% - 30px);
+}
+
+.descblocks {
+  min-height: 515px;
+  height: 515px;
+  color: black !important;
+}
+
+.descblocks .content {
+  height: 300px;
+  padding: 10px;
+}
+
+.descblocks h1 {
+  font-size: 60px;
+  text-align: center;
+  line-height: 100px;
+}
+
+.icon-rounded {
+  width: 6rem;
+  height: 6rem;
+  line-height: 6rem;
 }
 
 /* Diverse */
 #territorySynthesis .paral h1 {
-    padding-top: 30px;
-    line-height: 50px;
-    font-weight: bolder;
+  padding-top: 30px;
+  line-height: 50px;
+  font-weight: bolder;
 }
 
 #homeStats {
-    color: rgba(0, 0, 0, 0.8);
+  color: rgba(0, 0, 0, 0.8);
 }
 
-#surroundingAreasMap {
-    min-height: 400px;
-    height: 400px;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border-radius: 0px;
+#homeStats .col {
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  margin: 10px;
+  padding: 20px 5px;
 }
 
-#datasMap {
-    min-height: 500px;
-    height: 500px;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border-radius: 0px;
-}
-
-#genstats .count {
-    font-size: 2rem;
-    font-weight: bolder;
-}
-
-#genstats .subject {
-    font-size: 1.2rem;
+.active {
+  font-weight: bold;
+  border-bottom: 5px solid black;
 }
 
 #homeStats .count {
-    font-size: 3rem;
-    font-weight: bolder;
+  font-size: 3rem;
+  font-weight: bolder;
 }
 
 #homeStats .subject {
-    font-size: 2rem;
+  font-size: 2rem;
+}
+
+#surroundingAreasMap {
+  min-height: 400px;
+  height: 400px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 0px;
+}
+
+#datasMap {
+  min-height: 500px;
+  height: 500px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 0px;
+}
+
+#genstats .count {
+  font-size: 2rem;
+  font-weight: bolder;
+}
+
+#genstats .subject {
+  font-size: 1.2rem;
 }
 
 .leaflet-popup-content-wrapper {
-    border-left: 10px solid #17a2b8;
-    border-radius: 0;
+  border-left: 10px solid #17a2b8;
+  border-radius: 0;
 }
 
 .leaflet-popup-content-wrapper .leaflet-popup-content {
-
 }
 
 .leaflet-popup-tip-container {
-
 }
 
 .leaflet-control select {
-    border: 2px solid var(--info);
+  border: 2px solid var(--info);
 }
 
-#home-info h1, h2, h3, h4, h5 {
-    border: none;
+#home-info h1,
+h2,
+h3,
+h4,
+h5 {
+  border: none;
 }
 
-#territorySynthesis h2, h3, h4, h5 {
-    color: var(--info);
-    margin-top: 30px;
+#territorySynthesis h2,
+h3,
+h4,
+h5 {
+  color: var(--info);
+  margin-top: 30px;
 }
 
 #territoryIntro p {
-    color: white;
-    text-align: left;
-    font-size: 24px;
-    font-weight: bolder;
-    line-height: 40px;
+  color: white;
+  text-align: left;
+  font-size: 24px;
+  font-weight: bolder;
+  line-height: 40px;
 }
 
 .icon-rounded {
-    display: inline-block;
-    border-radius: 50%;
-    text-align: center;
+  display: inline-block;
+  border-radius: 50%;
+  text-align: center;
 }
 
 .card-header svg {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .icon-rounded svg {
-    vertical-align: middle;
-    color: rgba(0, 96, 230, 0.9);
+  vertical-align: middle;
+  color: rgba(0, 96, 230, 0.9);
 }
 
 .bg-primary-light {
-    background-color: rgba(229, 240, 255, 1);
+  background-color: rgba(229, 240, 255, 1);
 }
 
 .testimonial.card {
-    height: 100%;
-    padding: 1.5rem 1.5rem;
-    text-align: center;
+  height: 100%;
+  padding: 1.5rem 1.5rem;
+  text-align: center;
 }
 
 .testimonial-quote {
-    color: rgba(0, 96, 230, 0.9);
-    margin-bottom: 20px;
+  color: rgba(0, 96, 230, 0.9);
+  margin-bottom: 20px;
 }
 
 .testimonial-text {
-    color: #656565;
-    font-size: 18px;
-    line-height: 1.7rem;
-    margin-bottom: 20px;
+  color: #656565;
+  font-size: 18px;
+  line-height: 1.7rem;
+  margin-bottom: 20px;
 }
 
 .accordion h1 {
-    margin-bottom: 0;
-    font-size: 2.2rem;
-    font-weight: bolder;
-    color: rgba(0, 96, 230, 0.9);
-    line-height: 2.2;
+  margin-bottom: 0;
+  font-size: 2.2rem;
+  font-weight: bolder;
+  color: rgba(0, 96, 230, 0.9);
+  line-height: 2.2;
 }
 
 .accordion .card-header.blocks {
-    padding: 1rem 2rem;
+  padding: 1rem 2rem;
 }
 
 .accordion .icon-rounded {
-    width: 5rem;
-    height: 5rem;
-    line-height: 5rem;
-    margin-right: 1rem;
+  width: 5rem;
+  height: 5rem;
+  line-height: 5rem;
+  margin-right: 1rem;
 }
 
 .card-header.info svg {
-    margin-right: 3px;
+  margin-right: 3px;
 }
 
 h1.page-title {
-    font-weight: bolder;
-    color: rgba(0, 96, 230, 0.9);
-    margin-top: 2rem;
+  font-weight: bolder;
+  color: rgba(0, 96, 230, 0.9);
+  margin-top: 2rem;
 }
 
 /* UICN Colors */
 :root {
-    --ex-color: #101210;
-    --ew-color: #582440;
-    --re-color: #5b1764;
-    --cr-color: #d3101c;
-    --en-color: #ef7c38;
-    --vu-color: #fbe500;
-    --nt-color: #d5d700;
-    --lc-color: #70b546;
-    --dd-color: #dad7cb;
+  --ex-color: #101210;
+  --ew-color: #582440;
+  --re-color: #5b1764;
+  --cr-color: #d3101c;
+  --en-color: #ef7c38;
+  --vu-color: #fbe500;
+  --nt-color: #d5d700;
+  --lc-color: #70b546;
+  --dd-color: #dad7cb;
 }
 
+.ex {
+  background-color: var(--ex-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.ew {
+  background-color: var(--ew-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.re {
+  background-color: var(--re-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.cr {
+  background-color: var(--cr-color);
+  color: rgba(229, 240, 255, 1);
+}
+
+.en {
+  background-color: var(--en-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.vu {
+  background-color: var(--vu-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.nt {
+  background-color: var(--nt-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.lc {
+  background-color: var(--lc-color);
+  color: rgba(1, 1, 1, 0.2);
+}
+
+.dd {
+  background-color: var(--dd-color);
+  color: rgba(1, 1, 1, 0.2);
+}
 
 @media (min-width: 768px) {
-    .seven-cols .col-md-1,
-    .seven-cols .col-sm-1,
-    .seven-cols .col-lg-1 {
-        width: 100%;
-        *width: 100%;
-    }
+  .seven-cols .col-md-1,
+  .seven-cols .col-sm-1,
+  .seven-cols .col-lg-1 {
+    width: 100%;
+    *width: 100%;
+  }
 }
-
 
 @media (min-width: 992px) {
-    #genstats .col-lg-1 {
-        width: 14.285714285714285714285714285714%;
-        *width: 14.285714285714285714285714285714%;
-    }
+  #genstats .col-lg-1 {
+    width: 14.285714285714285714285714285714%;
+    *width: 14.285714285714285714285714285714%;
+  }
 }
 
-
 @media (min-width: 1200px) {
-    #genstats .col-lg-1 {
-        width: 14.285714285714285714285714285714%;
-        *width: 14.285714285714285714285714285714%;
-    }
+  #genstats .col-lg-1 {
+    width: 14.285714285714285714285714285714%;
+    *width: 14.285714285714285714285714285714%;
+  }
 }
 
 #loading {
-    color: transparent;
+  color: transparent;
 }
 
 .loading-text {
-    text-align: center;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5%;
-    color: var(--light);
+  text-align: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5%;
+  color: var(--light);
 }
 
 .loader-1 {
-    /* border: 1px solid #eeeeee; */
-    border-top: 1px solid var(--info);
-    border-radius: 50%;
-    position: absolute !important;
-    left: 50%;
-    top: 50%;
-    margin-top: -40px;
-    margin-left: -40px;
-    width: 80px;
-    height: 80px;
-    animation: spin 5s linear infinite;
-    z-index: 999;
+  /* border: 1px solid #eeeeee; */
+  border-top: 1px solid var(--info);
+  border-radius: 50%;
+  position: absolute !important;
+  left: 50%;
+  top: 50%;
+  margin-top: -40px;
+  margin-left: -40px;
+  width: 80px;
+  height: 80px;
+  animation: spin 5s linear infinite;
+  z-index: 999;
 }
 
 .loader-2 {
-    /* border: 1px solid #eeeeee; */
-    border-top: 1px solid var(--info);
-    border-radius: 50%;
-    position: absolute !important;
-    left: 50%;
-    top: 50%;
-    margin-top: -30px;
-    margin-left: -30px;
-    width: 60px;
-    height: 60px;
-    animation: spin 2s linear infinite;
-    animation-direction: reverse;
-    z-index: 999;
+  /* border: 1px solid #eeeeee; */
+  border-top: 1px solid var(--info);
+  border-radius: 50%;
+  position: absolute !important;
+  left: 50%;
+  top: 50%;
+  margin-top: -30px;
+  margin-left: -30px;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  animation-direction: reverse;
+  z-index: 999;
 }
 
 .loader-3 {
-    /* border: 1px solid #eeeeee; */
-    border-top: 1px solid var(--info);
-    border-radius: 50%;
-    position: absolute !important;
-    left: 50%;
-    top: 50%;
-    margin-top: -20px;
-    margin-left: -20px;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    z-index: 999;
+  /* border: 1px solid #eeeeee; */
+  border-top: 1px solid var(--info);
+  border-radius: 50%;
+  position: absolute !important;
+  left: 50%;
+  top: 50%;
+  margin-top: -20px;
+  margin-left: -20px;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  z-index: 999;
 }
 
 .loader-icon {
-    color: var(--primary);
-    /* position: absolute !important; */
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  color: var(--primary);
+  /* position: absolute !important; */
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-    .chart-container {
-        position: relative;
-        height: 500px;
-    }
+.chart-container {
+  position: relative;
+  height: 500px;
+}
 
 @media (min-width: 992px) {
-    .chart-container {
-        width: 50vw
-    }
+  .chart-container {
+    width: 50vw;
+  }
 }
 @media (max-width: 992px) {
-    .chart-container {
-        width: 100vw
-    }
+  .chart-container {
+    width: 100vw;
+  }
 }
 
 .chart-select-form {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    z-index: 10;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 10;
+}
+
+#modalInfoBody ul > li {
+  border-bottom: 1px solid #bbb;
 }

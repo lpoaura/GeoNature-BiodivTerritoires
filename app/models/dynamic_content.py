@@ -14,7 +14,6 @@ from sqlalchemy import (
 )
 from utils_flask_sqla.serializers import serializable
 
-import config
 from app import admin
 from app.core.env import DB
 
@@ -58,14 +57,6 @@ class TDynamicPages(DB.Model):
     )
 
 
-#
-# class TDynamicPagesModelView(ModelView):
-#     form_overrides = {"content": CKEditorField}
-#
-#     create_template = "admin/ckeditor.html"
-#     edit_template = "admin/ckeditor.html"
-
-
 admin.add_view(
     ModelView(
         BibDynamicPagesCategory,
@@ -75,5 +66,5 @@ admin.add_view(
     )
 )
 admin.add_view(
-    ModelView(TDynamicPages, DB.session, "Pages", category="Dynamic content")
+    ModelView(TDynamicPages, DB.session, "Pages", category="Dynamic content"),
 )

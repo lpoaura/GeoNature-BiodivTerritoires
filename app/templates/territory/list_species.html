@@ -1,303 +1,373 @@
 <div class="row">
-    <div class="col col-md-12">
-        <div class="table-responsive table-responsive-sm">
-            <table id="listSpeciesTable" class="table table-striped table-hover">
-                <thead>
-                <th><i class="fas fa-plus-circle"></i></th>
-                {#                    <th>Groupe 1 INPN</th>#}
-                <th data-toggle="tooltip" title="Group 2 INPN">Groupe taxonomique</th>
-                <th data-toggle="tooltip" title="Nom vernaculaire">Nom français</th>
-                <th data-toggle="tooltip" title="Nom scientifique">Nom scientifique</th>
-                <th>Menace</th>
-                <th data-toggle="tooltip" title="Statut de conservation le plus fort, toutes périodes confondues">Espèce
-                    menacée
-                </th>
-                <th data-toggle="tooltip" title="Statut de protection/réglementation">Espèce réglementée</th>
-                <th data-toggle="tooltip" title="Nombre d'observations">Nombre d'occurences</th>
-                <th>Nombre d'observateurs</th>
-                <th>Nombre de dates</th>
-                <th>Nombre de jeux de données</th>
-                <th data-toggle="tooltip" title="Dernière année d'observation d'une reproduction">Reproduction</th>
-                <th data-toggle="tooltip" title="Dernière année d'observation du taxon">Dernière observation</th>
-                </thead>
-            </table>
-        </div>
-        <div id="modalInfo" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 id="modalInfoTitle" class="modal-title"></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    </div>
-                    <div id="modalInfoBody" class="modal-body">
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="col col-md-12">
+    <div class="table-responsive table-responsive-sm">
+      <table id="listSpeciesTable" class="table table-striped table-hover">
+        <thead>
+          <th><i class="fas fa-plus-circle"></i></th>
+          {#
+          <th>Groupe 1 INPN</th>
+          #}
+          <th data-toggle="tooltip" title="Group 2 INPN">Groupe taxonomique</th>
+          <th data-toggle="tooltip" title="Nom vernaculaire">Nom français</th>
+          <th data-toggle="tooltip" title="Nom scientifique">
+            Nom scientifique
+          </th>
+          <th>Menace</th>
+          <th
+            data-toggle="tooltip"
+            title="Statut de conservation le plus fort, toutes périodes confondues"
+          >
+            Espèce menacée
+          </th>
+          <th data-toggle="tooltip" title="Statut de protection/réglementation">
+            Espèce réglementée
+          </th>
+          <th data-toggle="tooltip" title="Nombre d'observations">
+            Nombre d'occurences
+          </th>
+          <th>Nombre d'observateurs</th>
+          <th>Nombre de dates</th>
+          <th>Nombre de jeux de données</th>
+          <th
+            data-toggle="tooltip"
+            title="Dernière année d'observation d'une reproduction"
+          >
+            Reproduction
+          </th>
+          <th
+            data-toggle="tooltip"
+            title="Dernière année d'observation de l'espèce"
+          >
+            Dernière observation
+          </th>
+        </thead>
+      </table>
     </div>
+    <div id="modalInfo" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+      
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalInfoTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+          </div>
+          <div id="modalInfoBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script type="text/javascript">
-    $(document.body).on('click', "#protectionDetails", function () {
-        var cdref = $(this).data("cdref");
-        debugLog('api regl', '{{taxhub_url}}/api/taxref/' + cdref);
-        axios.get('{{taxhub_url}}/api/taxref/' + cdref)
-            .then(function (response) {
-                    $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
-                    var tableContent = '';
+  $(document.body).on('click', "#protectionDetails", function () {
+      var cdref = $(this).data("cdref");
+      debugLog('api regl', '{{taxhub_url}}/api/taxref/' + cdref);
+      axios.get('{{taxhub_url}}/api/taxref/' + cdref)
+          .then(function (response) {
+                  $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
+                  var tableContent = '';
 
-                    var items = response.data.statuts_protection;
-                    debugLog('isArray', Array.isArray(items));
-                    var itemsLength = items.length;
-                    if (itemsLength == 0) {
-                        $('#modalInfoBody').html('Aucune protection');
-                    } else {
-                        for (var i = 0; i < itemsLength; i++) {
-                            tableContent += '<tr><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
-                        }
-                        $('#modalInfoBody').html('<table class="table table-striped table-hover"><thead class="thead-dark">'
-                            + '<tr>'
-                            + '<th>Statut</th>'
-                            + '<th>Article/Annexe</th>'
-                            + '</tr>'
-                            + '</thead>' + tableContent + '</table>');
-                    }
+                  var items = response.data.statuts_protection;
+                  debugLog('isArray', Array.isArray(items));
+                  var itemsLength = items.length;
+                  if (itemsLength == 0) {
+                      $('#modalInfoBody').html('Aucune protection');
+                  } else {
+                      for (var i = 0; i < itemsLength; i++) {
+                          tableContent += '<tr><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
+                      }
+                      $('#modalInfoBody').html('<table class="table table-striped table-hover"><thead class="thead-dark">'
+                          + '<tr>'
+                          + '<th>Statut</th>'
+                          + '<th>Article/Annexe</th>'
+                          + '</tr>'
+                          + '</thead>' + tableContent + '</table>');
+                  }
 
-                    // show modal
-                    $('#modalInfo').modal('show');
-                    // store each style conditions for each style type in localStorage
-                }
-            )
-            .catch(function (error) {
-                debugLog('<protectionDetails> Error', error);
-            });
-    });
+                  // show modal
+                  $('#modalInfo').modal('show');
+                  // store each style conditions for each style type in localStorage
+              }
+          )
+          .catch(function (error) {
+              debugLog('<protectionDetails> Error', error);
+          });
+  });
 
-    $(document.body).on('click', "#redlistDetails", function () {
-        var cdref = $(this).data("cdref");
-        var nom_valide = $(this).data("nomvalide");
-        axios.get('/api/statut/taxa/' + cdref + '/redlist')
-            .then(function (response) {
-                    $('#modalInfoTitle').html('Statuts de conservation pour&nbsp;:&nbsp;<i>' + nom_valide);
-                    var tableContent = '';
+  $(document.body).on('click', "#redlistDetails", function () {
+      var cdref = $(this).data("cdref");
+      var nom_valide = $(this).data("nomvalide");
+      axios.get('/api/statut/taxa/' + cdref + '/redlist')
+          .then(function (response) {
+                  const modalInfoTitle=document.getElementById('modalInfoTitle')
+                  console.log('modalInfoTitle', modalInfoTitle)
+                  uicnDefLink="https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
+                  modalInfoTitle.innerHTML = 'Statuts de conservation '
+                  + 'pour&nbsp;:&nbsp;'+nom_valide
+                  + '<a href="'+uicnDefLink+'" target="_blank"><i class="fas fa-fw fa-question-circle" '
+                  + 'data-toggle="tooltip" data-placement="bottom" title="Définition des catégories et critères"></i></a> ';
+                  const modalInfoBody = document.getElementById('modalInfoBody');
+                  modalInfoBody.innerHTML = null;
+                  console.debug('modalInfoBody', modalInfoBody);
+                  const items = response.data;
+                  if (items.length == 0) {
+                      modalInfoBody.innerHtml('Aucune protection');
+                      console.debug('No data')
+                  } else {
+                      const ul = document.createElement('ul')
+                      ul.classList.add("list-unstyled")
+                      items.forEach((e, i) => {
+                          console.log(`items[${i}]`, e)
+                          const li = document.createElement('li')
+                          li.classList.add('media')
+                          if (e.threatened) {
+                              li.classList.add('list-group-item-danger')
+                          }
+                          const mediaIcon = document.createElement('img')
+                          mediaIcon.classList.add('m-2')
+                          mediaIcon.src = `/static/assets/images/uicn/${e.category.toLowerCase()}.svg`
+                          mediaIconSpan = document.createElement('span')
+                          //mediaIconSpan.classList.add();
+                          mediaIconSpan.innerHTML = e.category
+                          mediaIcon.appendChild(mediaIconSpan)
+                          const mediaBody = document.createElement('div')
+                          mediaBody.classList.add('media-body')
+                          const mediaBodyTitle = document.createElement('h5')
+                          mediaBodyTitle.classList.add('mt-0','mb-1')
+                          mediaBodyTitle.innerHTML = `${e.area_name} ${e.context ? `(${e.context})`:''}`
+                          const mediaBodyText = document.createElement('p')
+                          const mediaBodyPText = []
+                          mediaBodyPText.push(uicnDefs[e.category.toLowerCase()].label)
+                          if (e.criteria) {
+                              mediaBodyPText.push(`Critère: ${e.criteria}`)
+                          }
+                          mediaBodyText.innerHTML = mediaBodyPText.join(', ')
+                          li.appendChild(mediaIcon)
+                          mediaBody.appendChild(mediaBodyTitle)
+                          mediaBody.appendChild(mediaBodyText)
+                          li.appendChild(mediaBody)
+                          ul.appendChild(li)
 
-                    var items = response.data;
-                    var itemsLength = items.length;
-                    if (itemsLength == 0) {
-                        $('#modalInfoBody').html('Aucune protection');
-                    } else {
-                        for (var i = 0; i < itemsLength; i++) {
-                            tableContent += '<tr ' + (items[i].threatened ? 'class="table-danger"' : '') + '>'
-                                + '<td>' + items[i].area_name + '</td>'
-                                + '<td class="text-center" style="background-color:var(--' + items[i].category.toLowerCase() + '-color)">' + items[i].category + (items[i].criteria ? '<br/><small><samp>' + items[i].criteria + '</samp></small>' : '') + '</td>'
-                                + '<td>' + (items[i].context ? items[i].context : '') + '</td></tr>';
-                        }
-                        $('#modalInfoBody').html('<table class="table table-striped table-hover"><thead class="thead-dark">'
-                            + '<tr>'
-                            + '<th>Emprise des statuts</th>'
-                            + '<th>Statut de conservation et critères</th>'
-                            + '<th>Contexte</th>'
-                            + '</tr>'
-                            + '</thead>' + tableContent + '</table>');
-                    }
+                          //tableContent += `<div class="list-group-item ${e.threatened ? 'list-group-item-danger' : ''}">`
+                          //   +'<div class="d-flex w-100 justify-content-between">'
+                          //   + `<h5 class="mb-1">${e.area_name}</h5></div>`
+                          //   + `<p>Statut de conservation et critères : <span class="badge" style="background-color:var(--${e.category.toLowerCase()}-color)}">${e.category}</p>`
+                              //+ '<td class="text-center" style="background-color:var(--' + e.category.toLowerCase() + '-color)">' + e.category + (e.criteria ? '<br/><small><samp>' + e.criteria + '</samp></small>' : '') + '</td>'
+                             // + '<td>' + (e.context ? e.context : '') + '</td></tr>'
+                          //    + `</div></div>`;
+                      });
 
-                    // show modal
-                    $('#modalInfo').modal('show');
-                    // store each style conditions for each style type in localStorage
-                }
-            )
-            .catch(function (error) {
-                debugLog('<protectionDetails> Error', error);
-            });
-    });
+                    modalInfoBody.appendChild(ul);
+                    const deflink = document.createElement('a')
+                    deflink.href="https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
+                    deflink.target="_blank"
+                    deflink.innerHtml='<i class="fa fa-info fa-fw">Plus d\'informations sur les statuts de liste rouge</i>'
+                    modalInfoBody.appendChild(deflink)
+                      //for (var i = 0; i < itemsLength; i++) {
+                       //   tableContent += '<tr ' + (items[i].threatened ? 'class="table-danger"' : '') + '>'
+                       //       + '<td>' + items[i].area_name + '</td>'
+                       //       + '<td class="text-center" style="background-color:var(--' + items[i].category.toLowerCase() + '-color)">' + items[i].category + (items[i].criteria ? '<br/><small><samp>' + items[i].criteria + '</samp></small>' : '') + '</td>'
+                       //       + '<td>' + (items[i].context ? items[i].context : '') + '</td></tr>';
+                      //}
+                  // show modal
 
-    var listSpecieTableDatas = '/api/list_taxa/{{ area_info.id_area }}';
+                  // store each style conditions for each style type in localStorage
+                  }
+                  $('#modalInfo').modal('show');
+              }
+          )
+          .catch(function (error) {
+              debugLog('<protectionDetails> Error', error);
+          });
+  });
 
-    $(document).ready(function () {
-        function format(d) {
-            var dataArray = [];
-            // Nombre de dates
-            dataArray.push('<tr><td><b>Nombre de dates</b></td><td>' + d.count_date + '</td></tr>');
-            dataArray.push('<tr><td><b>Nombre d\'observateurs</b></td><td>' + d.count_observer + '</td></tr>');
-            dataArray.push('<tr><td><b>Nombre de jeux de données</b></td><td>' + d.count_dataset + '</td></tr>');
-            // Années d'objservation
-            dataArray.push('<tr><td><b>Années d\'observation</b></td><td>' + d.list_years + '</td></tr>');
-            // Mois d'observation
-            var monthsArray = [];
-            d.list_months.forEach(getMonth);
+  var listSpecieTableDatas = '/api/list_taxa/{{ area_info.id_area }}';
 
-            function getMonth(value, index, array) {
-                monthsArray.push(months[value - 1]);
-            }
+  $(document).ready(function () {
+      function format(d) {
+          var dataArray = [];
+          // Nombre de dates
+          dataArray.push('<tr><td><b>Nombre de dates</b></td><td>' + d.count_date + '</td></tr>');
+          dataArray.push('<tr><td><b>Nombre d\'observateurs</b></td><td>' + d.count_observer + '</td></tr>');
+          dataArray.push('<tr><td><b>Nombre de jeux de données</b></td><td>' + d.count_dataset + '</td></tr>');
+          // Années d'objservation
+          dataArray.push('<tr><td><b>Années d\'observation</b></td><td>' + d.list_years + '</td></tr>');
+          // Mois d'observation
+          var monthsArray = [];
+          d.list_months.forEach(getMonth);
 
-            monthsAsText = monthsArray.join(', ');
-            dataArray.push('<tr><td><b>Mois d\'observations</b></td><td>' + monthsAsText + '</td></tr>');
-            // Statuts biologiques d'observation
-            var list_biostatus = '';
-            if (d.bio_status.length > 0) {
-                for (var i = 0; i < d.bio_status.length; i++) {
-                    list_biostatus += '<span class="badge badge-info">' + d.bio_status[i] + '</span>&nbsp;';
-                }
-            } else {
-                list_biostatus = 'Aucun statut spécifié'
-            }
-            ;
-            dataArray.push('<tr><td><b>Statuts biologiques</b></td><td>' + list_biostatus + '</td></tr>');
+          function getMonth(value, index, array) {
+              monthsArray.push(months[value - 1]);
+          }
 
-            return '<table class="table">' + dataArray.join('') + '</table>'
-        }
+          monthsAsText = monthsArray.join(', ');
+          dataArray.push('<tr><td><b>Mois d\'observations</b></td><td>' + monthsAsText + '</td></tr>');
+          // Statuts biologiques d'observation
+          var list_biostatus = '';
+          if (d.bio_status.length > 0) {
+              for (var i = 0; i < d.bio_status.length; i++) {
+                  list_biostatus += '<span class="badge badge-info">' + d.bio_status[i] + '</span>&nbsp;';
+              }
+          } else {
+              list_biostatus = 'Aucun statut spécifié'
+          }
+          ;
+          dataArray.push('<tr><td><b>Statuts biologiques</b></td><td>' + list_biostatus + '</td></tr>');
 
-        var listSpeciesTable = $('#listSpeciesTable').DataTable({
-            ajax: {
-                url: listSpecieTableDatas,
-                dataSrc: "data"
-            },
-            scrollY: "500px",
-            scrollCollapse: false,
-            paging: false,
-            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
-            dom: 'Bftrp',
-            language: dataTableFr,
-            buttons: {
-                name: 'primary',
-                buttons: [
-                    {extend: 'copy', className: 'btn btn-info'},
-                    {
-                        extend: 'csvHtml5', className: 'btn btn-info', customize: function (csv) {
-                            return "Liste des espèces de {{  area_info.area_name }} ({{ area_info.area_code }})\n\n" + csv;
-                        }
-                    },
-                    {extend: 'pdf', className: 'btn btn-info'},
-                ]
-            },
-            columnDefs: [
-                {className: "text-center align-middle", targets: '_all'},
-                {#{#}
-                {#    "createdCell": function (td, cellData, rowData, row, col) {#}
-                {#        if (!!cellData) {#}
-                {#            $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')#}
-                {#        }#}
-                {#    }, targets: [5,]#}
-                {#v},#}
-                {
-                    "targets": [4, 8, 9, 10],
-                    "visible": false,
-                    "searchable": false
-                },
-            ],
-            createdRow: function (row, data, dataIndex) {
-                {#if (data.redlist.length > 0) {#}
-                {#    if (!!data.redlist[0].threatened > 0) {#}
-                {#        $(row).addClass('table-danger');#}
-                {#    }#}
-                {# } #}
-                if (data.threatened) {
-                    $(row).addClass('table-danger');
-                }
-            }
-            ,
-            columns: [
-                {
-                    "class": "details-control text-center align-middle",
-                    "orderable": false,
-                    "data": "",
-                    "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
-                },
-                {#{data: "group1_inpn"},#}
-                {data: "group2_inpn"},
-                {
-                    data: function (row) {
-                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')">' + row.nom_vern + '</a>';
-                    }
-                },
-                {
-                    data: function (row) {
-                        return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')"><i>' + row.lb_nom + '</i></a>';
-                    }
-                },
-                {
-                    data: function (row) {
-                        var threatened = null;
-                        if (row.threatened == true) {
-                            threatened = row.threatened;
-                        }
-                        return threatened;
-                    }
-                },
-                {
-                    data: function (row) {
-                        var threatened = '';
-                        if (row.threatened == true) {
-                            threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
-                        }
-                        return threatened;
-                    }
-                },
-                {
-                    data: function (row) {
-                        var protection = '';
-                        if (row.protection == true) {
-                            protection = '<i id="protectionDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
-                        }
-                        return protection;
-                    }
-                },
-                {data: "count_occtax"},
-                {data: "count_observer"},
-                {data: "count_date"},
-                {data: "count_dataset"},
-                {
-                    data: function (row) {
-                        var data = '';
-                        if (row.reproduction == true) {
-                            data = '<i class="fas fa-check-circle text-success"></i>&nbsp;<span data-toggle="tooltip" title="Dernière année d\'observation en reproduction">' + row.last_year_reproduction + '</span>';
-                        }
-                        ;
-                        return data;
-                    }
-                },
-                {data: "last_year"}
-            ]
-        });
+          return '<table class="table">' + dataArray.join('') + '</table>'
+      }
 
-        var detailRows = [];
+      var listSpeciesTable = $('#listSpeciesTable').DataTable({
+          ajax: {
+              url: listSpecieTableDatas,
+              dataSrc: "data"
+          },
+          scrollY: "500px",
+          scrollCollapse: false,
+          paging: false,
+          lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
+          dom: 'Bftrp',
+          language: dataTableFr,
+          buttons: {
+              name: 'primary',
+              buttons: [
+                  {extend: 'copy', className: 'btn btn-info'},
+                  {
+                      extend: 'csvHtml5', className: 'btn btn-info', customize: function (csv) {
+                          return "Liste des espèces de {{  area_info.area_name }} ({{ area_info.area_code }})\n\n" + csv;
+                      }
+                  },
+                  {extend: 'pdf', className: 'btn btn-info'},
+              ]
+          },
+          columnDefs: [
+              {className: "text-center align-middle", targets: '_all'},
+              {#{#}
+              {#    "createdCell": function (td, cellData, rowData, row, col) {#}
+              {#        if (!!cellData) {#}
+              {#            $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')#}
+              {#        }#}
+              {#    }, targets: [5,]#}
+              {#v},#}
+              {
+                  "targets": [4, 8, 9, 10],
+                  "visible": false,
+                  "searchable": false
+              },
+          ],
+          createdRow: function (row, data, dataIndex) {
+              {#if (data.redlist.length > 0) {#}
+              {#    if (!!data.redlist[0].threatened > 0) {#}
+              {#        $(row).addClass('table-danger');#}
+              {#    }#}
+              {# } #}
+              if (data.threatened) {
+                  $(row).addClass('table-danger');
+              }
+          }
+          ,
+          columns: [
+              {
+                  "class": "details-control text-center align-middle",
+                  "orderable": false,
+                  "data": "",
+                  "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
+              },
+              {#{data: "group1_inpn"},#}
+              {data: "group2_inpn"},
+              {
+                  data: function (row) {
+                      return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')">' + row.nom_vern + '</a>';
+                  }
+              },
+              {
+                  data: function (row) {
+                      return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')"><i>' + row.lb_nom + '</i></a>';
+                  }
+              },
+              {
+                  data: function (row) {
+                      var threatened = null;
+                      if (row.threatened == true) {
+                          threatened = row.threatened;
+                      }
+                      return threatened;
+                  }
+              },
+              {
+                  data: function (row) {
+                      var threatened = '';
+                      if (row.threatened == true) {
+                          threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
+                      }
+                      return threatened;
+                  }
+              },
+              {
+                  data: function (row) {
+                      var protection = '';
+                      if (row.protection == true) {
+                          protection = '<i id="protectionDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
+                      }
+                      return protection;
+                  }
+              },
+              {data: "count_occtax"},
+              {data: "count_observer"},
+              {data: "count_date"},
+              {data: "count_dataset"},
+              {
+                  data: function (row) {
+                      var data = '';
+                      if (row.reproduction == true) {
+                          data = '<i class="fas fa-check-circle text-success"></i>&nbsp;<span data-toggle="tooltip" title="Dernière année d\'observation en reproduction">' + row.last_year_reproduction + '</span>';
+                      }
+                      ;
+                      return data;
+                  }
+              },
+              {data: "last_year"}
+          ]
+      });
 
-        $('#listSpeciesTable tbody').on('click', 'tr td.details-control', function () {
-            var tr = $(this).closest('tr');
-            var row = listSpeciesTable.row(tr);
-            var idx = $.inArray(tr.attr('id'), detailRows);
+      var detailRows = [];
 
-            if (row.child.isShown()) {
-                tr.removeClass('details');
-                row.child.hide();
-                // Remove from the 'open' array
-                detailRows.splice(idx, 1);
-            } else {
-                tr.addClass('details');
-                row.child(format(row.data())).show();
+      $('#listSpeciesTable tbody').on('click', 'tr td.details-control', function () {
+          var tr = $(this).closest('tr');
+          var row = listSpeciesTable.row(tr);
+          var idx = $.inArray(tr.attr('id'), detailRows);
 
-                // Add to the 'open' array
-                if (idx === -1) {
-                    detailRows.push(tr.attr('id'));
-                }
-            }
-        });
+          if (row.child.isShown()) {
+              tr.removeClass('details');
+              row.child.hide();
+              // Remove from the 'open' array
+              detailRows.splice(idx, 1);
+          } else {
+              tr.addClass('details');
+              row.child(format(row.data())).show();
 
-        // On each draw, loop over the `detailRows` array and show any child rows
-        listSpeciesTable.on('draw', function () {
-            $.each(detailRows, function (i, id) {
-                $('#' + id + ' td.details-control').trigger('click');
-            });
-        });
+              // Add to the 'open' array
+              if (idx === -1) {
+                  detailRows.push(tr.attr('id'));
+              }
+          }
+      });
 
-        $('.dt-buttons').addClass('btn-group-sm float-right pl-2');
+      // On each draw, loop over the `detailRows` array and show any child rows
+      listSpeciesTable.on('draw', function () {
+          $.each(detailRows, function (i, id) {
+              $('#' + id + ' td.details-control').trigger('click');
+          });
+      });
 
-        $(document).on('shown.bs.collapse', '#collapseSpeciesList', function () {
-            debugLog('CoLLaPse!!!');
-            listSpeciesTable.columns.adjust().draw();
-        });
+      $('.dt-buttons').addClass('btn-group-sm float-right pl-2');
 
-    });
+      $(document).on('shown.bs.collapse', '#collapseSpeciesList', function () {
+          debugLog('CoLLaPse!!!');
+          listSpeciesTable.columns.adjust().draw();
+      });
 
-
+  });
 </script>

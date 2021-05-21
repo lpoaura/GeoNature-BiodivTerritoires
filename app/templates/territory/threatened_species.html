@@ -55,7 +55,7 @@
       options: {
           title: {
               display: true,
-              text: "Nombre d'espèces observées par catégories de menaces",
+              text: "Nombre d'espèces observées",
               position: "top",
               fontSize: 20,
           },
@@ -81,7 +81,7 @@
                 threatenedSpeciesGlobalChart.data.datasets[1].data = [response.data['territory']['not_threatened'].reduce(add), response.data['surrounding']['not_threatened'].reduce(add)];
                 threatenedSpeciesGlobalChart.data.labels[0] = 'Sur le territoire';
                 threatenedSpeciesGlobalChart.data.labels[1] = 'Autour du territoire sur ' + buffer / 1000 + 'km';
-                threatenedSpeciesGlobalChart.options.title.text = ["Nombre d'espèces observées par catégories de menaces","sur le territoire et sur une zone de "+buffer/1000+"km autour du territoire"];
+                threatenedSpeciesGlobalChart.options.title.text = ["Nombre d'espèces observées","sur le territoire et sur une zone de "+buffer/1000+"km autour du territoire"];
                 threatenedSpeciesGlobalChart.update();
                 $('#threatenedSpeciesGlobalSpinner').hide();
             }).catch(function (error) {
@@ -123,7 +123,7 @@
       options: {
           title: {
               display: true,
-              text: "Nombre d'espèces observées par catégories de menaces et par groupe taxonomique",
+              text: "Nombre d'espèces observées par groupe taxonomique",
               position: "top",
               fontSize: 20,
           },
@@ -167,7 +167,7 @@
       threatenedSpeciesByTaxoGroupChart.data.datasets[0].borderColor = [];
       threatenedSpeciesByTaxoGroupChart.data.datasets[1].backgroundColor = [];
       threatenedSpeciesByTaxoGroupChart.data.datasets[1].borderColor = [];
-      threatenedSpeciesByTaxoGroupChart.options.title.text = ["Nombre d'espèces observées par catégories de menaces et par groupe taxonomique",`sur une zone de ${buffer/1000} km autour du territoire`];
+      threatenedSpeciesByTaxoGroupChart.options.title.text = ["Nombre d'espèces observées par groupe taxonomique",`sur une zone de ${buffer/1000} km autour du territoire`];
       threatenedSpeciesByTaxoGroupDatas['labels'].forEach((e) => {
           threatenedSpeciesByTaxoGroupChart.data.datasets[0].backgroundColor.push(threatenedDataColors.threatened.background);
           threatenedSpeciesByTaxoGroupChart.data.datasets[0].borderColor.push(threatenedDataColors.threatened.border);
