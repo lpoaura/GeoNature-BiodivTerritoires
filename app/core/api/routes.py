@@ -35,6 +35,7 @@ api = Blueprint("api", __name__)
 genStats = {}
 
 diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
+absent_id = get_nomenclature_id("STATUT_OBS", "No")
 
 CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
 
@@ -535,6 +536,7 @@ def get_taxa_list(id_area: int) -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
             .group_by(
@@ -632,6 +634,7 @@ def get_taxa_simple_list(id_area: int) -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
             .distinct()
@@ -707,6 +710,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
@@ -754,6 +758,7 @@ def get_data_over_taxogroup(id_area: int) -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
             .group_by(
@@ -801,6 +806,7 @@ def get_surrounding_count_species_by_group2inpn(
         .filter(LAreas.id_area == id_area)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
         .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
+        .filter(Synthese.id_nomenclature_observation_status != absent_id)
         .filter(Taxref.cd_nom == Taxref.cd_ref)
         .filter(Taxref.id_rang == "ES")
         .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
@@ -833,6 +839,7 @@ def get_surrounding_count_species_by_group2inpn(
         .filter(LAreas.id_area == id_area)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
         .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
+        .filter(Synthese.id_nomenclature_observation_status != absent_id)
         .filter(Taxref.cd_nom == Taxref.cd_ref)
         .filter(Taxref.id_rang == "ES")
         .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)
