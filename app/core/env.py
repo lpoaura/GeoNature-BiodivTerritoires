@@ -9,7 +9,9 @@ DB = SQLAlchemy()
 admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap3")
 assets = Environment()
 ckeditor = CKEditor()
-cache = Cache(config={"CACHE_TYPE": "RedisCache"})
+cache = Cache(
+    config={"CACHE_TYPE": "RedisCache", "CACHE_DEFAULT_TIMEOUT": 7200}
+)
 
 
 def create_schemas(db):

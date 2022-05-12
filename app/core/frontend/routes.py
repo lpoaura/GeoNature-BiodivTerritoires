@@ -235,3 +235,59 @@ def territory(type_code: str, area_code: str) -> str:
         flash("Erreur: {}".format(e))
         current_app.logger.critical(f"<territory> ERROR: {str(e)}")
         return redirect(url_for("rendered.index"))
+
+
+@rendered.route("/embed/territory/<string:type_code>/<string:area_code>")
+def embed_territory(type_code: str, area_code: str) -> str:
+    """"""
+    try:
+        q_area_info = (
+            DB.session.query(
+                BibAreasTypes.type_code,
+                BibAreasTypes.type_name,
+                BibAreasTypes.type_desc,
+                LAreas.id_area,
+                LAreas.area_name,
+                LAreas.area_code,
+            )
+            .join(
+                LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True
+            )
+            .filter(
+                and_(BibAreasTypes.type_code == type_code.upper()),
+                LAreas.area_code == area_code,
+            )
+        )
+        area_info = q_area_info.one()
+
+        # Retrieve general stats
+        q_gen_stats = DB.session.query(MVTerritoryGeneralStats).filter(
+            MVTerritoryGeneralStats.id_area == area_info.id_area
+        )
+        current_app.logger.debug(q_gen_stats)
+        gen_stats = q_gen_stats.one()
+        # generate Legend Dict
+        legend_dict = {}
+        for type in DB.session.query(MVAreaNtileLimit.type).distinct():
+            legend_dict[type[0]] = get_legend_classes(type)
+        intro = (
+            DB.session.query(
+                TDynamicPages.title,
+                TDynamicPages.short_desc,
+                TDynamicPages.content,
+            )
+            .filter(TDynamicPages.url == "territory-intro")
+            .first()
+        )
+        return render_template(
+            "territory/_embed_main.html",
+            area_info=area_info,
+            gen_stats=gen_stats,
+            legend_dict=legend_dict,
+            intro=intro,
+        )
+
+    except Exception as e:
+        flash("Erreur: {}".format(e))
+        current_app.logger.critical(f"<territory> ERROR: {str(e)}")
+        return redirect(url_for("rendered.index"))

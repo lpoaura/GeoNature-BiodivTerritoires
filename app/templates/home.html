@@ -7,7 +7,7 @@ head %} {{ super() }} {% endblock %} {% block content %}
   <div class="container">
     <h1 class="display-1">{{ site_name }}</h1>
     <p class="">{{ site_desc|safe }}</p>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <!--<div class="alert alert-warning alert-dismissible fade show" role="alert">
       <i class="fas fa-exclamation-triangle text-warning"></i>
       <span
         >Cette plateforme est une première version en cours de développement.
@@ -21,7 +21,7 @@ head %} {{ super() }} {% endblock %} {% block content %}
       >
         <span aria-hidden="true">&times;</span>
       </button>
-    </div>
+    </div>-->
     <p class="">{% include "core/search_territory.html" %}</p>
   </div>
   <!-- <div class="anchorLink">
