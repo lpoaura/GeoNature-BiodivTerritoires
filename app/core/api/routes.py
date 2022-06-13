@@ -556,26 +556,8 @@ def get_taxa_list(id_area: int) -> Response:
         data = []
         for r in result:
             dict = r._asdict()
-            # bio_status = []
-            # for s in r.bio_status_id:
-            #     bio_status.append(get_nomenclature(s))
-            #     dict["bio_status"] = bio_status
-            # redlist = get_redlist_status(r.cd_ref)
-            # dict["redlist"] = redlist
             data.append(dict)
-        #
-        # redlistless_data = list(filter(redlist_list_is_null, data))
-        # print("redlistless_data", len(redlistless_data))
-        # redlist_data = list(filter(redlist_is_not_null, data))
-        # print("redlist_data", len(redlist_data))
-        # redlist_sorted_data = sorted(
-        #     redlist_data,
-        #     key=lambda k: (
-        #         k["redlist"][0]["priority_order"],
-        #         k["redlist"][0]["threatened"],
-        #     ),
-        # )
-        # sorted_data = redlist_sorted_data + list(redlistless_data)
+
         return jsonify({"count": count, "data": data}), 200
 
     except Exception as e:

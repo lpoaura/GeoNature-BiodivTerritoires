@@ -1,7 +1,10 @@
+import os
+
 from flask import current_app
 from flask_admin.contrib import rediscli
 from geoalchemy2.shape import from_shape, to_shape
 from geojson import Feature
+from numpy import full
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from redis import Redis
 from shapely.geometry import asShape
@@ -348,3 +351,17 @@ def create_special_pages():
             DB.session.add(page)
 
     DB.session.commit()
+
+
+def init_custom_files():
+
+    filenames = ["custom.css", "custom.js"]
+    for file in filenames:
+        fullpath = os.path.join(
+            os.getcwd(), f"app/static/custom/assets/{file}"
+        )
+        if not os.path.exists(fullpath):
+            open(
+                os.path.join(os.getcwd(), f"app/static/custom/assets/{file}"),
+                "w",
+            )
