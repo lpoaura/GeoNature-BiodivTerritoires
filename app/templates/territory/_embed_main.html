@@ -95,45 +95,25 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
     </div>
   </div>
 
-  <div class="accordion" id="blocks">
+  <div id="embedBlocks">
     <!-- Block 1 -->
     <div class="card">
       <div class="card-header blocks" id="headingThreatenedSpecies">
-        <button
-          class="btn btn-block text-left"
-          type="button"
-          data-toggle="collapse"
-          data-target="#collapseThreatenedSpecies"
-          aria-expanded="true"
-          aria-controls="collapseThreatenedSpecies"
-        >
-          <h1>
-            <div class="icon-rounded shadow bg-primary-light">
-              <i class="fas fa-exclamation"></i>
-            </div>
-            <span
-              data-toggle="tooltip"
-              data-placement="right"
-              data-html="true"
-              title="Les graphiques suivants font l'état des espèces menacées du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment)."
-            >
-              Espèces menacées du territoire
-            </span>
-            <span class="float-right">
-              <i
-                class="fas fa-angle-double-down accordion-chevron"
-                aria-hidden="true"
-              ></i>
-            </span>
-          </h1>
-        </button>
+        <h1>
+          <div class="icon-rounded shadow bg-primary-light">
+            <i class="fas fa-exclamation"></i>
+          </div>
+          <span
+            data-toggle="tooltip"
+            data-placement="right"
+            data-html="true"
+            title="Les graphiques suivants font l'état des espèces menacées du territoire <u>et</u> de sa zone tampon (sélectionnée précédemment)."
+          >
+            Espèces menacées du territoire
+          </span>
+        </h1>
       </div>
-      <div
-        id="collapseThreatenedSpecies"
-        class="collapse"
-        aria-labelledby="headingThreatenedSpecies"
-        data-parent="#blocks"
-      >
+      <div id="contentThreatenedSpecies">
         <div class="card-body">
           <div class="col">
             <div class="card border-primary mb-3 shadow">
@@ -168,43 +148,23 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
     <!-- Block 2 -->
     <div class="card">
       <div class="card-header blocks" id="headingObservationsDistribution">
-        <button
-          class="btn btn-block text-left"
-          type="button"
-          data-toggle="collapse"
-          data-target="#collapseObservationsDistribution"
-          aria-expanded="true"
-          aria-controls="collapseObservationsDistribution"
-        >
-          <h1>
-            <div class="icon-rounded shadow bg-primary-light">
-              <i class="fas fa-map-marked-alt"></i>
-            </div>
-            <span
-              data-toggle="tooltip"
-              data-placement="right"
-              data-html="true"
-              title="La carte suivante illustre la répartition des données sur le territoire 
+        <h1>
+          <div class="icon-rounded shadow bg-primary-light">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <span
+            data-toggle="tooltip"
+            data-placement="right"
+            data-html="true"
+            title="La carte suivante illustre la répartition des données sur le territoire 
                                 <u>et</u> sur sa zone tampon (sélectionnée précédemment).<br/>Les graphiques situés en dessous illustrent quant à eux la
                                 répartition des données dans le temps et par groupe taxonomique."
-            >
-              Répartition des observations
-            </span>
-            <span class="float-right">
-              <i
-                class="fas fa-angle-double-down accordion-chevron"
-                aria-hidden="true"
-              ></i>
-            </span>
-          </h1>
-        </button>
+          >
+            Répartition des observations
+          </span>
+        </h1>
       </div>
-      <div
-        id="collapseObservationsDistribution"
-        class="collapse"
-        aria-labelledby="headingObservationsDistribution"
-        data-parent="#blocks"
-      >
+      <div id="contentObservationsDistribution">
         <div class="card-body">
           <div class="col">
             <div class="row">
@@ -270,41 +230,21 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
     <!-- Block 3 -->
     <div class="card">
       <div class="card-header blocks" id="headingSpeciesList">
-        <button
-          class="btn btn-block text-left"
-          type="button"
-          data-toggle="collapse"
-          data-target="#collapseSpeciesList"
-          aria-expanded="true"
-          aria-controls="collapseSpeciesList"
-        >
-          <h1>
-            <div class="icon-rounded shadow bg-primary-light">
-              <i class="fas fa-list"></i>
-            </div>
-            <span
-              data-toggle="tooltip"
-              data-placement="right"
-              data-html="true"
-              title="Le tableau suivant liste l'ensemble des espèces observées sur le territoire."
-            >
-              Liste des espèces
-            </span>
-            <span class="float-right">
-              <i
-                class="fas fa-angle-double-down accordion-chevron"
-                aria-hidden="true"
-              ></i>
-            </span>
-          </h1>
-        </button>
+        <h1>
+          <div class="icon-rounded shadow bg-primary-light">
+            <i class="fas fa-list"></i>
+          </div>
+          <span
+            data-toggle="tooltip"
+            data-placement="right"
+            data-html="true"
+            title="Le tableau suivant liste l'ensemble des espèces observées sur le territoire."
+          >
+            Liste des espèces
+          </span>
+        </h1>
       </div>
-      <div
-        id="collapseSpeciesList"
-        class="collapse"
-        aria-labelledby="headingSpeciesList"
-        data-parent="#blocks"
-      >
+      <div id="contentSpeciesList">
         <div class="card-body">
           <div class="col">
             <div class="row">
@@ -355,44 +295,32 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
       </div>
     </div>
     <!-- Block 4 -->
+         <!--
     <div class="card">
       <div class="card-header blocks" id="headingSurroundingAreas">
-        <button
-          class="btn btn-block text-left"
-          type="button"
-          data-toggle="collapse"
-          data-target="#collapseSurroundingAreas"
-          aria-expanded="true"
-          aria-controls="collapseSurroundingAreas"
-        >
-          <h1>
-            <div class="icon-rounded shadow bg-primary-light">
-              <i class="fas fa-map-signs"></i>
-            </div>
-            <span
-              data-toggle="tooltip"
-              data-placement="right"
-              data-html="true"
-              title="Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
+        <h1>
+          <div class="icon-rounded shadow bg-primary-light">
+            <i class="fas fa-map-signs"></i>
+          </div>
+          <span
+            data-toggle="tooltip"
+            data-placement="right"
+            data-html="true"
+            title="Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
                                 par rapport au territoire courant <u>et</u> à sa zone tampon."
-            >
-              Données de synthèse sur les territoires alentours
-            </span>
-            <span class="float-right">
-              <i
-                class="fas fa-angle-double-down accordion-chevron"
-                aria-hidden="true"
-              ></i>
-            </span>
-          </h1>
-        </button>
+          >
+            Données de synthèse sur les territoires alentours
+          </span>
+          <span class="float-right">
+            <i
+              class="fas fa-angle-double-down accordion-chevron"
+              aria-hidden="true"
+            ></i>
+          </span>
+        </h1>
       </div>
-      <div
-        id="collapseSurroundingAreas"
-        class="collapse"
-        aria-labelledby="headingSurroundingAreas"
-        data-parent="#blocks"
-      >
+ 
+      <div id="contentSurroundingAreas">
         <div class="card-body">
           <div class="col">
             <div class="row">
@@ -433,6 +361,7 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
           </div>
         </div>
       </div>
+     -->
     </div>
   </div>
 </div>
@@ -442,8 +371,8 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
 
   $('#selectBuffer').on('change', function () {
       buffer = this.value;
-      surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
-      surroundingAreasTable.ajax.reload();
+      //surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
+      //surroundingAreasTable.ajax.reload();
       threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
       threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
       getGridArea('taxa');

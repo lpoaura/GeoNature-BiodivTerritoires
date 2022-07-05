@@ -36,6 +36,7 @@ mypy = "^0.950"
 flake8 = "^4.0.1"
 isort = "^5.10.1"
 pylint = "^2.13.8"
+Flask-MonitoringDashboard = "^3.1.1"
 
 
 [tool.isort]

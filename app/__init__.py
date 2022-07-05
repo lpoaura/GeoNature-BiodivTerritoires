@@ -61,14 +61,18 @@ def create_app():
 
         from app.core.api.routes import api
         from app.core.frontend.routes import rendered
-        from app.core.utils import create_special_pages, create_tables
+        from app.core.utils import (
+            create_special_pages,
+            create_tables,
+            init_custom_files,
+        )
 
         create_schemas(DB)
 
         create_tables(DB)
 
         create_special_pages()
-
+        init_custom_files()
         # Register blueprint(s)
         app.register_blueprint(rendered)
         app.register_blueprint(api, url_prefix="/api")

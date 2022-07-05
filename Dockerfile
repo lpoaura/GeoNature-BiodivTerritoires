@@ -11,7 +11,7 @@ RUN apt-get update && apt-get -y upgrade && \
 
 
 RUN apt-get update && \
-        apt-get install -y postgresql-client gcc libgeos-dev git libpq-dev python-dev build-essential libgdal-dev
+    apt-get install -y postgresql-client gcc libgeos-dev git libpq-dev python-dev build-essential libgdal-dev
 
 COPY requirements.txt /app
 
@@ -24,7 +24,7 @@ RUN apt-get clean && \
 
 COPY . /app
 
-VOLUME ["/config"]
+VOLUME ["/config", "/app/app/static/custom/assets"]
 
 EXPOSE 8080
 
