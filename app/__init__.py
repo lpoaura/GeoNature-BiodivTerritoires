@@ -76,7 +76,5 @@ def create_app():
         # Register blueprint(s)
         app.register_blueprint(rendered)
         app.register_blueprint(api, url_prefix="/api")
-        # app.register_blueprint(users_routes, url_prefix="/auth")
         app.register_blueprint(nom_routes, url_prefix="/api/nomenclatures")
-
         return app
