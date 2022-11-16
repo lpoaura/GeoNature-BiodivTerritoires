@@ -1,6 +1,13 @@
-{% extends "core/embed_layout.html" %} {% block title %}La biodiversité de {{
-area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
-{% endblock %} {% block head %} {{ super() }} {% endblock %} {% block content %}
+{% extends "core/embed_layout.html" %} 
+{% block title %}
+La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
+{% endblock %} 
+
+{% block head %} 
+{{ super() }} 
+{% endblock %} 
+
+{% block content %}
 <style>
   body {
     padding-top: 0 !important;
