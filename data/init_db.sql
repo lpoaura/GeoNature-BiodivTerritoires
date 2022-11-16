@@ -371,13 +371,6 @@ GROUP BY
     bib_areas_types.type_code,
     l_areas.geom;
 
-SELECT
-    count(*)
-FROM
-    gn_synthese.cor_area_synthese
-WHERE
-    id_area = 2191871;
-
 CREATE UNIQUE INDEX ON gn_biodivterritory.mv_territory_general_stats (id_area);
 
 CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats (type_code);
