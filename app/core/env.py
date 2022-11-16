@@ -1,3 +1,4 @@
+from decouple import config
 from flask import current_app
 from flask_admin import Admin
 from flask_assets import Environment
@@ -10,7 +11,10 @@ admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap3")
 assets = Environment()
 ckeditor = CKEditor()
 cache = Cache(
-    config={"CACHE_TYPE": "RedisCache", "CACHE_DEFAULT_TIMEOUT": 7200}
+    config={
+        "CACHE_TYPE": config("CACHE_TYPE", default="RedisCache"),
+        "CACHE_DEFAULT_TIMEOUT": 7200,
+    }
 )
 
 

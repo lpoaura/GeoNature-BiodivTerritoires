@@ -5,7 +5,6 @@ from sqlalchemy.dialects.postgresql import UUID
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
-import config
 from app.core.env import DB
 
 
@@ -75,7 +74,9 @@ class Synthese(DB.Model):
     altitude_max = Column(String)
     the_geom_4326 = Column(Geometry("GEOMETRY", 4326))
     the_geom_point = Column(Geometry("GEOMETRY", 4326))
-    the_geom_local = Column(Geometry("GEOMETRY", config.LOCAL_SRID))
+    the_geom_local = Column(
+        Geometry("GEOMETRY", current_app.config["LOCAL_SRID"])
+    )
     date_min = Column(DateTime)
     date_max = Column(DateTime)
     validator = Column(String)

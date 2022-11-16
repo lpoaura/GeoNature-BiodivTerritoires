@@ -28,6 +28,7 @@ utils-flask-sqlalchemy-geo = "^0.2.5"
 redis = "^4.3.4"
 flask-assets = "^2.0"
 flask-caching = "^2.0.1"
+python-decouple = "^3.6"
 
 
 [tool.poetry.group.dev.dependencies]

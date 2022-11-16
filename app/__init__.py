@@ -1,9 +1,10 @@
 # Import flask and template operators
+import json
 import logging
 
+from decouple import config
 from flask import Flask, render_template
 
-import config
 from app.core.env import DB, admin, assets, cache, ckeditor, create_schemas
 
 logger = logging.getLogger(__name__)
@@ -28,11 +29,32 @@ def create_app():
         dashboard.bind(app)
 
     app.app_context().push()
-    app.secret_key = config.SECRET_KEY
+    app.secret_key = config("SECRET_KEY")
 
     # Load config
     try:
-        app.config.from_object("config")
+        app.config["APP_SCHEMA_NAME"] = config(
+            "APP_SCHEMA_NAME", default="gn_biodivterritory"
+        )
+        app.config["LOCAL_SRID"] = config("LOCAL_SRID", default=2154)
+        app.config["SQLALCHEMY_DATABASE_URI"] = config(
+            "SQLALCHEMY_DATABASE_URI"
+        )
+        app.config["CACHE_TIMEOUT"] = config("CACHE_TIMEOUT", default=86400)
+        app.config["DEBUG"] = json.dumps(config("DEBUG", default=False))
+        app.config["SITE_NAME"] = config(
+            "SITE_NAME", default="Biodiv'Territoires"
+        )
+        app.config["SITE_DESC"] = config(
+            "SITE_DESC",
+            default="Une plateforme de porté à connaissance de la <b>biodiversité</b> des territoires",
+        )
+        app.config["DEFAULT_GRID"] = config("DEFAULT_GRID", default="M1")
+        app.config["DEFAULT_BUFFER"] = config("DEFAULT_BUFFER", default=2000)
+        # values["base_layers"] = config.BASE_LAYERS
+        app.config["TAXHUB_URL"] = config(
+            "TAXHUB_URL", default="http://demo.geonature.fr/taxhub/"
+        )
     except Exception as e:
         app.logger.critical("<create_app> Import config error : ", e)
 

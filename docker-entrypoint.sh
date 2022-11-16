@@ -1,9 +1,9 @@
 #!/bin/bash
 
-echo "|-------------------------------------------|"
+echo "+-------------------------------------------+"
 echo "|               GeoNature                   |"
 echo "|        Biodiversité des territoires       |"
-echo "|-------------------------------------------|"
+echo "+-------------------------------------------+"
 
 export DBHOST=${POSTGRES_HOST:-db}
 export DBNAME=${POSTGRES_DB:-geonature}
@@ -15,7 +15,7 @@ export SRID=${SRID:-4326}
 
 function create_config() {
   echo "Generate new config file"
-  cp /app/conf/config.py.sample /config/config.py
+  cp /app/config/config.py.sample /config/config.py
   sed -i "s/dbHost/${DBHOST}/g" /config/config.py
   sed -i "s/dbName/${DBNAME}/g" /config/config.py
   sed -i "s/dbUser/${DBUSER}/g" /config/config.py
