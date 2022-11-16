@@ -702,7 +702,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
         results = query.all()
         current_app.logger.debug(dir(results))
         current_app.logger.debug(type(results))
-        return jsonify([dict(row) for row in results])
+        return jsonify([row._asdict() for row in results])
 
     except Exception as e:
         error = f"<get_data_over_year> ERROR: {e}"
@@ -753,7 +753,7 @@ def get_data_over_taxogroup(id_area: int) -> Response:
 
         results = query.all()
         current_app.logger.debug(dir(results))
-        return jsonify([dict(row) for row in results])
+        return jsonify([row._asdict() for row in results])
 
     except Exception as e:
         error = "<get_data_over_taxogroup> ERROR: {}".format(e)
