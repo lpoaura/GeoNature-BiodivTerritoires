@@ -4,7 +4,6 @@ from sqlalchemy import Column, Date, Integer, String
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
-import config
 from app.core.env import DB
 
 

@@ -14,7 +14,6 @@ from sqlalchemy.orm import relationship
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
-from app import config
 from app.core.env import DB
 
 

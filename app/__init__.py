@@ -1,5 +1,4 @@
 # Import flask and template operators
-import json
 import logging
 
 from decouple import config
