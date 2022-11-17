@@ -1,4 +1,5 @@
 # coding: utf-8
+from flask import current_app
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
@@ -38,7 +39,7 @@ class LAreas(DB.Model):
     id_type = Column(Integer, ForeignKey("ref_geo.bib_areas_types.id_type"))
     area_name = Column(String)
     area_code = Column(String)
-    geom = Column(Geometry("GEOMETRY", config.LOCAL_SRID))
+    geom = Column(Geometry("GEOMETRY", current_app.config["LOCAL_SRID"]))
     source = Column(String)
     area_type = relationship(
         "BibAreasTypes",

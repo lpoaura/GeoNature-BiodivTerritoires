@@ -1,4 +1,4 @@
-/********************************************************
+/*********************************CR***********************
  *   CREATION DES PRINCIPALES TABLES DE L'APPLIUCATION  *
  ********************************************************/
 /* Create dedicated db schema named gn_biodivterritory */
@@ -73,7 +73,7 @@ COMMENT ON COLUMN gn_biodivterritory.l_areas_type_selection.id_type IS 'referenc
 
 COMMENT ON COLUMN gn_biodivterritory.l_areas_type_selection.searchable IS 'searchable area from API with autocomplete';
 
-CREATE TABLE IF NOT EXISTS taxonomie.bib_redlist_source (
+CREATE TABLE IF NOT EXISTS taxonomie.bib_c_redlist_source (
     id_source serial NOT NULL,
     name_source varchar,
     version varchar,
@@ -87,22 +87,22 @@ CREATE TABLE IF NOT EXISTS taxonomie.bib_redlist_source (
     PRIMARY KEY (id_source)
 );
 
-COMMENT ON TABLE taxonomie.t_redlist IS 'Liste des sources de statuts de liste rouge';
+COMMENT ON TABLE taxonomie.t_c_redlist IS 'Liste des sources de statuts de liste rouge';
 
-CREATE TABLE IF NOT EXISTS taxonomie.t_redlist (
+CREATE TABLE IF NOT EXISTS taxonomie.t_c_redlist (
     id_redlist serial NOT NULL,
     status_order integer,
     cd_nom integer,
     cd_ref integer,
     category varchar,
     criteria varchar,
-    id_source integer REFERENCES taxonomie.bib_redlist_source (id_source),
+    id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source),
     PRIMARY KEY (id_redlist)
 );
 
-COMMENT ON TABLE taxonomie.t_redlist IS 'Liste des statuts de liste rouge par taxons';
+COMMENT ON TABLE taxonomie.t_c_redlist IS 'Liste des statuts de liste rouge par taxons';
 
-CREATE TABLE IF NOT EXISTS taxonomie.bib_redlist_categories (
+CREATE TABLE IF NOT EXISTS taxonomie.bib_c_redlist_categories (
     code_category varchar NOT NULL,
     threatened boolean,
     sup_category varchar,
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS taxonomie.bib_redlist_categories (
     PRIMARY KEY (code_category)
 );
 
-COMMENT ON TABLE taxonomie.bib_redlist_categories IS 'Liste des catégories de statuts de liste rouge';
+COMMENT ON TABLE taxonomie.bib_c_redlist_categories IS 'Liste des catégories de statuts de liste rouge';
 
 CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_max_threatened_status (
     cd_nom serial NOT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_max_threatened_status (
     redlist_context varchar,
     id_source integer,
     PRIMARY KEY (cd_nom),
-    FOREIGN KEY (id_source) REFERENCES taxonomie.bib_redlist_source (id_source)
+    FOREIGN KEY (id_source) REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
 
 
@@ -279,8 +279,8 @@ DROP MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
 --     l_areas.area_name,
 --     count(DISTINCT synthese.cd_nom) FILTER (WHERE taxref.id_rang LIKE 'es') AS count_taxa,
 --     count(DISTINCT synthese.id_synthese) AS count_occtax,
---     count(DISTINCT synthese.cd_nom) FILTER (WHERE bib_redlist_categories.threatened
---         AND bib_redlist_source.area_code LIKE 'FR'
+--     count(DISTINCT synthese.cd_nom) FILTER (WHERE bib_c_redlist_categories.threatened
+--         AND bib_c_redlist_source.area_code LIKE 'FR'
 --         AND taxref.id_rang LIKE 'es') AS count_threatened,
 --     count(DISTINCT synthese.id_dataset) AS count_dataset,
 --     count(DISTINCT synthese.date_min) AS count_date,
@@ -297,9 +297,9 @@ DROP MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
 -- --             JOIN ref_nomenclatures.t_nomenclatures nom_df
 -- --                  on synthese.id_nomenclature_diffusion_level = nom_df.id_nomenclature
 -- JOIN taxonomie.bib_taxref_rangs ON taxref.id_rang LIKE bib_taxref_rangs.id_rang
---     LEFT JOIN taxonomie.t_redlist ON taxref.cd_nom = t_redlist.cd_nom
---     JOIN taxonomie.bib_redlist_categories ON t_redlist.category = bib_redlist_categories.code_category
---     JOIN taxonomie.bib_redlist_source ON t_redlist.id_source = bib_redlist_source.id_source
+--     LEFT JOIN taxonomie.t_c_redlist ON taxref.cd_nom = t_c_redlist.cd_nom
+--     JOIN taxonomie.bib_c_redlist_categories ON t_c_redlist.category = bib_c_redlist_categories.code_category
+--     JOIN taxonomie.bib_c_redlist_source ON t_c_redlist.id_source = bib_c_redlist_source.id_source
 --     JOIN observers ON observers.id_area = l_areas.id_area
 -- WHERE
 --     bib_taxref_rangs.id_rang LIKE 'es'
@@ -349,14 +349,13 @@ FROM
     --             JOIN observers ON observers.id_area = l_areas.id_area
     JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
     LEFT OUTER JOIN gn_biodivterritory.t_max_threatened_status ON gn_biodivterritory.t_max_threatened_status.cd_nom = taxonomie.taxref.cd_ref
-    --             LEFT JOIN taxonomie.t_redlist ON taxref.cd_nom = t_redlist.cd_nom
-    --             JOIN taxonomie.bib_redlist_categories ON t_redlist.category = bib_redlist_categories.code_category
-    --             JOIN taxonomie.bib_redlist_source ON t_redlist.id_source = bib_redlist_source.id_source
+    --             LEFT JOIN taxonomie.t_c_redlist ON taxref.cd_nom = t_c_redlist.cd_nom
+    --             JOIN taxonomie.bib_c_redlist_categories ON t_c_redlist.category = bib_c_redlist_categories.code_category
+    --             JOIN taxonomie.bib_c_redlist_source ON t_c_redlist.id_source = bib_c_redlist_source.id_source
 WHERE
     taxref.id_rang LIKE 'ES'
     AND taxref.cd_nom = taxref.cd_ref
     AND synthese.id_nomenclature_diffusion_level = ref_nomenclatures.get_id_nomenclature ('NIV_PRECIS', '5')
-    AND synthese.id_nomenclature_observation_status != ref_nomenclatures.get_id_nomenclature ('STATUT_OBS', 'No')
     AND l_areas.id_type IN (
         SELECT
             id_type
@@ -494,7 +493,7 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS (
                             FROM
                                 u
                             ORDER BY
-                                TYPE,
+                                type,
                                 ntile);
 
 
@@ -502,9 +501,9 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS (
  *   Territory species list    *
  **************************MVTerritoryGeneralStats*****/
 /* Création de la table de statuts BDC Statuts */
-DROP TABLE IF EXISTS taxonomie.bib_bdc_type_statut;
+DROP TABLE IF EXISTS taxonomie.bib_c_bdc_type_statut;
 
-CREATE TABLE taxonomie.bib_bdc_type_statut (
+CREATE TABLE taxonomie.bib_c_bdc_type_statut (
     id_type_statut varchar(50) PRIMARY KEY NOT NULL,
     cd_type_statut varchar(50),
     lb_type_statut varchar(254),
@@ -518,7 +517,7 @@ CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
     cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
     cd_ref integer REFERENCES taxonomie.taxref (cd_nom),
     cd_sup integer REFERENCES taxonomie.taxref (cd_nom),
-    cd_type_statut varchar(50) REFERENCES taxonomie.bib_bdc_type_statut (id_type_statut),
+    cd_type_statut varchar(50) REFERENCES taxonomie.bib_c_bdc_type_statut (id_type_statut),
     lb_type_statut varchar(254),
     regroupement_type varchar(100),
     code_statut varchar(10),
@@ -550,9 +549,9 @@ CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
 
 
 /* Déjà présent dans taxonomie.bib_taxref_categories_fr */
-DROP TABLE IF EXISTS taxonomie.bib_redlist_categories;
+DROP TABLE IF EXISTS taxonomie.bib_c_redlist_categories;
 
-CREATE TABLE taxonomie.bib_redlist_categories (
+CREATE TABLE taxonomie.bib_c_redlist_categories (
     code_category varchar(2) PRIMARY KEY,
     sup_category varchar(30),
     threatened boolean DEFAULT FALSE,
@@ -563,7 +562,7 @@ CREATE TABLE taxonomie.bib_redlist_categories (
     desc_en varchar(254)
 );
 
-INSERT INTO taxonomie.bib_redlist_categories (code_category, threatened, sup_category, priority_order)
+INSERT INTO taxonomie.bib_c_redlist_categories (code_category, threatened, sup_category, priority_order)
 SELECT DISTINCT
     id_categorie_france AS code_category,
     CASE WHEN id_categorie_france IN ('CR', 'EN', 'VU') THEN
@@ -605,7 +604,7 @@ SELECT DISTINCT
 FROM
     taxonomie.taxref_liste_rouge_fr;
 
-CREATE TABLE taxonomie.bib_redlist_source (
+CREATE TABLE taxonomie.bib_c_redlist_source (
     id_source serial PRIMARY KEY,
     name_source varchar(254),
     desc_source text,
@@ -619,37 +618,38 @@ CREATE TABLE taxonomie.bib_redlist_source (
 
 
 /* Optional matching with */
-CREATE TABLE taxonomie.cor_redlist_source_area (
-    id_cor_redlist_source_area serial PRIMARY KEY,
+CREATE TABLE taxonomie.cor_c_redlist_source_area (
+    id_cor_c_redlist_source_area serial PRIMARY KEY,
     id_area integer REFERENCES ref_geo.l_areas (id_area),
-    id_source integer REFERENCES taxonomie.bib_redlist_source (id_source)
+    id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
 
-DROP TABLE IF EXISTS taxonomie.t_redlist;
+DROP TABLE IF EXISTS taxonomie.t_c_redlist;
 
-CREATE TABLE taxonomie.t_redlist (
+CREATE TABLE taxonomie.t_c_redlist (
     id_redlist serial NOT NULL PRIMARY KEY,
     status_order integer,
     cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
     cd_ref integer REFERENCES taxonomie.taxref (cd_nom),
     category char(2) NOT NULL REFERENCES taxonomie.bib_taxref_categories_lr (id_categorie_france),
     criteria varchar(50),
-    id_source integer REFERENCES taxonomie.bib_redlist_source (id_source)
+    id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
 
 
 /* Insertion de la source UICN France*/
-INSERT INTO taxonomie.bib_redlist_source (name_source, area_code)
+INSERT INTO taxonomie.bib_c_redlist_source (name_source, area_code, area_name)
 SELECT DISTINCT
     liste_rouge_source,
-    'FR'
+    'FR',
+    'France métropolitaine'
 FROM
     taxonomie.taxref_liste_rouge_fr;
 
-INSERT INTO taxonomie.bib_redlist_source (name_source, area_code, area_name)
+INSERT INTO taxonomie.bib_c_redlist_source (name_source, area_code, area_name)
     VALUES ('Liste rouge mondiale des espèces menacées (2019.1)', 'WORLD', 'Monde'), ('Liste rouge européenne des espèces menacées (2019.1)', 'EUROPE', 'Europe');
 
-INSERT INTO taxonomie.t_redlist (status_order, cd_nom, cd_ref, category, criteria, id_source)
+INSERT INTO taxonomie.t_c_redlist (status_order, cd_nom, cd_ref, category, criteria, id_source)
 SELECT
     ordre_statut,
     taxref.cd_nom,
@@ -659,10 +659,10 @@ SELECT
     id_source
 FROM
     taxonomie.taxref_liste_rouge_fr
-    JOIN taxonomie.bib_redlist_source ON liste_rouge_source = bib_redlist_source.name_source
+    JOIN taxonomie.bib_c_redlist_source ON liste_rouge_source = bib_c_redlist_source.name_source
     JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom;
 
-INSERT INTO taxonomie.t_redlist (status_order, cd_nom, cd_ref, category, criteria, id_source)
+INSERT INTO taxonomie.t_c_redlist (status_order, cd_nom, cd_ref, category, criteria, id_source)
 SELECT
     ordre_statut,
     taxref.cd_nom,
@@ -682,13 +682,13 @@ FROM
         SELECT
             id_source
         FROM
-            taxonomie.bib_redlist_source
+            taxonomie.bib_c_redlist_source
         WHERE
             area_code LIKE 'WORLD') AS source
 WHERE
     length(categorie_lr_mondiale) > 0;
 
-INSERT INTO taxonomie.t_redlist (status_order, cd_nom, cd_ref, category, criteria, id_source)
+INSERT INTO taxonomie.t_c_redlist (status_order, cd_nom, cd_ref, category, criteria, id_source)
 SELECT
     ordre_statut,
     taxref.cd_nom,
@@ -708,7 +708,7 @@ FROM
         SELECT
             id_source
         FROM
-            taxonomie.bib_redlist_source
+            taxonomie.bib_c_redlist_source
         WHERE
             area_code LIKE 'EUROPE') AS source
 WHERE
@@ -721,26 +721,26 @@ BEGIN
     FOR arrow IN ( SELECT DISTINCT
             cd_ref
         FROM
-            taxonomie.t_redlist)
+            taxonomie.t_c_redlist)
         LOOP
             INSERT INTO gn_biodivterritory.t_max_threatened_status (cd_nom, threatened, redlist_statut, redlist_context, id_source)
             SELECT
                 cd_nom,
                 threatened,
-                t_redlist.category,
-                bib_redlist_source.context,
-                bib_redlist_source.id_source
+                t_c_redlist.category,
+                bib_c_redlist_source.context,
+                bib_c_redlist_source.id_source
             FROM
-                taxonomie.bib_redlist_categories,
-                taxonomie.bib_redlist_source,
-                taxonomie.t_redlist
+                taxonomie.bib_c_redlist_categories,
+                taxonomie.bib_c_redlist_source,
+                taxonomie.t_c_redlist
             WHERE
-                taxonomie.t_redlist.cd_ref = arrow.cd_ref
-                AND taxonomie.bib_redlist_source.id_source = taxonomie.t_redlist.id_source
-                AND taxonomie.bib_redlist_categories.code_category = taxonomie.t_redlist.category
+                taxonomie.t_c_redlist.cd_ref = arrow.cd_ref
+                AND taxonomie.bib_c_redlist_source.id_source = taxonomie.t_c_redlist.id_source
+                AND taxonomie.bib_c_redlist_categories.code_category = taxonomie.t_c_redlist.category
             ORDER BY
-                taxonomie.bib_redlist_source.priority,
-                taxonomie.bib_redlist_categories.priority_order
+                taxonomie.bib_c_redlist_source.priority,
+                taxonomie.bib_c_redlist_categories.priority_order
             LIMIT 1;
         END LOOP;
 END;

@@ -47,13 +47,13 @@ def get_legend_classes(type: str):
 # @cache.cached(timeout=600)
 def global_variables():
     values = {}
-    values["debug"] = json.dumps(config.DEBUG)
-    values["site_name"] = config.SITE_NAME
-    values["site_desc"] = config.SITE_DESC
-    values["default_grid"] = config.DEFAULT_GRID
-    values["default_buffer"] = config.DEFAULT_BUFFER
+    values["debug"] = current_app.config["DEBUG"]
+    values["site_name"] = current_app.config["SITE_NAME"]
+    values["site_desc"] = current_app.config["SITE_DESC"]
+    values["default_grid"] = current_app.config["DEFAULT_GRID"]
+    values["default_buffer"] = current_app.config["DEFAULT_BUFFER"]
     # values["base_layers"] = config.BASE_LAYERS
-    values["taxhub_url"] = config.TAXHUB_URL
+    values["taxhub_url"] = current_app.config["TAXHUB_URL"]
     values["special_pages"] = (
         DB.session.query(TDynamicPages.link_name, TDynamicPages.url)
         .filter(TDynamicPages.is_active == True)
@@ -136,7 +136,7 @@ def index() -> str:
 
     return render_template(
         "home.html",
-        name=config.SITE_NAME,
+        name=current_app.config["SITE_NAME"],
         home_desc=home_desc,
         financial_partners=financial_partners,
         technical_partners=technical_partners,

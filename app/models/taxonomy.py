@@ -115,7 +115,7 @@ class TaxrefLR(DB.Model):
 
 @serializable
 class BibRedlistCategories(DB.Model):
-    __tablename__ = "bib_redlist_categories"
+    __tablename__ = "bib_c_redlist_categories"
     __table_args__ = {"schema": "taxonomie"}
     code_category = Column(String, primary_key=True)
     threatened = Column(Boolean)
@@ -126,7 +126,7 @@ class BibRedlistCategories(DB.Model):
 
 
 class BibRedlistSource(DB.Model):
-    __tablename__ = "bib_redlist_source"
+    __tablename__ = "bib_c_redlist_source"
     __table_args__ = {"schema": "taxonomie"}
     id_source = Column(Integer, primary_key=True)
     name_source = Column(String)
@@ -140,7 +140,7 @@ class BibRedlistSource(DB.Model):
 
 
 class TRedlist(DB.Model):
-    __tablename__ = "t_redlist"
+    __tablename__ = "t_c_redlist"
     __table_args__ = {"schema": "taxonomie"}
     id_redlist = Column(Integer, primary_key=True)
     status_order = Column(Integer)
