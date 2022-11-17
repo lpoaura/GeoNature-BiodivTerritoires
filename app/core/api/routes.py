@@ -35,6 +35,7 @@ api = Blueprint("api", __name__)
 genStats = {}
 
 diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
+absent_id = get_nomenclature_id("STATUT_OBS", "No")
 
 CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
 
@@ -535,6 +536,7 @@ def get_taxa_list(id_area: int) -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
             .group_by(
@@ -556,26 +558,8 @@ def get_taxa_list(id_area: int) -> Response:
         data = []
         for r in result:
             dict = r._asdict()
-            # bio_status = []
-            # for s in r.bio_status_id:
-            #     bio_status.append(get_nomenclature(s))
-            #     dict["bio_status"] = bio_status
-            # redlist = get_redlist_status(r.cd_ref)
-            # dict["redlist"] = redlist
             data.append(dict)
-        #
-        # redlistless_data = list(filter(redlist_list_is_null, data))
-        # print("redlistless_data", len(redlistless_data))
-        # redlist_data = list(filter(redlist_is_not_null, data))
-        # print("redlist_data", len(redlist_data))
-        # redlist_sorted_data = sorted(
-        #     redlist_data,
-        #     key=lambda k: (
-        #         k["redlist"][0]["priority_order"],
-        #         k["redlist"][0]["threatened"],
-        #     ),
-        # )
-        # sorted_data = redlist_sorted_data + list(redlistless_data)
+
         return jsonify({"count": count, "data": data}), 200
 
     except Exception as e:
@@ -632,6 +616,7 @@ def get_taxa_simple_list(id_area: int) -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
             .distinct()
@@ -707,6 +692,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
@@ -716,7 +702,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
         results = query.all()
         current_app.logger.debug(dir(results))
         current_app.logger.debug(type(results))
-        return jsonify([dict(row) for row in results])
+        return jsonify([row._asdict() for row in results])
 
     except Exception as e:
         error = f"<get_data_over_year> ERROR: {e}"
@@ -754,6 +740,7 @@ def get_data_over_taxogroup(id_area: int) -> Response:
             .filter(
                 Synthese.id_nomenclature_diffusion_level == diffusion_level_id
             )
+            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(Taxref.cd_nom == Taxref.cd_ref)
             .filter(Taxref.id_rang == "ES")
             .group_by(
@@ -766,7 +753,7 @@ def get_data_over_taxogroup(id_area: int) -> Response:
 
         results = query.all()
         current_app.logger.debug(dir(results))
-        return jsonify([dict(row) for row in results])
+        return jsonify([row._asdict() for row in results])
 
     except Exception as e:
         error = "<get_data_over_taxogroup> ERROR: {}".format(e)
@@ -801,6 +788,7 @@ def get_surrounding_count_species_by_group2inpn(
         .filter(LAreas.id_area == id_area)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
         .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
+        .filter(Synthese.id_nomenclature_observation_status != absent_id)
         .filter(Taxref.cd_nom == Taxref.cd_ref)
         .filter(Taxref.id_rang == "ES")
         .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
@@ -833,6 +821,7 @@ def get_surrounding_count_species_by_group2inpn(
         .filter(LAreas.id_area == id_area)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
         .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
+        .filter(Synthese.id_nomenclature_observation_status != absent_id)
         .filter(Taxref.cd_nom == Taxref.cd_ref)
         .filter(Taxref.id_rang == "ES")
         .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)

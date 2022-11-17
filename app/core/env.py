@@ -1,3 +1,4 @@
+from decouple import Choices, config
 from flask import current_app
 from flask_admin import Admin
 from flask_assets import Environment
@@ -9,7 +10,16 @@ DB = SQLAlchemy()
 admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap3")
 assets = Environment()
 ckeditor = CKEditor()
-cache = Cache(config={"CACHE_TYPE": "RedisCache"})
+cache = Cache(
+    config={
+        "CACHE_TYPE": config(
+            "CACHE_TYPE",
+            default="RedisCache",
+            cast=Choices(["RedisCache", "null"]),
+        ),
+        "CACHE_DEFAULT_TIMEOUT": 7200,
+    }
+)
 
 
 def create_schemas(db):

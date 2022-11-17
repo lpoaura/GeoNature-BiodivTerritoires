@@ -1,3 +1,5 @@
+import os
+
 from flask import current_app
 from flask_admin.contrib import rediscli
 from geoalchemy2.shape import from_shape, to_shape
@@ -6,8 +8,6 @@ from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from redis import Redis
 from shapely.geometry import asShape
 from sqlalchemy import and_
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.schema import CreateTable
 
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
@@ -32,17 +32,7 @@ def create_tables(db):
         db ([type]): [description]
     """
     db = db
-    tables = [
-        TDynamicPages.__table__,
-        BibDynamicPagesCategory.__table__,
-        TReleasedDatas.__table__,
-        BibDatasTypes.__table__,
-        LAreasTypeSelection.__table__,
-        TRedlist.__table__,
-        BibRedlistSource.__table__,
-        BibRedlistCategories.__table__,
-        TMaxThreatenedStatus.__table__,
-    ]
+
     db.metadata.create_all(
         db.engine,
         tables=[
@@ -97,7 +87,7 @@ def geom_from_geojson(data):
         geom = from_shape(geojson, srid=4326)
     except Exception as e:
         current_app.logger.error(
-            "[geom_from_geojson] Can't convert geojson geometry to wkb: {}".format(
+            "<geom_from_geojson> Can't convert geojson geometry to wkb: {}".format(
                 str(e)
             )
         )
@@ -119,7 +109,7 @@ def get_geojson_feature(wkb):
         return feature
     except Exception as e:
         current_app.logger.error(
-            "[get_geojson_feature] Can't convert wkb geometry to geojson: {}".format(
+            "<get_geojson_feature> Can't convert wkb geometry to geojson: {}".format(
                 str(e)
             )
         )
@@ -348,3 +338,17 @@ def create_special_pages():
             DB.session.add(page)
 
     DB.session.commit()
+
+
+def init_custom_files():
+
+    filenames = ["custom.css", "custom.js"]
+    for file in filenames:
+        fullpath = os.path.join(
+            os.getcwd(), f"app/static/custom/assets/{file}"
+        )
+        if not os.path.exists(fullpath):
+            open(
+                os.path.join(os.getcwd(), f"app/static/custom/assets/{file}"),
+                "w",
+            )

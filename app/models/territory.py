@@ -4,7 +4,6 @@ from sqlalchemy import Column, Date, Integer, String
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
-import config
 from app.core.env import DB
 
 
@@ -38,7 +37,7 @@ class MVTerritoryGeneralStats(DB.Model):
     count_date = Column(Integer)
     count_observer = Column(Integer)
     last_obs = Column(Date)
-    geom_local = Column(Geometry("GEOMETRY", config.LOCAL_SRID))
+    geom_local = Column(Geometry("GEOMETRY", current_app.config["LOCAL_SRID"]))
     geom_4326 = Column(Geometry("GEOMETRY", 4326))
 
     def __repr__(self):
