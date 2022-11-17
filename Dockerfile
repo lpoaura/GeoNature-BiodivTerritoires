@@ -9,7 +9,6 @@ RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y locales && \
     locale-gen fr_FR.UTF-8 
 
-
 RUN apt-get update && \
     apt-get install -y postgresql-client gcc libgeos-dev git libpq-dev python-dev build-essential libgdal-dev
 
@@ -29,6 +28,5 @@ VOLUME ["/config", "/app/app/static/custom/assets"]
 EXPOSE 8080
 
 COPY docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
-
 
 ENTRYPOINT [ "docker-entrypoint.sh" ]

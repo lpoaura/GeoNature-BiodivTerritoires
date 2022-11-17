@@ -33,15 +33,24 @@ def create_app():
 
     # Load config
     try:
+        # debug
+        app.config["DEBUG"] = config("DEBUG", default=False, cast=bool)
+
+        # Global app tech info
         app.config["APP_SCHEMA_NAME"] = config(
             "APP_SCHEMA_NAME", default="gn_biodivterritory"
         )
-        app.config["LOCAL_SRID"] = config("LOCAL_SRID", default=2154)
+        app.config["LOCAL_SRID"] = config("LOCAL_SRID", default=4326)
         app.config["SQLALCHEMY_DATABASE_URI"] = config(
             "SQLALCHEMY_DATABASE_URI"
         )
-        app.config["CACHE_TIMEOUT"] = config("CACHE_TIMEOUT", default=86400)
-        app.config["DEBUG"] = json.dumps(config("DEBUG", default=False))
+        app.config["DEFAULT_GRID"] = config("DEFAULT_GRID", default="M1")
+        app.config["DEFAULT_BUFFER"] = config("DEFAULT_BUFFER", default=2000)
+        app.config["TAXHUB_URL"] = config(
+            "TAXHUB_URL", default="http://demo.geonature.fr/taxhub/"
+        )
+
+        # Global app info
         app.config["SITE_NAME"] = config(
             "SITE_NAME", default="Biodiv'Territoires"
         )
@@ -49,12 +58,16 @@ def create_app():
             "SITE_DESC",
             default="Une plateforme de porté à connaissance de la <b>biodiversité</b> des territoires",
         )
-        app.config["DEFAULT_GRID"] = config("DEFAULT_GRID", default="M1")
-        app.config["DEFAULT_BUFFER"] = config("DEFAULT_BUFFER", default=2000)
-        # values["base_layers"] = config.BASE_LAYERS
-        app.config["TAXHUB_URL"] = config(
-            "TAXHUB_URL", default="http://demo.geonature.fr/taxhub/"
+
+        # Cache
+        app.config["CACHE_TIMEOUT"] = config("CACHE_TIMEOUT", default=86400)
+        app.config["CACHE_REDIS_HOST"] = config(
+            "CACHE_REDIS_HOST", default="redis"
         )
+        app.config["CACHE_REDIS_PORT"] = config(
+            "CACHE_REDIS_PORT", default=6379
+        )
+
     except Exception as e:
         app.logger.critical("<create_app> Import config error : ", e)
 
