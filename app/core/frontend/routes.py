@@ -1,5 +1,3 @@
-import json
-
 from flask import (
     Blueprint,
     current_app,
@@ -10,8 +8,7 @@ from flask import (
 )
 from sqlalchemy import and_
 
-import config
-from app.core.env import DB, cache
+from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import BibAreasTypes, LAreas
@@ -56,16 +53,16 @@ def global_variables():
     values["taxhub_url"] = current_app.config["TAXHUB_URL"]
     values["special_pages"] = (
         DB.session.query(TDynamicPages.link_name, TDynamicPages.url)
-        .filter(TDynamicPages.is_active == True)
-        .filter(TDynamicPages.navbar_link == True)
-        .filter(TDynamicPages.url != None)
+        .filter(TDynamicPages.is_active.is_(True))
+        .filter(TDynamicPages.navbar_link.is_(True))
+        .filter(TDynamicPages.url.isnot(None))
         .order_by(TDynamicPages.navbar_link_order.asc())
         .all()
     )
     values["footer"] = (
         DB.session.query(TDynamicPages.content)
-        .filter(TDynamicPages.is_active == False)
-        .filter(TDynamicPages.navbar_link == False)
+        .filter(TDynamicPages.is_active.is_(False))
+        .filter(TDynamicPages.navbar_link.is_(False))
         .filter(TDynamicPages.url == "footer")
         .one()
     ).content
