@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "GeoNature-biodiv-territoires"
-version = "0.1.0"
+version = "0.99.1"
 description = "Porté à connaissance de la biodiversité des territoires"
 authors = ["lpofredc <frederic.cloitre@lpo.fr>"]
 license = "AGPL-3.0-or-later"
