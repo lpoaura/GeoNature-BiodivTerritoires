@@ -7,7 +7,7 @@ from flask_ckeditor import CKEditor
 from flask_sqlalchemy import SQLAlchemy
 
 DB = SQLAlchemy()
-admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap3")
+admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap4")
 assets = Environment()
 ckeditor = CKEditor()
 cache = Cache(
