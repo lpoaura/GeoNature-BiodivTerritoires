@@ -5,6 +5,7 @@
     {% block head %}
 
         <title>{% block title %}{% endblock %} {{ site_name }}</title>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='custom/images/favicon.ico') }}">
     {% endblock %}
     {% include "core/assets_css.html" %}
 
