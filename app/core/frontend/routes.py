@@ -131,7 +131,7 @@ def index() -> str:
         .filter(TDynamicPages.url == "technical_partners")
         .first()
     )
-
+    DB.session.commit()
     return render_template(
         "home.html",
         name=current_app.config["SITE_NAME"],
@@ -176,6 +176,7 @@ def datas() -> str:
         .filter(TDynamicPages.url == "datas-intro")
         .first()
     )
+    DB.session.commit()
     return render_template("datas.html", datas=datas, intro=intro)
 
 
@@ -221,6 +222,7 @@ def territory(type_code: str, area_code: str) -> str:
             .filter(TDynamicPages.url == "territory-intro")
             .first()
         )
+        DB.session.commit()
         return render_template(
             "territory/_main.html",
             area_info=area_info,
@@ -277,6 +279,7 @@ def embed_territory(type_code: str, area_code: str) -> str:
             .filter(TDynamicPages.url == "territory-intro")
             .first()
         )
+        DB.session.commit()
         return render_template(
             "territory/_embed_main.html",
             area_info=area_info,

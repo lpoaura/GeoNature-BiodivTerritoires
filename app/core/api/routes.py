@@ -75,6 +75,7 @@ def find_area() -> Response:
         datas = []
         for r in result:
             datas.append(r._asdict())
+        DB.session.commit() 
         return {"count": count, "datas": datas}, 200
 
     except Exception as e:
@@ -102,6 +103,7 @@ def redirect_area(id_area: int) -> Response:
             .filter(LAreas.id_area == id_area)
         )
         area = qarea.first()
+        DB.session.commit()
         return redirect(
             url_for(
                 "rendered.territory",
@@ -200,6 +202,7 @@ def home_stats() -> Response:
         current_app.logger.debug(
             f"<main_area_info> TYPE RESULT {type(jsonify(stats.as_dict()))}"
         )
+        DB.session.commit()
         return jsonify(stats.as_dict())
     except Exception as e:
         current_app.logger.error("<home_stats> ERROR:", e)
@@ -231,6 +234,7 @@ def main_area_info(type_code: str, area_code: str) -> Response:
         current_app.logger.debug(
             f"<main_area_info> TYPE RESULT {type(jsonify(data))}"
         )
+        DB.session.commit()
         return jsonify(data)
     except Exception as e:
         current_app.logger.error(f"<main_area_info> ERROR: {e}")
@@ -297,6 +301,7 @@ def get_surrounding_area(
     data = []
     for r in results:
         data.append(r._asdict())
+    DB.session.commit()
     return jsonify(data)
 
 
@@ -317,6 +322,7 @@ def datas_types() -> Response:
         )
         result = query.first()
         data = result._asdict()
+        DB.session.commit()
         return jsonify(data)
     except Exception as e:
         current_app.logger.error("<datas_types> ERROR:", e)
@@ -370,6 +376,7 @@ def get_geojson_area(type_code: str, area_code: str) -> Response:
         feature = Feature(geometry=to_shape(result.geom))
         feature["properties"]["area_name"] = result.area_name
         feature["properties"]["area_code"] = result.area_code
+        DB.session.commit()
         return feature
     except Exception as e:
         current_app.logger.error("<get_geojson_area> ERROR:", e)
@@ -422,6 +429,7 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
         features = []
         for d in datas:
             features.append(d.as_geofeature("geom_4326", "id_area"))
+        DB.session.commit()
         return FeatureCollection(features)
     except Exception as e:
         current_app.logger.error("<get_grid_datas> ERROR:", e)
@@ -446,6 +454,7 @@ def get_ntile() -> Response:
             current_app.logger.debug(f"<get_ntile> r {r}")
             current_app.logger.debug(f"<get_ntile> r.as_dict() {r.as_dict()}")
             datas.append(r.as_dict())
+        DB.session.commit()
         return jsonify(datas)
     except Exception as e:
         current_app.logger.error(f"<get_ntile> ERROR  {e}")
@@ -559,7 +568,7 @@ def get_taxa_list(id_area: int) -> Response:
         for r in result:
             dict = r._asdict()
             data.append(dict)
-
+        DB.session.commit()
         return jsonify({"count": count, "data": data}), 200
 
     except Exception as e:
@@ -640,7 +649,7 @@ def get_taxa_simple_list(id_area: int) -> Response:
         data = []
         for r in result:
             data.append(r._asdict())
-
+        DB.session.commit()
         return jsonify({"count": len(result), "data": data}), 200
 
     except Exception as e:
@@ -702,6 +711,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
         results = query.all()
         current_app.logger.debug(dir(results))
         current_app.logger.debug(type(results))
+        DB.session.commit()
         return jsonify([row._asdict() for row in results])
 
     except Exception as e:
@@ -753,6 +763,7 @@ def get_data_over_taxogroup(id_area: int) -> Response:
 
         results = query.all()
         current_app.logger.debug(dir(results))
+        DB.session.commit()
         return jsonify([row._asdict() for row in results])
 
     except Exception as e:
@@ -872,7 +883,7 @@ def get_surrounding_count_species_by_group2inpn(
                 response["territory"]["not_threatened"].append(
                     r.not_threatened
                 )
-
+    DB.session.commit()
     return (
         jsonify(response),
         200,
