@@ -70,6 +70,16 @@
 
     const uicnDefLink = "https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
 
+    const redListOrder = {
+        'LRM':'Monde',
+        'LRE':'Europe',
+        'LRN':'National',
+        'LRR':'Régional',
+        'LRD':'Départemental'
+    }
+
+    const redListOrderKeys = () => Object.keys(redListOrder);
+
     const LRIcon = (category) => {
         mediaIcon = document.createElement('img')
         mediaIcon.classList.add('m-2')
@@ -82,7 +92,7 @@
     }
 
     const statusRow = (values, type=null) => {
-        const typGrp = type != 'LR' ? `<td>${values.type_grp}</td>` : '';
+        const typGrp = type === 'LR' ? `<td>${values.status_scale}</td>` : `<td>${values.type_grp}</td>`;
         const isThreatenedClass = values.threatened ? 'table-danger':''
         return `<tr class="${isThreatenedClass}">
                         ${typGrp}
@@ -106,6 +116,7 @@
         const threatenedStatus = ['EN','CR','VU']
         //console.log('isThreatened',Object.keys(text.values).some((e) => threatenedStatus.include(text.values[e].code_statut)))
         const result = {
+            status_scale: status.cd_type_statut.startsWith('LR') ? redListOrder[status.cd_type_statut] : null,
             type_grp: status.regroupement_type,
             url: text.doc_url,
             text: text.full_citation,
@@ -128,8 +139,8 @@
                   let tableContent = '';
 
                   const status = response.data.status;
-                  const keys = Object.keys(status).filter(i => !i.startsWith('LR'))
-                  console.debug(keys);
+                  let keys = Object.keys(status).filter(i => !status[i].cd_type_statut.startsWith('LR'))
+
                   const itemsLength = keys.length;
                   if (itemsLength == 0) {
                       $('#modalInfoBody').html('Aucune protection');
@@ -142,7 +153,7 @@
                       console.log(item)
                       tableContent += statusRow(item)
                     })
-                    
+
                       $('#modalInfoBody').html(`
                       <table class="table table-striped table-hover"><thead class="thead-dark">
                         <tr>
@@ -175,7 +186,10 @@
                   let tableContent = '';
 
                   const status = response.data.status;
-                  const keys = Object.keys(status).filter(i => i.startsWith('LR'))
+                  let keys = Object.keys(status).filter(i => status[i].cd_type_statut.startsWith('LR'))
+                  console.log('before', redListOrderKeys(),redListOrderKeys(), keys)
+                  keys = keys.sort(function(a, b){return redListOrderKeys().indexOf(a) - redListOrderKeys().indexOf(b)})
+                  console.log('after',redListOrderKeys(),redListOrderKeys(), keys)
                   console.debug(keys);
                   const itemsLength = keys.length;
                   if (itemsLength == 0) {
@@ -192,6 +206,7 @@
                       $('#modalInfoBody').html(`
                       <table class="table table-striped table-hover"><thead class="thead-dark">
                         <tr>
+                            <th>Echelle</th>
                             <th>Territoire</th>
                             <th>Texte</th>
                             <th>Statut de conservation</th>
@@ -315,12 +330,12 @@
               {
                   data: function (row) {
                         return `
-                        <i 
-                            id="redlistDetails" 
-                            data-nomvalide="${row.lb_nom}" 
-                            data-cdref="${row.cd_ref}" 
-                            data-toggle="tooltip" 
-                            title="Voir ses statuts de conservation" 
+                        <i
+                            id="redlistDetails"
+                            data-nomvalide="${row.lb_nom}"
+                            data-cdref="${row.cd_ref}"
+                            data-toggle="tooltip"
+                            title="Voir ses statuts de conservation"
                             class="fa ${row.threatened ? 'fa-check-circle':'fa-info-circle text-muted'}">
                         </i>`
                       //var threatened = '';
