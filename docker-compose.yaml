@@ -13,7 +13,7 @@ services:
     image: lpoaura/gnbt:dev
     container_name: gnbt_app
     volumes:
-      - gnbt_app_vol:/config
+      - gnbt_app_custom_vol:/app/app/static/custom/assets
     ports:
       - 8080:8080
     networks:
@@ -23,7 +23,7 @@ services:
 
 
 volumes:
-  gnbt_app_vol:
+  gnbt_app_custom_vol:
   gnbt_cachedb_vol:
 
 networks:

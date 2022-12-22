@@ -122,3 +122,7 @@ app/static/assets/node_modules
 
 #Monitoring
 *.db
+
+#Docker
+docker-compose.override.yaml
+docker-compose.override.yml

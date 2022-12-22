@@ -23,7 +23,7 @@ RUN apt-get clean && \
 
 COPY . /app
 
-VOLUME ["/config", "/app/app/static/custom/assets"]
+VOLUME ["/app/app/static/custom/assets"]
 
 EXPOSE 8080
 

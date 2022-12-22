@@ -44,14 +44,20 @@
       </table>
     </div>
     <div id="modalInfo" class="modal fade" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-      
+      <div
+        class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
+      >
         <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalInfoTitle"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalInfoTitle"></h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
           <div id="modalInfoBody"></div>
         </div>
@@ -61,29 +67,93 @@
 </div>
 
 <script type="text/javascript">
+
+    const uicnDefLink = "https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
+
+    const LRIcon = (category) => {
+        mediaIcon = document.createElement('img')
+        mediaIcon.classList.add('m-2')
+        mediaIcon.src = `/static/assets/images/uicn/${category.toLowerCase()}.svg`
+        mediaIconSpan = document.createElement('span')
+        mediaIconSpan.classList.add();
+        mediaIconSpan.innerHTML = category
+        mediaIcon.appendChild(mediaIconSpan)
+        return mediaIcon
+    }
+
+    const statusRow = (values, type=null) => {
+        const typGrp = type != 'LR' ? `<td>${values.type_grp}</td>` : '';
+        const isThreatenedClass = values.threatened ? 'table-danger':''
+        return `<tr class="${isThreatenedClass}">
+                        ${typGrp}
+                    <td>
+                        ${values.territory}
+                    </td>
+                    <td>
+                        <a href="${values.url?values.url:'#'}" target="_blank" data-toggle="tooltip" title="Référence">
+                            ${values.text}
+                        </a>
+                    </td>
+                    <td>
+                        ${values.values.join('<br>')}
+                    </td>
+                </tr>`
+    }
+
+    const getStatus = (status, type=null) => {
+        const key = Object.keys(status.text)[0]
+        const text = status.text[key]
+        const threatenedStatus = ['EN','CR','VU']
+        //console.log('isThreatened',Object.keys(text.values).some((e) => threatenedStatus.include(text.values[e].code_statut)))
+        const result = {
+            type_grp: status.regroupement_type,
+            url: text.doc_url,
+            text: text.full_citation,
+            territory: text.lb_adm_tr,
+            values: Object.keys(text.values).map((e) => {
+                return type === 'LR' ? LRIcon(text.values[e].code_statut).outerHTML : `<strong>${text.values[e].code_statut}</strong> - ${text.values[e].label_statut}`
+            }),
+            threatened:  Object.keys(text.values).some((e) => threatenedStatus.includes(text.values[e].code_statut))
+            }
+        console.log('getStatus result', result)
+        return result
+    } ;
+
   $(document.body).on('click', "#protectionDetails", function () {
       var cdref = $(this).data("cdref");
       debugLog('api regl', '{{taxhub_url}}/api/taxref/' + cdref);
       axios.get('{{taxhub_url}}/api/taxref/' + cdref)
           .then(function (response) {
                   $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
-                  var tableContent = '';
+                  let tableContent = '';
 
-                  var items = response.data.statuts_protection;
-                  debugLog('isArray', Array.isArray(items));
-                  var itemsLength = items.length;
+                  const status = response.data.status;
+                  const keys = Object.keys(status).filter(i => !i.startsWith('LR'))
+                  console.debug(keys);
+                  const itemsLength = keys.length;
                   if (itemsLength == 0) {
                       $('#modalInfoBody').html('Aucune protection');
                   } else {
-                      for (var i = 0; i < itemsLength; i++) {
-                          tableContent += '<tr><td><a href="' + items[i].url_inpn + '" target="_blank" data-toggle="tooltip" title="Référence">' + items[i].intitule + '</a></td><td>' + items[i].article + '</td></tr>';
-                      }
-                      $('#modalInfoBody').html('<table class="table table-striped table-hover"><thead class="thead-dark">'
-                          + '<tr>'
-                          + '<th>Statut</th>'
-                          + '<th>Article/Annexe</th>'
-                          + '</tr>'
-                          + '</thead>' + tableContent + '</table>');
+                    console.log('test', keys)
+                    keys.forEach(k => {
+                      //const regroupement_type= status[k].regroupement_type
+                      console.log("Start get Value", status[k])
+                      const item = getStatus(status[k])
+                      console.log(item)
+                      tableContent += statusRow(item)
+                    })
+                    
+                      $('#modalInfoBody').html(`
+                      <table class="table table-striped table-hover"><thead class="thead-dark">
+                        <tr>
+                            <th>Type</th>
+                            <th>Territoire</th>
+                            <th>Statut</th>
+                            <th>Article/Annexe</th>
+                            </tr>
+                        </thead>
+                        ${tableContent}
+                       </table>`);
                   }
 
                   // show modal
@@ -99,83 +169,41 @@
   $(document.body).on('click', "#redlistDetails", function () {
       var cdref = $(this).data("cdref");
       var nom_valide = $(this).data("nomvalide");
-      axios.get('/api/statut/taxa/' + cdref + '/redlist')
+      axios.get('{{taxhub_url}}/api/taxref/' + cdref)
           .then(function (response) {
-                  const modalInfoTitle=document.getElementById('modalInfoTitle')
-                  console.log('modalInfoTitle', modalInfoTitle)
-                  uicnDefLink="https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
-                  modalInfoTitle.innerHTML = 'Statuts de conservation '
-                  + 'pour&nbsp;:&nbsp;'+nom_valide
-                  + '<a href="'+uicnDefLink+'" target="_blank"><i class="fas fa-fw fa-question-circle" '
-                  + 'data-toggle="tooltip" data-placement="bottom" title="Définition des catégories et critères"></i></a> ';
-                  const modalInfoBody = document.getElementById('modalInfoBody');
-                  modalInfoBody.innerHTML = null;
-                  console.debug('modalInfoBody', modalInfoBody);
-                  const items = response.data;
-                  if (items.length == 0) {
-                      modalInfoBody.innerHtml('Aucune protection');
-                      console.debug('No data')
+                  $('#modalInfoTitle').html(`Statuts de conservation pour&nbsp;:&nbsp;<i>${response.data.nom_valide}</i>`);
+                  let tableContent = '';
+
+                  const status = response.data.status;
+                  const keys = Object.keys(status).filter(i => i.startsWith('LR'))
+                  console.debug(keys);
+                  const itemsLength = keys.length;
+                  if (itemsLength == 0) {
+                      $('#modalInfoBody').html('Aucune protection');
                   } else {
-                      const ul = document.createElement('ul')
-                      ul.classList.add("list-unstyled")
-                      items.forEach((e, i) => {
-                          console.log(`items[${i}]`, e)
-                          const li = document.createElement('li')
-                          li.classList.add('media')
-                          if (e.threatened) {
-                              li.classList.add('list-group-item-danger')
-                          }
-                          const mediaIcon = document.createElement('img')
-                          mediaIcon.classList.add('m-2')
-                          mediaIcon.src = `/static/assets/images/uicn/${e.category.toLowerCase()}.svg`
-                          mediaIconSpan = document.createElement('span')
-                          //mediaIconSpan.classList.add();
-                          mediaIconSpan.innerHTML = e.category
-                          mediaIcon.appendChild(mediaIconSpan)
-                          const mediaBody = document.createElement('div')
-                          mediaBody.classList.add('media-body')
-                          const mediaBodyTitle = document.createElement('h5')
-                          mediaBodyTitle.classList.add('mt-0','mb-1')
-                          mediaBodyTitle.innerHTML = `${e.area_name} ${e.context ? `(${e.context})`:''}`
-                          const mediaBodyText = document.createElement('p')
-                          const mediaBodyPText = []
-                          mediaBodyPText.push(uicnDefs[e.category.toLowerCase()].label)
-                          if (e.criteria) {
-                              mediaBodyPText.push(`Critère: ${e.criteria}`)
-                          }
-                          mediaBodyText.innerHTML = mediaBodyPText.join(', ')
-                          li.appendChild(mediaIcon)
-                          mediaBody.appendChild(mediaBodyTitle)
-                          mediaBody.appendChild(mediaBodyText)
-                          li.appendChild(mediaBody)
-                          ul.appendChild(li)
-
-                          //tableContent += `<div class="list-group-item ${e.threatened ? 'list-group-item-danger' : ''}">`
-                          //   +'<div class="d-flex w-100 justify-content-between">'
-                          //   + `<h5 class="mb-1">${e.area_name}</h5></div>`
-                          //   + `<p>Statut de conservation et critères : <span class="badge" style="background-color:var(--${e.category.toLowerCase()}-color)}">${e.category}</p>`
-                              //+ '<td class="text-center" style="background-color:var(--' + e.category.toLowerCase() + '-color)">' + e.category + (e.criteria ? '<br/><small><samp>' + e.criteria + '</samp></small>' : '') + '</td>'
-                             // + '<td>' + (e.context ? e.context : '') + '</td></tr>'
-                          //    + `</div></div>`;
-                      });
-
-                    modalInfoBody.appendChild(ul);
-                    const deflink = document.createElement('a')
-                    deflink.href="https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
-                    deflink.target="_blank"
-                    deflink.innerHtml='<i class="fa fa-info fa-fw">Plus d\'informations sur les statuts de liste rouge</i>'
-                    modalInfoBody.appendChild(deflink)
-                      //for (var i = 0; i < itemsLength; i++) {
-                       //   tableContent += '<tr ' + (items[i].threatened ? 'class="table-danger"' : '') + '>'
-                       //       + '<td>' + items[i].area_name + '</td>'
-                       //       + '<td class="text-center" style="background-color:var(--' + items[i].category.toLowerCase() + '-color)">' + items[i].category + (items[i].criteria ? '<br/><small><samp>' + items[i].criteria + '</samp></small>' : '') + '</td>'
-                       //       + '<td>' + (items[i].context ? items[i].context : '') + '</td></tr>';
-                      //}
-                  // show modal
-
-                  // store each style conditions for each style type in localStorage
+                    console.log('test', keys)
+                    keys.forEach(k => {
+                      //const regroupement_type= status[k].regroupement_type
+                      console.log("Start get Value", status[k])
+                      const item = getStatus(status[k],'LR')
+                      console.log(item)
+                      tableContent += statusRow(item,'LR')
+                    })
+                      $('#modalInfoBody').html(`
+                      <table class="table table-striped table-hover"><thead class="thead-dark">
+                        <tr>
+                            <th>Territoire</th>
+                            <th>Texte</th>
+                            <th>Statut de conservation</th>
+                            </tr>
+                        </thead>
+                        ${tableContent}
+                       </table>`);
                   }
+
+                  // show modal
                   $('#modalInfo').modal('show');
+                  // store each style conditions for each style type in localStorage
               }
           )
           .catch(function (error) {
@@ -244,13 +272,6 @@
           },
           columnDefs: [
               {className: "text-center align-middle", targets: '_all'},
-              {#{#}
-              {#    "createdCell": function (td, cellData, rowData, row, col) {#}
-              {#        if (!!cellData) {#}
-              {#            $(td).css('background-color', 'var(--' + rowData.redlist[0].category.toLowerCase() + '-color)')#}
-              {#        }#}
-              {#    }, targets: [5,]#}
-              {#v},#}
               {
                   "targets": [4, 8, 9, 10],
                   "visible": false,
@@ -258,11 +279,6 @@
               },
           ],
           createdRow: function (row, data, dataIndex) {
-              {#if (data.redlist.length > 0) {#}
-              {#    if (!!data.redlist[0].threatened > 0) {#}
-              {#        $(row).addClass('table-danger');#}
-              {#    }#}
-              {# } #}
               if (data.threatened) {
                   $(row).addClass('table-danger');
               }
@@ -298,11 +314,20 @@
               },
               {
                   data: function (row) {
-                      var threatened = '';
-                      if (row.threatened == true) {
-                          threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
-                      }
-                      return threatened;
+                        return `
+                        <i 
+                            id="redlistDetails" 
+                            data-nomvalide="${row.lb_nom}" 
+                            data-cdref="${row.cd_ref}" 
+                            data-toggle="tooltip" 
+                            title="Voir ses statuts de conservation" 
+                            class="fa ${row.threatened ? 'fa-check-circle':'fa-info-circle text-muted'}">
+                        </i>`
+                      //var threatened = '';
+                      //if (row.threatened == true) {
+                      //    threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
+                      //}
+                      //return threatened;
                   }
               },
               {
