@@ -1,6 +1,6 @@
 {% block assets_js %}
 <script>
-  var debugMode = {{ debug }};
+  const debugMode = '{{ debug }}'.toLowerCase() === 'true';
 </script>
 <script
   type="application/javascript"
@@ -58,10 +58,4 @@
   type="application/javascript"
   src="{{ url_for('static', filename='custom/assets/custom.js') }}"
 ></script>
-{##} {#
-<!-- {% assets "js_all" %}#}
-{#<script type="text/javascript" src="{{ ASSET_URL }}"></script>#}
-{#{% endassets %}#}
-{#{% assets "css_all" %}#}
-{#<link  type="text/css" rel="stylesheet" href="{{ ASSET_URL }}">#}
-{#{% endassets %} -->#} {% endblock %}
+{% endblock %}
