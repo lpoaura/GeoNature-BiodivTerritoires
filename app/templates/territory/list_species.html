@@ -100,9 +100,10 @@
                         ${values.territory}
                     </td>
                     <td>
-                        <a href="${values.url?values.url:'#'}" target="_blank" data-toggle="tooltip" title="Référence">
+                        ${values.url ? `<a href="${values.url?values.url:'#'}" target="_blank" data-toggle="tooltip" title="Référence">
                             ${values.text}
-                        </a>
+                        </a>`:`<span>${values.text}</span>` }
+
                     </td>
                     <td>
                         ${values.values.join('<br>')}
