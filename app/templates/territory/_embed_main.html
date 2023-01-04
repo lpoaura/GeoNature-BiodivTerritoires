@@ -1,25 +1,6 @@
-{% extends "core/embed_layout.html" %} 
-{% block title %}
-La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
-{% endblock %} 
-
-{% block head %} 
-{{ super() }} 
-{% endblock %} 
-
-{% block content %}
-<style>
-  body {
-    padding-top: 0 !important;
-  }
-  #territorySynthesis .paral h1 {
-    color: var(--dark, "#000");
-  }
-</style>
-<script>
-  {#const baseLayersList = JSON.parse('{{ base_layers | tojson | safe }}');#}
-  {#debugLog('<baseLayersList>', baseLayersList);#}
-</script>
+{% extends "core/embed_layout.html" %} {% block title %} La biodiversité de
+{{area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
+{% endblock %} {% block head %} {{ super() }} {% endblock %} {% block content %}
 
 <script type="text/javascript">
   var buffer = {{ default_buffer }};
@@ -27,8 +8,17 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
 </script>
 
 <style type="text/css">
+  body {
+    padding-top: 0 !important;
+  }
+
+  #territorySynthesis .paral h1 {
+    color: var(--dark, "#000");
+    padding-top: unset;
+  }
+
   .paralsec3.areaName {
-    min-height: 280px;
+    min-height: 200px;
     height: auto;
     background-position: 95% 5%;
   }
@@ -301,75 +291,6 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
         </div>
       </div>
     </div>
-    <!-- Block 4 -->
-         <!--
-    <div class="card">
-      <div class="card-header blocks" id="headingSurroundingAreas">
-        <h1>
-          <div class="icon-rounded shadow bg-primary-light">
-            <i class="fas fa-map-signs"></i>
-          </div>
-          <span
-            data-toggle="tooltip"
-            data-placement="right"
-            data-html="true"
-            title="Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
-                                par rapport au territoire courant <u>et</u> à sa zone tampon."
-          >
-            Données de synthèse sur les territoires alentours
-          </span>
-          <span class="float-right">
-            <i
-              class="fas fa-angle-double-down accordion-chevron"
-              aria-hidden="true"
-            ></i>
-          </span>
-        </h1>
-      </div>
- 
-      <div id="contentSurroundingAreas">
-        <div class="card-body">
-          <div class="col">
-            <div class="row">
-              <div class="col col-lg-9 col-sm-12">
-                <div class="card border-primary shadow h-100">
-                  <div class="card-header info h-100">
-                    <i class="fas fa-info text-primary"></i>
-                    Le tableau suivant liste l'ensemble des territoires en
-                    recouvrement ou limitrophes (communes voisines, zones
-                    naturelles, etc.) par rapport au territoire courant
-                    <u>et</u> à sa zone tampon. Le nombre de territoires
-                    associés est donc dépendant de la distance tampon
-                    (sélectionnée précédemment).
-                  </div>
-                </div>
-              </div>
-              <div class="col col-lg-3 col-sm-12">
-                <div class="card border-warning shadow h-100">
-                  <div class="card-header info h-100">
-                    <i class="fas fa-lightbulb text-warning"></i>
-                    Vous pouvez télécharger le tableau sous différents formats
-                    (CSV, PDF).
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card text-white bg-dark mt-3 mb-3 shadow">
-              <div class="card-header info">
-                <i class="fas fa-drafting-compass"></i>
-                Vous pouvez modifier l'emprise de l'analyse en sélectionnant
-                <a href="#territoryIntro">ici</a> la distance tampon de votre
-                choix.
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            {% include "territory/surrounding_areas.html" %}
-          </div>
-        </div>
-      </div>
-     -->
-    </div>
   </div>
 </div>
 
@@ -378,32 +299,9 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
 
   $('#selectBuffer').on('change', function () {
       buffer = this.value;
-      //surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
-      //surroundingAreasTable.ajax.reload();
       threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
       threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
       getGridArea('taxa');
-  });
-
-  $(document).ready(function () {
-      $(".collapse").on('show.bs.collapse', function () {
-          $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
-          $(this).prev(".card-header").addClass("bg-gradient-info");
-      }).on('hide.bs.collapse', function () {
-          $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
-          $(this).prev(".card-header").removeClass("bg-gradient-info");
-      });
-  });
-
-
-  $(document).ready(function () {
-      $(".collapse").on('show.bs.collapse', function () {
-          $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-down").addClass("fa-angle-double-up");
-          $(this).prev(".card-header").addClass("bg-gradient-info");
-      }).on('hide.bs.collapse', function () {
-          $(this).prev(".card-header").find(".accordion-chevron").removeClass("fa-angle-double-up").addClass("fa-angle-double-down");
-          $(this).prev(".card-header").removeClass("bg-gradient-info");
-      });
   });
 </script>
 {% endblock %}
