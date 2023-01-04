@@ -1,6 +1,9 @@
 /*
  * Base structure
  */
+:root  {
+  --main-color: #8031a7;
+}
 
 body {
   display: flex;
@@ -262,7 +265,7 @@ h5 {
 
 .icon-rounded svg {
   vertical-align: middle;
-  color: rgba(0, 96, 230, 0.9);
+  color: var(--main-color);
 }
 
 .bg-primary-light {
@@ -276,7 +279,7 @@ h5 {
 }
 
 .testimonial-quote {
-  color: rgba(0, 96, 230, 0.9);
+  color: var(--main-color);
   margin-bottom: 20px;
 }
 
@@ -291,7 +294,7 @@ h5 {
   margin-bottom: 0;
   font-size: 2.2rem;
   font-weight: bolder;
-  color: rgba(0, 96, 230, 0.9);
+  color: var(--main-color);
   line-height: 2.2;
 }
 
@@ -312,7 +315,7 @@ h5 {
 
 h1.page-title {
   font-weight: bolder;
-  color: rgba(0, 96, 230, 0.9);
+  color: var(--main-color);
   margin-top: 2rem;
 }
 
