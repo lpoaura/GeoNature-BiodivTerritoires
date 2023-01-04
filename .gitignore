@@ -126,3 +126,6 @@ app/static/assets/node_modules
 #Docker
 docker-compose.override.yaml
 docker-compose.override.yml
+
+#Custom assets
+custom/
