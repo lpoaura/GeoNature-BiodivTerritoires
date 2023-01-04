@@ -15,7 +15,7 @@ cd /app
 
 echo "DEBUG: $DEBUG"
 
-if [ '$DEBUG' = 'true' ]; then
+if [ "$DEBUG" = true ]; then
   echo "Debug mode"
   python -m wsgi
 else

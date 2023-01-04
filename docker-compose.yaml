@@ -12,6 +12,8 @@ services:
   gnbt:
     image: lpoaura/gnbt:dev
     container_name: gnbt_app
+    env_file:
+      - .env
     volumes:
       - gnbt_app_custom_vol:/app/app/static/custom/assets
     ports:
