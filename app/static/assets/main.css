@@ -1,8 +1,19 @@
 /*
  * Base structure
  */
-:root  {
-  --main-color: #8031a7;
+
+/* custom Colors */
+:root {
+  --main: rgba(0, 96, 230, 0.9);
+  --ex-color: #101210;
+  --ew-color: #582440;
+  --re-color: #5b1764;
+  --cr-color: #d3101c;
+  --en-color: #ef7c38;
+  --vu-color: #fbe500;
+  --nt-color: #d5d700;
+  --lc-color: #70b546;
+  --dd-color: #dad7cb;
 }
 
 body {
@@ -265,7 +276,7 @@ h5 {
 
 .icon-rounded svg {
   vertical-align: middle;
-  color: var(--main-color);
+  color: var(--main);
 }
 
 .bg-primary-light {
@@ -279,7 +290,7 @@ h5 {
 }
 
 .testimonial-quote {
-  color: var(--main-color);
+  color: var(--main);
   margin-bottom: 20px;
 }
 
@@ -294,7 +305,7 @@ h5 {
   margin-bottom: 0;
   font-size: 2.2rem;
   font-weight: bolder;
-  color: var(--main-color);
+  color: var(--main);
   line-height: 2.2;
 }
 
@@ -315,21 +326,8 @@ h5 {
 
 h1.page-title {
   font-weight: bolder;
-  color: var(--main-color);
+  color: var(--main);
   margin-top: 2rem;
-}
-
-/* UICN Colors */
-:root {
-  --ex-color: #101210;
-  --ew-color: #582440;
-  --re-color: #5b1764;
-  --cr-color: #d3101c;
-  --en-color: #ef7c38;
-  --vu-color: #fbe500;
-  --nt-color: #d5d700;
-  --lc-color: #70b546;
-  --dd-color: #dad7cb;
 }
 
 .ex {
@@ -503,4 +501,11 @@ h1.page-title {
 
 #modalInfoBody ul > li {
   border-bottom: 1px solid #bbb;
+}
+
+#embedBlocks h1 {
+  font-size: 2.2rem;
+  font-weight: bolder;
+  color: var(--main);
+  line-height: 2.2;
 }
