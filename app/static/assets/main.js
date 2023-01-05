@@ -198,3 +198,8 @@ const uicnDefs = {
 };
 
 let specieListScrollY = "500px";
+
+const generateTaxaLinkUrl = (urlTemplate, cdnom) => {
+  urlTemplate = urlTemplate ? urlTemplate : 'https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]'
+  return urlTemplate.replace('[CDNOM]',cdnom)
+}

@@ -68,6 +68,8 @@
 
 <script type="text/javascript">
 
+    const taxa_link_url_template = '{{taxa_link_url_template}}';
+
     const uicnDefLink = "https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
 
     const redListOrder = {
@@ -311,12 +313,12 @@
               {data: "group2_inpn"},
               {
                   data: function (row) {
-                      return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')">' + row.nom_vern + '</a>';
+                    return `<a href="${generateTaxaLinkUrl(taxa_link_url_template,row.cd_ref)}" target="_blank" data-toggle="tooltip" title="Fiche de ${row.nom_vern} (cd_nom&nbsp;:&nbsp;${row.cd_ref})">${row.nom_vern}</a>`;
                   }
               },
               {
                   data: function (row) {
-                      return '<a href="https://inpn.mnhn.fr/espece/cd_nom/' + row.cd_ref + '" target="_blank" data-toggle="tooltip" title="Fiche de ' + row.nom_vern + ' (cd_nom&nbsp;:&nbsp;' + row.cd_ref + ')"><i>' + row.lb_nom + '</i></a>';
+                    return `<a href="${generateTaxaLinkUrl(taxa_link_url_template,row.cd_ref)}" target="_blank" data-toggle="tooltip" title="Fiche de ${row.nom_vern} (cd_nom&nbsp;:&nbsp;${row.cd_ref})"><i>${row.lb_nom}</i></a>`;
                   }
               },
               {
