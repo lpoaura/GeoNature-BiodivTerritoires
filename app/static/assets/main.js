@@ -196,3 +196,5 @@ const uicnDefs = {
     label: "Non évaluée",
   },
 };
+
+let specieListScrollY = "500px";
