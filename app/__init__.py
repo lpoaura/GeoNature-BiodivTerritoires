@@ -45,6 +45,10 @@ def create_app():
         )
         app.config["DEFAULT_GRID"] = config("DEFAULT_GRID", default="M1")
         app.config["DEFAULT_BUFFER"] = config("DEFAULT_BUFFER", default=2000)
+        app.config['FILTER_CD_NOMENCLATURE_SENSITIVITY'] = config("FILTER_CD_NOMENCLATURE_SENSITIVITY", default='0')
+        app.config['FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL'] = config("FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL", default='5')
+        app.config['FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS'] = config("FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS", default='No')
+
         app.config["TAXHUB_URL"] = config(
             "TAXHUB_URL", default="http://demo.geonature.fr/taxhub/"
         )
@@ -104,7 +108,7 @@ def create_app():
             init_custom_files,
         )
 
-        create_schemas(DB)
+        # create_schemas(DB)
 
         create_tables(DB)
 

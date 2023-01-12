@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Boolean,
 )
 from sqlalchemy.orm import relationship
 from utils_flask_sqla.serializers import serializable
@@ -40,6 +41,7 @@ class LAreas(DB.Model):
     area_code = Column(String)
     geom = Column(Geometry("GEOMETRY", current_app.config["LOCAL_SRID"]))
     source = Column(String)
+    enable = Column(Boolean)
     area_type = relationship(
         "BibAreasTypes",
         backref=DB.backref("ref_geo.bib_areas_types", lazy=True),

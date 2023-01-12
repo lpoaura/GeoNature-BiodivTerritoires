@@ -34,8 +34,9 @@ api = Blueprint("api", __name__)
 
 genStats = {}
 
-diffusion_level_id = get_nomenclature_id("NIV_PRECIS", "5")
-absent_id = get_nomenclature_id("STATUT_OBS", "No")
+diffusion_level_id = get_nomenclature_id("NIV_PRECIS", current_app.config["FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL"])
+sensitivity_id = get_nomenclature_id("SENSIBILITE", current_app.config["FILTER_CD_NOMENCLATURE_SENSITIVITY"])
+absent_id = get_nomenclature_id("STATUT_OBS", current_app.config["FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS"])
 
 CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
 
@@ -75,7 +76,7 @@ def find_area() -> Response:
         datas = []
         for r in result:
             datas.append(r._asdict())
-        DB.session.commit() 
+        DB.session.commit()
         return {"count": count, "datas": datas}, 200
 
     except Exception as e:
@@ -543,11 +544,11 @@ def get_taxa_list(id_area: int) -> Response:
             )
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+                Synthese.id_nomenclature_observation_status != absent_id,
             )
-            .filter(Synthese.id_nomenclature_observation_status != absent_id)
-            .filter(Taxref.cd_nom == Taxref.cd_ref)
-            .filter(Taxref.id_rang == "ES")
+            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
             .group_by(
                 func.coalesce(TMaxThreatenedStatus.threatened, False),
                 Taxref.cd_ref,
@@ -623,11 +624,11 @@ def get_taxa_simple_list(id_area: int) -> Response:
             )
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+                Synthese.id_nomenclature_observation_status != absent_id,
             )
-            .filter(Synthese.id_nomenclature_observation_status != absent_id)
-            .filter(Taxref.cd_nom == Taxref.cd_ref)
-            .filter(Taxref.id_rang == "ES")
+            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
             .distinct()
             .group_by(
                 func.coalesce(TMaxThreatenedStatus.threatened, False),
@@ -698,13 +699,13 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
             )
             .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
             .filter(Synthese.cd_nom == Taxref.cd_nom)
-            .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id
-            )
-            .filter(Synthese.id_nomenclature_observation_status != absent_id)
             .filter(CorAreaSynthese.id_area == id_area)
-            .filter(Taxref.cd_nom == Taxref.cd_ref)
-            .filter(Taxref.id_rang == "ES")
+            .filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+                Synthese.id_nomenclature_observation_status != absent_id,
+            )
+            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
             .group_by(func.extract(timeinterval, Synthese.date_min))
             .order_by(func.extract(timeinterval, Synthese.date_min))
         )
@@ -745,14 +746,14 @@ def get_data_over_taxogroup(id_area: int) -> Response:
                 ),
             )
             .filter(Synthese.id_synthese == CorAreaSynthese.id_synthese)
-            .filter(CorAreaSynthese.id_area == id_area)
             .filter(Synthese.cd_nom == Taxref.cd_nom)
+            .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+                Synthese.id_nomenclature_observation_status != absent_id,
             )
-            .filter(Synthese.id_nomenclature_observation_status != absent_id)
-            .filter(Taxref.cd_nom == Taxref.cd_ref)
-            .filter(Taxref.id_rang == "ES")
+            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
             .group_by(
                 Taxref.group2_inpn,
             )
@@ -796,12 +797,14 @@ def get_surrounding_count_species_by_group2inpn(
             ).label("not_threatened"),
         )
         .distinct()
-        .filter(LAreas.id_area == id_area)
+        .filter(LAreas.id_area == id_area, LAreas.enable)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
-        .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
-        .filter(Synthese.id_nomenclature_observation_status != absent_id)
-        .filter(Taxref.cd_nom == Taxref.cd_ref)
-        .filter(Taxref.id_rang == "ES")
+        .filter(
+            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+            Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            Synthese.id_nomenclature_observation_status != absent_id,
+        )
+        .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
         .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
         .outerjoin(
             TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref
@@ -829,12 +832,14 @@ def get_surrounding_count_species_by_group2inpn(
             ).label("not_threatened"),
         )
         .distinct()
-        .filter(LAreas.id_area == id_area)
+        .filter(LAreas.id_area == id_area, LAreas.enable)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
-        .filter(Synthese.id_nomenclature_diffusion_level == diffusion_level_id)
-        .filter(Synthese.id_nomenclature_observation_status != absent_id)
-        .filter(Taxref.cd_nom == Taxref.cd_ref)
-        .filter(Taxref.id_rang == "ES")
+        .filter(
+            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+            Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            Synthese.id_nomenclature_observation_status != absent_id,
+        )
+        .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
         .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)
         .filter(CorAreaSynthese.id_area == LAreas.id_area)
         .outerjoin(
