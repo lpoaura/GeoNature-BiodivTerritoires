@@ -12,43 +12,64 @@ var baseLayers = {
   },
   ortho: {
     layer: L.tileLayer(
-      "https://wxs.ign.fr/" +
-        "pratique" +
-        "/geoportail/wmts?&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/jpeg&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      "https://wxs.ign.fr/decouverte/geoportail/wmts?" +
+        "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+        "&STYLE=normal" +
+        "&TILEMATRIXSET=PM" +
+        "&FORMAT=image/jpeg" +
+        "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
+        "&TILEMATRIX={z}" +
+        "&TILEROW={y}" +
+        "&TILECOL={x}",
       {
-        minZoom: 0,
+        minZoom: 7,
         maxZoom: 18,
-        attribution: "IGN-F/Geoportail",
-        tileSize: 256, // les tuiles du Géooportail font 256x256px
+        tileSize: 256
       }
     ),
     title: "Orthophotographie",
   },
-  pollum: {
-    layer: L.tileLayer.wms("https://data.lpo-aura.org/geoserver/wms?", {
-      layers: "opendata:pollum_aura",
-      minZoom: 0,
-      maxZoom: 18,
-      attribution:
-        'Pollution lumineuse généré d\'après les données de <a href="https://ngdc.noaa.gov/eog/viirs/download_dnb_composites.html" target="_blank" data-toggle="tooltip" title="Lien vers les données source"><b>Earth Observation Group, NOAA National Centers for Environmental Information (NCEI)</b></a>',
-      tileSize: 256, // les tuiles du Géooportail font 256x256px
-    }),
-    title: "Pollution lumineuse",
-    url_info: "/pollum",
-  },
+  // pollum: {
+  //   layer: L.tileLayer.wms("https://data.lpo-aura.org/geoserver/wms?", {
+  //     layers: "opendata:pollum_aura",
+  //     minZoom: 0,
+  //     maxZoom: 18,
+  //     attribution:
+  //       'Pollution lumineuse généré d\'après les données de <a href="https://ngdc.noaa.gov/eog/viirs/download_dnb_composites.html" target="_blank" data-toggle="tooltip" title="Lien vers les données source"><b>Earth Observation Group, NOAA National Centers for Environmental Information (NCEI)</b></a>',
+  //     tileSize: 256, // les tuiles du Géooportail font 256x256px
+  //   }),
+  //   title: "Pollution lumineuse",
+  //   url_info: "/pollum",
+  // },
   clc: {
-    layer: L.tileLayer.wms(
-      "http://wxs.ign.fr/corinelandcover/geoportail/r/wms?",
+    layer: L.tileLayer(
+      "https://wxs.ign.fr/clc/geoportail/wmts?" +
+        "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+        "&STYLE=CORINE%20Land%20Cover%20-%20France%20m%C3%A9tropolitaine" +
+        "&TILEMATRIXSET=PM" +
+        "&FORMAT=image/png" +
+        "&LAYER=LANDCOVER.CLC18_FR" +
+        "&TILEMATRIX={z}" +
+        "&TILEROW={y}" +
+        "&TILECOL={x}",
       {
-        layers: "LANDCOVER.CLC18_FR",
         minZoom: 0,
         maxZoom: 18,
-        attribution: "Corine Land Cover 2018",
-        tileSize: 256, // les tuiles du Géooportail font 256x256px
+        tileSize: 256,
+        opacity: 0.4,
       }
+      // "https://wxs.ign.fr/clc/geoportail/r/wms?",
+      // {
+      //   layers: "LANDCOVER.CLC18",
+      //   minZoom: 0,
+      //   maxZoom: 18,
+      //   attribution: "Corine Land Cover 2018",
+      //   tileSize: 256, // les tuiles du Géooportail font 256x256px
+      // }
     ),
     title: "Corine Land Cover",
-    url_info: "/clc",
+    url_info:
+      "https://www.geoportail.gouv.fr/depot/layers/LANDCOVER.CORINELANDCOVER/legendes/LANDCOVER.CORINELANDCOVER-legend.png",
   },
 };
 //
