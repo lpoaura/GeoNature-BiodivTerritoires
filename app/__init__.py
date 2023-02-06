@@ -1,7 +1,7 @@
 # Import flask and template operators
 import logging
 
-from decouple import config
+from decouple import Csv, config
 from flask import Flask, render_template
 
 from app.core.env import DB, admin, cache, ckeditor
@@ -53,6 +53,11 @@ def create_app():
         )
         app.config["FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS"] = config(
             "FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS", default="No"
+        )
+        app.config["FILTER_SECURED_AREA_TYPE"] = config(
+            "FILTER_SECURED_AREA_TYPE",
+            default="COM",
+            cast=Csv(),
         )
 
         app.config["TAXHUB_URL"] = config(

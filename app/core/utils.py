@@ -2,17 +2,14 @@ import os
 
 from flask import current_app
 from flask_admin.contrib import rediscli
-from geoalchemy2.shape import from_shape, to_shape
-from geojson import Feature
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from redis import Redis
-from shapely.geometry import asShape
 from sqlalchemy import and_
 
 from app.core.env import DB
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
-from app.models.ref_geo import LAreasTypeSelection
+from app.models.ref_geo import BibAreasTypes, LAreas, LAreasTypeSelection
 from app.models.taxonomy import (
     BibRedlistCategories,
     BibRedlistSource,
@@ -71,46 +68,26 @@ def get_nomenclature_id(mnemonique, cd_nomenclature):
     return id_nomenclature
 
 
-def geom_from_geojson(data):
-    """this function transform geojson geometry into `WKB\
-    <https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry#Well-known_binary>`_\
-    data commonly used in PostGIS geometry fields
+def is_secured_area(id_area: int) -> bool:
+    """_summary_
 
-    :param data: geojson formatted geometry
-    :type data: dict
-
-    :return: wkb geometry
-    :rtype: str
+    :param id_area: _description_
+    :type id_area: int
     """
-    try:
-        geojson = asShape(data)
-        geom = from_shape(geojson, srid=4326)
-    except Exception as e:
-        current_app.logger.error(
-            "<geom_from_geojson> Can't convert geojson geometry "
-            f"to wkb: {str(e)}"
+
+    exists = (
+        DB.session.query(LAreas.id_area)
+        .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
+        .filter(
+            LAreas.id_area == id_area,
+            BibAreasTypes.type_code.in_(
+                current_app.config["FILTER_SECURED_AREA_TYPE"]
+            ),
         )
-    return geom
-
-
-def get_geojson_feature(wkb):
-    """return a geojson feature from WKB
-
-    :param wkb: wkb geometry
-    :type wkb: str
-
-    :return: geojson
-    :rtype: dict
-    """
-    try:
-        geometry = to_shape(wkb)
-        feature = Feature(geometry=geometry, properties={})
-        return feature
-    except Exception as e:
-        current_app.logger.error(
-            "<get_geojson_feature> Can't convert wkb geometry "
-            f"to geojson: {str(e)}"
-        )
+        .first()
+        is not None
+    )
+    return exists
 
 
 def get_nomenclature(id_nomenclature):
@@ -153,7 +130,6 @@ def get_redlist_status(cdref):
             BibRedlistSource.priority, BibRedlistCategories.priority_order
         )
     )
-    current_app.logger.debug(query)
     list = []
     for r in query.all():
         list.append(r._asdict())
@@ -171,7 +147,6 @@ def get_max_threatened_status(cdref):
             BibRedlistSource.priority, BibRedlistCategories.priority_order
         )
     )
-    current_app.logger.debug(query)
     result = query.first()
     if not result:
         return False

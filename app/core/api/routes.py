@@ -8,7 +8,11 @@ from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.sql import case, func, funcfilter
 
 from app.core.env import DB, cache
-from app.core.utils import get_nomenclature_id, get_redlist_status
+from app.core.utils import (
+    get_nomenclature_id,
+    get_redlist_status,
+    is_secured_area,
+)
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.ref_geo import (
     BibAreasTypes,
@@ -27,8 +31,6 @@ from app.models.territory import (
     MVGeneralStats,
     MVTerritoryGeneralStats,
 )
-
-# logger = logging.getLogger(__name__)
 
 api = Blueprint("api", __name__)
 
@@ -77,7 +79,6 @@ def find_area() -> Response:
             .order_by(func.length(MVLAreasAutocomplete.area_name))
             .limit(20)
         )
-        current_app.logger.debug(qarea)
         result = qarea.all()
         count = len(result)
         datas = []
@@ -136,9 +137,6 @@ def home_stats() -> Response:
     try:
         query = MVGeneralStats.query
         stats = query.one()
-        current_app.logger.debug(
-            f"<main_area_info> TYPE RESULT {type(jsonify(stats.as_dict()))}"
-        )
         DB.session.commit()
         return jsonify(stats.as_dict())
     except Exception as e:
@@ -167,9 +165,6 @@ def main_area_info(type_code: str, area_code: str) -> Response:
         )
         result = query.one()
         data = result._asdict()
-        current_app.logger.debug(
-            f"<main_area_info> TYPE RESULT {type(jsonify(data))}"
-        )
         DB.session.commit()
         return jsonify(data)
     except Exception as e:
@@ -350,7 +345,6 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
     """
     try:
         qarea = LAreas.query.filter(LAreas.id_area == id_area)
-        current_app.logger.debug(f"<get_grid_datas> qarea QUERY {qarea}")
         area = qarea.one()
         qgrid = MVTerritoryGeneralStats.query.filter(
             MVTerritoryGeneralStats.type_code == grid
@@ -360,7 +354,6 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
                 func.ST_Buffer(area.geom, buffer),
             )
         )
-        current_app.logger.debug(f"<get_grid_datas> qgrid QUERY {qgrid}")
         datas = qgrid.all()
         features = []
         for d in datas:
@@ -387,8 +380,6 @@ def get_ntile() -> Response:
         ntiles = query.all()
         datas = []
         for r in ntiles:
-            current_app.logger.debug(f"<get_ntile> r {r}")
-            current_app.logger.debug(f"<get_ntile> r.as_dict() {r.as_dict()}")
             datas.append(r.as_dict())
         DB.session.commit()
         return jsonify(datas)
@@ -407,8 +398,6 @@ def get_taxa_list(id_area: int) -> Response:
     """
     try:
         reproduction_id = get_nomenclature_id("STATUT_BIO", "3")
-
-        current_app.logger.debug(f"reproduction_id {reproduction_id}")
         query_territory = (
             DB.session.query(
                 Taxref.cd_ref.label("id"),
@@ -479,8 +468,6 @@ def get_taxa_list(id_area: int) -> Response:
             )
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-                Synthese.id_nomenclature_sensitivity == sensitivity_id,
                 Synthese.id_nomenclature_observation_status != absent_id,
             )
             .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
@@ -497,7 +484,11 @@ def get_taxa_list(id_area: int) -> Response:
                 Taxref.group2_inpn,
             )
         )
-        current_app.logger.debug(f"query_territory {query_territory}")
+        if not is_secured_area(id_area):
+            query_territory = query_territory.filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            )
         result = query_territory.all()
         count = len(result)
         data = []
@@ -559,8 +550,6 @@ def get_taxa_simple_list(id_area: int) -> Response:
             )
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-                Synthese.id_nomenclature_sensitivity == sensitivity_id,
                 Synthese.id_nomenclature_observation_status != absent_id,
             )
             .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
@@ -580,7 +569,11 @@ def get_taxa_simple_list(id_area: int) -> Response:
                 Taxref.group2_inpn,
             )
         )
-        current_app.logger.debug(f"query_territory {query_area}")
+        if not is_secured_area(id_area):
+            query_area = query_area.filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            )
         result = query_area.all()
         data = []
         for r in result:
@@ -636,17 +629,18 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
             .filter(Synthese.cd_nom == Taxref.cd_nom)
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-                Synthese.id_nomenclature_sensitivity == sensitivity_id,
                 Synthese.id_nomenclature_observation_status != absent_id,
             )
             .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
             .group_by(func.extract(timeinterval, Synthese.date_min))
             .order_by(func.extract(timeinterval, Synthese.date_min))
         )
+        if not is_secured_area(id_area):
+            query = query.filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            )
         results = query.all()
-        current_app.logger.debug(dir(results))
-        current_app.logger.debug(type(results))
         DB.session.commit()
         return jsonify([row._asdict() for row in results])
 
@@ -684,8 +678,6 @@ def get_data_over_taxogroup(id_area: int) -> Response:
             .filter(Synthese.cd_nom == Taxref.cd_nom)
             .filter(CorAreaSynthese.id_area == id_area)
             .filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-                Synthese.id_nomenclature_sensitivity == sensitivity_id,
                 Synthese.id_nomenclature_observation_status != absent_id,
             )
             .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
@@ -696,9 +688,12 @@ def get_data_over_taxogroup(id_area: int) -> Response:
                 Taxref.group2_inpn,
             )
         )
-
+        if not is_secured_area(id_area):
+            query = query.filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            )
         results = query.all()
-        current_app.logger.debug(dir(results))
         DB.session.commit()
         return jsonify([row._asdict() for row in results])
 
@@ -735,8 +730,6 @@ def get_surrounding_count_species_by_group2inpn(
         .filter(LAreas.id_area == id_area, LAreas.enable)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
         .filter(
-            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-            Synthese.id_nomenclature_sensitivity == sensitivity_id,
             Synthese.id_nomenclature_observation_status != absent_id,
         )
         .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
@@ -747,12 +740,13 @@ def get_surrounding_count_species_by_group2inpn(
         .group_by(Taxref.group2_inpn)
         .order_by(Taxref.group2_inpn)
     )
-    current_app.logger.debug(
-        (
-            "<get_surrounding_count_species_by_group2inpn> "
-            f"query_surrounding_territory: {query_surrounding_territory}"
+
+    if not is_secured_area(id_area):
+        query_surrounding_territory = query_surrounding_territory.filter(
+            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+            Synthese.id_nomenclature_sensitivity == sensitivity_id,
         )
-    )
+
     surrounding_territory_data = query_surrounding_territory.all()
 
     query_territory = (
@@ -771,8 +765,6 @@ def get_surrounding_count_species_by_group2inpn(
         .filter(LAreas.id_area == id_area, LAreas.enable)
         .filter(Synthese.cd_nom == Taxref.cd_nom)
         .filter(
-            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-            Synthese.id_nomenclature_sensitivity == sensitivity_id,
             Synthese.id_nomenclature_observation_status != absent_id,
         )
         .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
@@ -784,21 +776,16 @@ def get_surrounding_count_species_by_group2inpn(
         .group_by(Taxref.group2_inpn)
         .order_by(Taxref.group2_inpn)
     )
-
-    current_app.logger.debug(
-        "<get_surrounding_count_species_by_group2inpn> "
-        f"query_territory: {query_territory}"
-    )
+    if not is_secured_area(id_area):
+        query_territory = query_territory.filter(
+            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+            Synthese.id_nomenclature_sensitivity == sensitivity_id,
+        )
 
     territory_data = query_territory.all()
 
-    current_app.logger.debug(surrounding_territory_data)
-    current_app.logger.debug(territory_data)
-
     taxo_groups = list(set(g.group2_inpn for g in surrounding_territory_data))
     taxo_groups.sort()
-    current_app.logger.debug(taxo_groups)
-    # result["territory"] = []
 
     response = {}
     response["labels"] = taxo_groups

@@ -22,22 +22,13 @@ def get_legend_classes(type: str):
         query = MVAreaNtileLimit.query.filter_by(type=type).order_by(
             MVAreaNtileLimit.ntile
         )
-        current_app.logger.debug(query)
         ntiles = query.all()
-        current_app.logger.debug(f"<get_legend_classes> query.all() {ntiles}")
         datas = []
         for r in ntiles:
-            current_app.logger.debug(f"<get_legend_classes> r {r}")
-            current_app.logger.debug(
-                f"<get_legend_classes> r.as_dict() {r.as_dict()}"
-            )
             datas.append(r.as_dict())
-        current_app.logger.debug(
-            f"<get_legend_classes> type of return : {datas}"
-        )
         return datas
     except Exception as e:
-        current_app.logger.critical(f"<get_legend_classes> ERROR {e}")
+        current_app.logger.error(f"<get_legend_classes> ERROR {e}")
 
 
 @rendered.context_processor
@@ -210,7 +201,6 @@ def territory(type_code: str, area_code: str) -> str:
         q_gen_stats = DB.session.query(MVTerritoryGeneralStats).filter(
             MVTerritoryGeneralStats.id_area == area_info.id_area
         )
-        current_app.logger.debug(q_gen_stats)
         gen_stats = q_gen_stats.one()
         # generate Legend Dict
         legend_dict = {}
@@ -236,7 +226,7 @@ def territory(type_code: str, area_code: str) -> str:
 
     except Exception as e:
         flash("Erreur: {}".format(e))
-        current_app.logger.critical(f"<territory> ERROR: {str(e)}")
+        current_app.logger.error(f"<territory> ERROR: {str(e)}")
         return redirect(url_for("rendered.index"))
 
 
@@ -267,7 +257,6 @@ def embed_territory(type_code: str, area_code: str) -> str:
         q_gen_stats = DB.session.query(MVTerritoryGeneralStats).filter(
             MVTerritoryGeneralStats.id_area == area_info.id_area
         )
-        current_app.logger.debug(q_gen_stats)
         gen_stats = q_gen_stats.one()
         # generate Legend Dict
         legend_dict = {}
@@ -293,5 +282,5 @@ def embed_territory(type_code: str, area_code: str) -> str:
 
     except Exception as e:
         flash("Erreur: {}".format(e))
-        current_app.logger.critical(f"<territory> ERROR: {str(e)}")
+        current_app.logger.error(f"<territory> ERROR: {str(e)}")
         return redirect(url_for("rendered.index"))
