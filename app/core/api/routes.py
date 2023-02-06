@@ -57,9 +57,9 @@ def find_area() -> Response:
     :return:
     """
     try:
-        search_name = "%{}%".format(request.args.get("q"))
+        search_name = f"%{request.args.get('q')}%"
         search_code = request.args.get("q")
-        qarea = (
+        query = (
             DB.session.query(
                 MVLAreasAutocomplete.id,
                 MVLAreasAutocomplete.type_name,
@@ -79,7 +79,7 @@ def find_area() -> Response:
             .order_by(func.length(MVLAreasAutocomplete.area_name))
             .limit(20)
         )
-        result = qarea.all()
+        result = query.all()
         count = len(result)
         datas = []
         for r in result:
@@ -88,8 +88,10 @@ def find_area() -> Response:
         return {"count": count, "datas": datas}, 200
 
     except Exception as e:
-        current_app.logger.error("<find_area> ERROR:", e)
+        current_app.logger.error(f"<find_area> ERROR: {e}")
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/area/<id_area>")
@@ -102,7 +104,7 @@ def redirect_area(id_area: int) -> Response:
     :return:
     """
     try:
-        qarea = (
+        query = (
             DB.session.query(
                 BibAreasTypes.type_code,
                 LAreas.area_code,
@@ -112,7 +114,7 @@ def redirect_area(id_area: int) -> Response:
             )
             .filter(LAreas.id_area == id_area)
         )
-        area = qarea.first()
+        area = query.first()
         DB.session.commit()
         return redirect(
             url_for(
@@ -122,7 +124,10 @@ def redirect_area(id_area: int) -> Response:
             )
         )
     except Exception as e:
-        current_app.logger.error("<redirect_area> ERROR:", e)
+        current_app.logger.error(f"<redirect_area> ERROR: {e}")
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/homestats")
@@ -135,13 +140,15 @@ def home_stats() -> Response:
     """
 
     try:
-        query = MVGeneralStats.query
+        query = DB.session.query(MVGeneralStats)
         stats = query.one()
         DB.session.commit()
         return jsonify(stats.as_dict())
     except Exception as e:
         current_app.logger.error("<home_stats> ERROR:", e)
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/<type_code>/<area_code>")
@@ -170,6 +177,8 @@ def main_area_info(type_code: str, area_code: str) -> Response:
     except Exception as e:
         current_app.logger.error(f"<main_area_info> ERROR: {e}")
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/surrounding_areas/<string:type_code>/<string:area_code>")
@@ -186,54 +195,62 @@ def get_surrounding_area(
     :param area_code:
     :return:
     """
+    try:
+        area = (
+            DB.session.query(LAreas.id_area, LAreas.geom).filter(
+                LAreas.area_code == area_code,
+                BibAreasTypes.type_code == type_code,
+            )
+        ).first()
 
-    area = (
-        DB.session.query(LAreas.id_area, LAreas.geom).filter(
-            LAreas.area_code == area_code, BibAreasTypes.type_code == type_code
-        )
-    ).first()
+        selected_type_codes = DB.session.query(
+            LAreasTypeSelection.id_type
+        ).all()
+        select = []
+        for s in selected_type_codes:
+            select.append(s[0])
 
-    selected_type_codes = DB.session.query(LAreasTypeSelection.id_type).all()
-    select = []
-    for s in selected_type_codes:
-        select.append(s[0])
-
-    q_gen_stats = (
-        DB.session.query(
-            BibAreasTypes.type_name,
-            BibAreasTypes.type_desc,
-            BibAreasTypes.type_code,
-            MVTerritoryGeneralStats.area_code,
-            MVTerritoryGeneralStats.area_name,
-            MVTerritoryGeneralStats.id_area,
-            MVTerritoryGeneralStats.count_dataset,
-            MVTerritoryGeneralStats.count_observer,
-            MVTerritoryGeneralStats.count_date,
-            MVTerritoryGeneralStats.count_taxa,
-            MVTerritoryGeneralStats.last_obs,
-            MVTerritoryGeneralStats.count_threatened,
-            MVTerritoryGeneralStats.count_occtax,
-        )
-        .join(
-            BibAreasTypes,
-            BibAreasTypes.type_code == MVTerritoryGeneralStats.type_code,
-        )
-        .filter(
-            and_(
-                MVTerritoryGeneralStats.geom_local.ST_Intersects(
-                    func.ST_Buffer(area.geom, buffer)
-                ),
-                BibAreasTypes.id_type.in_(select),
-                MVTerritoryGeneralStats.id_area != area.id_area,
+        q_gen_stats = (
+            DB.session.query(
+                BibAreasTypes.type_name,
+                BibAreasTypes.type_desc,
+                BibAreasTypes.type_code,
+                MVTerritoryGeneralStats.area_code,
+                MVTerritoryGeneralStats.area_name,
+                MVTerritoryGeneralStats.id_area,
+                MVTerritoryGeneralStats.count_dataset,
+                MVTerritoryGeneralStats.count_observer,
+                MVTerritoryGeneralStats.count_date,
+                MVTerritoryGeneralStats.count_taxa,
+                MVTerritoryGeneralStats.last_obs,
+                MVTerritoryGeneralStats.count_threatened,
+                MVTerritoryGeneralStats.count_occtax,
+            )
+            .join(
+                BibAreasTypes,
+                BibAreasTypes.type_code == MVTerritoryGeneralStats.type_code,
+            )
+            .filter(
+                and_(
+                    MVTerritoryGeneralStats.geom_local.ST_Intersects(
+                        func.ST_Buffer(area.geom, buffer)
+                    ),
+                    BibAreasTypes.id_type.in_(select),
+                    MVTerritoryGeneralStats.id_area != area.id_area,
+                )
             )
         )
-    )
-    results = q_gen_stats.all()
-    data = []
-    for r in results:
-        data.append(r._asdict())
-    DB.session.commit()
-    return jsonify(data)
+        results = q_gen_stats.all()
+        data = []
+        for r in results:
+            data.append(r._asdict())
+        DB.session.commit()
+        return jsonify(data)
+    except Exception as e:
+        current_app.logger.error(f"<get_surrounding_area> ERROR: {e}")
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/type")
@@ -258,10 +275,11 @@ def datas_types() -> Response:
     except Exception as e:
         current_app.logger.error("<datas_types> ERROR:", e)
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/geom/<string:type_code>/<string:area_code>", methods=["GET"])
-# def get_geojson_area(type_code: str, area_code: str) -> Response:
 @cache.cached(timeout=CACHE_TIMEOUT)
 def get_geojson_area(type_code: str, area_code: str) -> Response:
     """Get one enabled municipality by insee code
@@ -312,6 +330,8 @@ def get_geojson_area(type_code: str, area_code: str) -> Response:
     except Exception as e:
         current_app.logger.error("<get_geojson_area> ERROR:", e)
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route(
@@ -363,6 +383,8 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
     except Exception as e:
         current_app.logger.error("<get_grid_datas> ERROR:", e)
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/territory/conf/ntile/", methods=["GET"])
@@ -386,6 +408,8 @@ def get_ntile() -> Response:
     except Exception as e:
         current_app.logger.error(f"<get_ntile> ERROR  {e}")
         return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/list_taxa/<int:id_area>", methods=["GET"])
@@ -502,6 +526,8 @@ def get_taxa_list(id_area: int) -> Response:
         error = "<get_taxa_list> ERROR: {}".format(e)
         current_app.logger.error(error)
         return {"Error": error}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/list_taxa/simp/<int:id_area>", methods=["GET"])
@@ -582,9 +608,10 @@ def get_taxa_simple_list(id_area: int) -> Response:
         return jsonify({"count": len(result), "data": data}), 200
 
     except Exception as e:
-        error = "<get_taxa_list> ERROR: {}".format(e)
-        current_app.logger.error(error)
-        return {"Error": error}, 400
+        current_app.logger.error(f"<get_taxa_list> ERROR: {e}")
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/statut/taxa/<int:cd_nom>/redlist", methods=["GET"])
@@ -599,14 +626,15 @@ def get_redlist_taxa_status(cd_nom: int) -> Response:
         return jsonify(get_redlist_status(cd_nom))
 
     except Exception as e:
-        error = "<get_redlist_taxa_status> ERROR: {}".format(e)
-        current_app.logger.error(error)
-        return {"Error": error}, 400
+        current_app.logger.error(f"<get_redlist_taxa_status> ERROR: {e}")
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
-@api.route("/charts/synthesis/<string:timeinterval>/<int:id_area>")
+@api.route("/charts/synthesis/<string:time_interval>/<int:id_area>")
 @cache.cached(timeout=CACHE_TIMEOUT)
-def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
+def get_data_over_year(id_area: int, time_interval: str = "year") -> Response:
     """
 
     :param id_area:
@@ -615,7 +643,7 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
     try:
         query = (
             DB.session.query(
-                func.extract(timeinterval, Synthese.date_min).label("label"),
+                func.extract(time_interval, Synthese.date_min).label("label"),
                 func.count(distinct(Synthese.id_synthese)).label(
                     "count_occtax"
                 ),
@@ -632,8 +660,8 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
                 Synthese.id_nomenclature_observation_status != absent_id,
             )
             .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
-            .group_by(func.extract(timeinterval, Synthese.date_min))
-            .order_by(func.extract(timeinterval, Synthese.date_min))
+            .group_by(func.extract(time_interval, Synthese.date_min))
+            .order_by(func.extract(time_interval, Synthese.date_min))
         )
         if not is_secured_area(id_area):
             query = query.filter(
@@ -645,9 +673,10 @@ def get_data_over_year(id_area: int, timeinterval: str = "year") -> Response:
         return jsonify([row._asdict() for row in results])
 
     except Exception as e:
-        error = f"<get_data_over_year> ERROR: {e}"
-        current_app.logger.error(error)
-        return {"Error": error}, 400
+        current_app.logger.error(f"<get_data_over_year> ERROR: {e}")
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/charts/synthesis/taxogroup/<int:id_area>")
@@ -698,9 +727,10 @@ def get_data_over_taxogroup(id_area: int) -> Response:
         return jsonify([row._asdict() for row in results])
 
     except Exception as e:
-        error = "<get_data_over_taxogroup> ERROR: {}".format(e)
-        current_app.logger.error(error)
-        return {"Error": error}, 400
+        current_app.logger.error(f"<get_data_over_taxogroup> ERROR: {e}")
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
 
 
 @api.route("/charts/synthesis/group2_inpn_species/<int:id_area>/<int:buffer>")
@@ -714,104 +744,115 @@ def get_surrounding_count_species_by_group2inpn(
     :param id_area:
     :return:
     """
-    query_surrounding_territory = (
-        DB.session.query(
-            Taxref.group2_inpn,
-            funcfilter(
-                func.count(distinct(Taxref.cd_ref)),
-                TMaxThreatenedStatus.threatened.is_(True),
-            ).label("threatened"),
-            funcfilter(
-                func.count(distinct(Taxref.cd_ref)),
-                TMaxThreatenedStatus.threatened.isnot(True),
-            ).label("not_threatened"),
-        )
-        .distinct()
-        .filter(LAreas.id_area == id_area, LAreas.enable)
-        .filter(Synthese.cd_nom == Taxref.cd_nom)
-        .filter(
-            Synthese.id_nomenclature_observation_status != absent_id,
-        )
-        .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
-        .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
-        .outerjoin(
-            TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref
-        )
-        .group_by(Taxref.group2_inpn)
-        .order_by(Taxref.group2_inpn)
-    )
-
-    if not is_secured_area(id_area):
-        query_surrounding_territory = query_surrounding_territory.filter(
-            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-            Synthese.id_nomenclature_sensitivity == sensitivity_id,
+    try:
+        query_surrounding_territory = (
+            DB.session.query(
+                Taxref.group2_inpn,
+                funcfilter(
+                    func.count(distinct(Taxref.cd_ref)),
+                    TMaxThreatenedStatus.threatened.is_(True),
+                ).label("threatened"),
+                funcfilter(
+                    func.count(distinct(Taxref.cd_ref)),
+                    TMaxThreatenedStatus.threatened.isnot(True),
+                ).label("not_threatened"),
+            )
+            .distinct()
+            .filter(LAreas.id_area == id_area, LAreas.enable)
+            .filter(Synthese.cd_nom == Taxref.cd_nom)
+            .filter(
+                Synthese.id_nomenclature_observation_status != absent_id,
+            )
+            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
+            .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
+            .outerjoin(
+                TMaxThreatenedStatus,
+                TMaxThreatenedStatus.cd_nom == Taxref.cd_ref,
+            )
+            .group_by(Taxref.group2_inpn)
+            .order_by(Taxref.group2_inpn)
         )
 
-    surrounding_territory_data = query_surrounding_territory.all()
+        if not is_secured_area(id_area):
+            query_surrounding_territory = query_surrounding_territory.filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            )
 
-    query_territory = (
-        DB.session.query(
-            Taxref.group2_inpn,
-            funcfilter(
-                func.count(distinct(Taxref.cd_ref)),
-                TMaxThreatenedStatus.threatened.is_(True),
-            ).label("threatened"),
-            funcfilter(
-                func.count(distinct(Taxref.cd_ref)),
-                TMaxThreatenedStatus.threatened.isnot(True),
-            ).label("not_threatened"),
-        )
-        .distinct()
-        .filter(LAreas.id_area == id_area, LAreas.enable)
-        .filter(Synthese.cd_nom == Taxref.cd_nom)
-        .filter(
-            Synthese.id_nomenclature_observation_status != absent_id,
-        )
-        .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
-        .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)
-        .filter(CorAreaSynthese.id_area == LAreas.id_area)
-        .outerjoin(
-            TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref
-        )
-        .group_by(Taxref.group2_inpn)
-        .order_by(Taxref.group2_inpn)
-    )
-    if not is_secured_area(id_area):
-        query_territory = query_territory.filter(
-            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-            Synthese.id_nomenclature_sensitivity == sensitivity_id,
-        )
+        surrounding_territory_data = query_surrounding_territory.all()
 
-    territory_data = query_territory.all()
+        query_territory = (
+            DB.session.query(
+                Taxref.group2_inpn,
+                funcfilter(
+                    func.count(distinct(Taxref.cd_ref)),
+                    TMaxThreatenedStatus.threatened.is_(True),
+                ).label("threatened"),
+                funcfilter(
+                    func.count(distinct(Taxref.cd_ref)),
+                    TMaxThreatenedStatus.threatened.isnot(True),
+                ).label("not_threatened"),
+            )
+            .distinct()
+            .filter(LAreas.id_area == id_area, LAreas.enable)
+            .filter(Synthese.cd_nom == Taxref.cd_nom)
+            .filter(
+                Synthese.id_nomenclature_observation_status != absent_id,
+            )
+            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
+            .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)
+            .filter(CorAreaSynthese.id_area == LAreas.id_area)
+            .outerjoin(
+                TMaxThreatenedStatus,
+                TMaxThreatenedStatus.cd_nom == Taxref.cd_ref,
+            )
+            .group_by(Taxref.group2_inpn)
+            .order_by(Taxref.group2_inpn)
+        )
+        if not is_secured_area(id_area):
+            query_territory = query_territory.filter(
+                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+                Synthese.id_nomenclature_sensitivity == sensitivity_id,
+            )
 
-    taxo_groups = list(set(g.group2_inpn for g in surrounding_territory_data))
-    taxo_groups.sort()
+        territory_data = query_territory.all()
+        taxo_groups = list(
+            set(g.group2_inpn for g in surrounding_territory_data)
+        )
+        taxo_groups.sort()
 
-    response = {}
-    response["labels"] = taxo_groups
-    response["surrounding"] = {
-        "not_threatened": [],
-        "threatened": [],
-    }
-    response["territory"] = {
-        "not_threatened": [],
-        "threatened": [],
-    }
-    for t in taxo_groups:
-        for r in surrounding_territory_data:
-            if r.group2_inpn == t:
-                response["surrounding"]["threatened"].append(r.threatened)
-                response["surrounding"]["not_threatened"].append(
-                    r.not_threatened
-                )
-        for r in territory_data:
-            if r.group2_inpn == t:
-                response["territory"]["threatened"].append(r.threatened)
-                response["territory"]["not_threatened"].append(
-                    r.not_threatened
-                )
-    DB.session.commit()
-    return (
-        jsonify(response),
-        200,
-    )
+        response = {}
+        response["labels"] = taxo_groups
+        response["surrounding"] = {
+            "not_threatened": [],
+            "threatened": [],
+        }
+        response["territory"] = {
+            "not_threatened": [],
+            "threatened": [],
+        }
+        for t in taxo_groups:
+            for r in surrounding_territory_data:
+                if r.group2_inpn == t:
+                    response["surrounding"]["threatened"].append(r.threatened)
+                    response["surrounding"]["not_threatened"].append(
+                        r.not_threatened
+                    )
+            for r in territory_data:
+                if r.group2_inpn == t:
+                    response["territory"]["threatened"].append(r.threatened)
+                    response["territory"]["not_threatened"].append(
+                        r.not_threatened
+                    )
+        DB.session.commit()
+        return (
+            jsonify(response),
+            200,
+        )
+    except Exception as e:
+        current_app.logger.error(
+            f"<get_surrounding_count_species_by_group2inpn> ERROR: {e}"
+        )
+        return {"Error": str(e)}, 400
+    finally:
+        DB.session.close()
