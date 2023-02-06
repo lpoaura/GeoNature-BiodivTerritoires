@@ -32,21 +32,11 @@
             Nombre de dates
           </th>
           <th>Dernière observation</th>
-          {#
-          <th>Nombre de jeux de données</th>
-          #}
         </thead>
       </table>
     </div>
   </div>
 </div>
-{#
-<div class="col col-md-6">
-  #} {#
-  <div id="surroundingAreasMap" class="card"></div>
-  #} {#
-</div>
-#}
 
 <script>
   var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
@@ -88,34 +78,6 @@
   ;
 
   $(document).on('shown.bs.collapse', '#collapseSurroundingAreas', function () {
-      debugLog('hey');
       surroundingAreasTable.columns.adjust().draw();
   });
-
-  {#var surroundingAreasMap = baseMap('surroundingAreasMap');#}
-  {##}
-  {#var surroundingArea = null;#}
-  {##}
-  {#$('#surroundingAreasTable').on('click', 'tr', function () {#}
-  {#    var data = surroundingAreasTable.row(this).data();#}
-  {#    debugLog(surroundingAreasMap.hasLayer(surroundingArea));#}
-  {#    if (surroundingAreasMap.hasLayer(surroundingArea)) {#}
-  {#        debugLog('removeLayer');#}
-  {#        surroundingAreasMap.removeLayer(surroundingArea);#}
-  {#    }#}
-  {#    ;#}
-  {#    axios#}
-  {#        .get('/api/geom/' + data.type_code + '/' + data.area_code)#}
-  {#        .then(function (response) {#}
-  {#            var surroundingArea = L.geoJson(response.data, {#}
-  {#                style: territoryStyle#}
-  {#            });#}
-  {#            surroundingAreasMap.addLayer(surroundingArea);#}
-  {#            surroundingAreasMap.flyToBounds(surroundingArea.getBounds());#}
-  {##}
-  {#        })#}
-  {#        .catch(function (error) {#}
-  {#            debugLog('<getTerritoryArea> Error', error);#}
-  {#        });#}
-  {#});#}
 </script>

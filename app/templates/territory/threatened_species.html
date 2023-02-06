@@ -85,7 +85,7 @@
                 threatenedSpeciesGlobalChart.update();
                 $('#threatenedSpeciesGlobalSpinner').hide();
             }).catch(function (error) {
-            debugLog(error);
+            console.error(error);
         });
     };
 
@@ -151,13 +151,12 @@
               threatenedSpeciesByTaxoGroupUpdate(source_data, buffer);
               $('#threatenedSpeciesByTaxoGroupSpinner').hide();
           }).catch(function (error) {
-          debugLog(error);
+          console.error(error);
       });
   };
 
   const threatenedSpeciesByTaxoGroupUpdate = (source_data, buffer) => {
       $('#threatenedSpeciesByTaxoGroupSpinner').show();
-      debugLog(threatenedSpeciesByTaxoGroupDatas)
       threatenedSpeciesByTaxoGroupChart.data.labels = threatenedSpeciesByTaxoGroupDatas['labels'];
       threatenedSpeciesByTaxoGroupChart.data.datasets[0].label = 'Espèces menacées';
       threatenedSpeciesByTaxoGroupChart.data.datasets[0].data = threatenedSpeciesByTaxoGroupDatas[source_data]['threatened'];

@@ -106,14 +106,13 @@ head %} {{ super() }} {% endblock %} {% block content %}
     axios
       .get("/api/homestats")
       .then(function (response) {
-        debugLog(response);
         countUpUpdate("countOcctax", response.data["count_occtax"]);
         countUpUpdate("countDatasets", response.data["count_dataset"]);
         countUpUpdate("countObservers", response.data["count_observer"]);
         countUpUpdate("countTaxa", response.data["count_taxa"]);
       })
       .catch(function (error) {
-        debugLog("<get GenStats error>", error);
+        console.error("<get GenStats error>", error);
       });
   };
   getStats();

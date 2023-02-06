@@ -142,7 +142,6 @@
 
   var listSpeciesUpdate = function (id_area) {
       if (gridListSpeciesTable == null) {
-          debugLog('CREATE TABLE with' + id_area);
           $('#gridListSpeciesTable').show();
           createGridListSpeciesTable(id_area);
       }
@@ -181,7 +180,7 @@
               }
           )
           .catch(function (error) {
-              debugLog('<getColor> Error', error);
+              console.error('<getColor> Error', error);
           });
   };
 
@@ -203,14 +202,11 @@
   // [Carte d'état des connaissances du territoire] <LEGENDE> :  Génère la liste des valeurs palier utilisées pour les classes de la carte de restitution par mailles, par type de représentation
   function areaGridDatasGrades(type) {
       var styleData = JSON.parse(styleStorage.getItem(type));
-      {#debugLog('<Styledata>', styleData);#}
       grade = []
       for (var i = 0, size = styleData.length; i < size; i++) {
           var item = styleData[i];
-          {#debugLog('<item>',item)#}
           grade.push(item.min)
       }
-      {#debugLog('<grade>',grade);#}
       return grade
   }
 
@@ -226,14 +222,13 @@
               situationObject.addTo(datasMap).bringToBack();
           })
           .catch(function (error) {
-              debugLog('<getTerritoryArea> Error', error);
+              console.error('<getTerritoryArea> Error', error);
           });
 
   };
 
   // [Carte d'état des connaissances du territoire] <STYLE> :Styles des mailles
   function areaGridStyle(feature, type, color) {
-      {#debugLog('<areaGridStyle>', feature.properties.count_occtax, getColor(feature.properties.count_occtax, 'occtax', '#0233d6'));#}
       var field = 'count_' + type
       return {
           fillColor: getColor(feature.properties[field], type, color),
@@ -247,7 +242,6 @@
   // [Carte d'état des connaissances du territoire] <POPUP> Affiche les données détaillées des mailles
   function areaGridPopup(feature, layer, type) {
       var keys = Object.keys(styleDesc);
-      {#debugLog(type);#}
       var dataResult = '';
       for (var i = 0; i < keys.length; i++) {
           dataResult = dataResult + '<strong>' + styleDesc[keys[i]].desc + '</strong>&nbsp;:&nbsp;' + feature.properties['count_' + keys[i]] + '<br/>';
@@ -307,7 +301,7 @@
               }
           )
           .catch(function (error) {
-              debugLog('getTerritoryArea Error', error);
+              console.error('getTerritoryArea Error', error);
           })
   };
 
@@ -319,13 +313,10 @@
   select.onAdd = function () {
       var div = L.DomUtil.create('div', 'form-group form-group-sm');
       var keys = Object.keys(styleDesc);
-      {#debugLog(keys);#}
       var options = '';
       for (var i = 0; i < keys.length; i++) {
-          {#debugLog(keys[i], styleDesc[keys[i]].desc);#}
           options = options + '<option value="' + keys[i] + '">' + styleDesc[keys[i]].desc + '</option>'
       }
-      {#debugLog('<options>', options)#}
       div.innerHTML += '<select class="custom-select custom-select-sm mb-3" id="datasMapDatasSelect" name="title">'
           + options
           + '</select>';
@@ -405,11 +396,12 @@
               temporalDistribChart.data.datasets[3].data = data.map(e => e.count_dataset);
               temporalDistribChart.data.labels = data.map(e => e.label);
               temporalDistribChart.update();
-              debugLog('chart', temporalDistribChart);
               $('#temporalDistribChartSpinner').hide();
-          }).catch(function (error) {
-          debugLog(error);
-      });
+          })
+          .catch(function (error) {
+                console.error(error);
+          }
+      );
   };
 
   temporalDistribChartUpdate({{ area_info.id_area }}, temporalUnit);
@@ -472,10 +464,9 @@
               taxoGroupDistribChart.data.datasets[3].data = data.map(e => e.count_dataset);
               taxoGroupDistribChart.data.labels = data.map(e => e.label);
               taxoGroupDistribChart.update();
-              debugLog('chart', taxoGroupDistribChart);
               $('#taxoGroupDistribChartSpinner').hide();
           }).catch(function (error) {
-          debugLog(error);
+          console.error(error);
       });
   };
 
@@ -487,18 +478,12 @@
   });
 
   $('#datasChartChooseTimeUnit').on('change', function () {
-      debugLog('selected', this.value);
       temporalDistribChartUpdate({{ area_info.id_area }}, this.value);
   });
-
-
-  debugLog('<before mapSize>',datasMap.getSize());
 
   $(document).ready(function () {
       $("#collapseObservationsDistribution").on('show.bs.collapse', function () {
           setTimeout(function() {
-              debugLog('<collapseObservationsDistribution>', $("#collapseObservationsDistribution"));
-                  debugLog('<before mapSize>',datasMap.getSize());
                   datasMap.invalidateSize();
                   datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
             }, 10);

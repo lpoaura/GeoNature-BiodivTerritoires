@@ -1,10 +1,7 @@
 {% extends "core/layout.html" %} {% block title %}La biodiversité de {{
 area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
 {% endblock %} {% block head %} {{ super() }} {% endblock %} {% block content %}
-<script>
-  {#const baseLayersList = JSON.parse('{{ base_layers | tojson | safe }}');#}
-  {#debugLog('<baseLayersList>', baseLayersList);#}
-</script>
+
 
 <script type="text/javascript">
   var buffer = {{ default_buffer }};

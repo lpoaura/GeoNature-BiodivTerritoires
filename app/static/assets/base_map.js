@@ -76,7 +76,6 @@ var baseLayers = {
 // var baseLayers = {};
 //
 // populateBaseLayer = function (layer) {
-//     debugLog('layerData', layer);
 //     var layer_datas = {};
 //     if (layer.type === 'wms') {
 //         var loadMethod = L.tileLayer.wms(layer.url, layer.options);
@@ -91,14 +90,11 @@ var baseLayers = {
 //     }
 //     ;
 //     layer_datas['title'] = layer.title;
-//     debugLog(layer.name, layer_datas);
 //     baseLayers[layer.name] = layer_datas
 // };
 //
 // baseLayersList.forEach(layer => populateBaseLayer(layer));
 //
-// debugLog('<baseLayers>',baseLayers);
-// debugLog( '<firstLayer>', Object.keys(baseLayers)[0]);
 
 var mapValues = {
   baseLayerType: Object.keys(baseLayers)[0],
@@ -129,14 +125,12 @@ baseLayerControl.onAdd = function () {
 
 function baseMap(idAttr) {
   map = L.map(idAttr).setView([45, 5], 10);
-  debugLog("<baseLayer>", baseLayers[mapValues.baseLayerType]);
   var baseLayer = baseLayers[mapValues.baseLayerType].layer;
   baseLayer.addTo(map);
 
   baseLayerControl.addTo(map);
 
   $(document).on("change", "#situationBaseLayerSelect", function () {
-    debugLog(this.value);
     baseLayer.removeFrom(map);
     baseLayer = baseLayers[this.value].layer;
     baseLayer.addTo(map);

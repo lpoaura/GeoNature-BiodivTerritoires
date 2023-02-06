@@ -1,14 +1,12 @@
-if (debugMode) var debugLog = console.log.bind(window.console);
-else var debugLog = function () {};
+/*jshint esversion: 6 */
 
 // Select2 de Recherche de territoire
-
-function formatArea(area) {
+const formatArea = (area) => {
   if (area.loading) {
     return area.text;
   }
 
-  var $container = $(
+  let $container = $(
     "<div class='clearfix'>" +
       "<div><strong><span id='select2-result-area__area_name'></span></strong>" +
       "&nbsp;(" +
@@ -23,11 +21,11 @@ function formatArea(area) {
   $container.find("#select2-result-area__area_code").text(area.area_code);
 
   return $container;
-}
+};
 
-function formatAreaSelection(area) {
+const formatAreaSelection = (area) => {
   return area.area_name;
-}
+};
 
 $(".search-territory-select").select2({
   ajax: {
@@ -62,32 +60,32 @@ $(".search-territory-select").select2({
   templateSelection: formatAreaSelection,
 });
 
-function hex(c) {
-  var s = "0123456789abcdef";
-  var i = parseInt(c);
+const hex = (c) => {
+  const s = "0123456789abcdef";
+  let i = parseInt(c);
   if (i == 0 || isNaN(c)) return "00";
   i = Math.round(Math.min(Math.max(0, i), 255));
   return s.charAt((i - (i % 16)) / 16) + s.charAt(i % 16);
-}
+};
 
 /* Convert an RGB triplet to a hex string */
-function convertToHex(rgb) {
+const convertToHex = (rgb) => {
   return hex(rgb[0]) + hex(rgb[1]) + hex(rgb[2]);
-}
+};
 
 /* Remove '#' in color hex string */
-function trim(s) {
+const trim = (s) => {
   return s.charAt(0) == "#" ? s.substring(1, 7) : s;
-}
+};
 
 /* Convert a hex string to an RGB triplet */
-function convertToRGB(hex) {
+const convertToRGB = (hex) => {
   var color = [];
   color[0] = parseInt(trim(hex).substring(0, 2), 16);
   color[1] = parseInt(trim(hex).substring(2, 4), 16);
   color[2] = parseInt(trim(hex).substring(4, 6), 16);
   return color;
-}
+};
 
 function generateColor(colorStart, colorEnd, colorCount) {
   // The beginning of your gradient
@@ -200,6 +198,8 @@ const uicnDefs = {
 let specieListScrollY = "500px";
 
 const generateTaxaLinkUrl = (urlTemplate, cdnom) => {
-  urlTemplate = urlTemplate ? urlTemplate : 'https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]'
-  return urlTemplate.replace('[CDNOM]',cdnom)
-}
+  urlTemplate = urlTemplate
+    ? urlTemplate
+    : "https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]";
+  return urlTemplate.replace("[CDNOM]", cdnom);
+};
