@@ -6,7 +6,7 @@ from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from redis import Redis
 from sqlalchemy import and_
 
-from app.core.env import DB
+from app.core.env import DB, cache
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import BibAreasTypes, LAreas, LAreasTypeSelection
@@ -68,6 +68,7 @@ def get_nomenclature_id(mnemonique, cd_nomenclature):
     return id_nomenclature
 
 
+@cache.cached(key_prefix="is_secured_area")
 def is_secured_area(id_area: int) -> bool:
     """_summary_
 
@@ -87,6 +88,7 @@ def is_secured_area(id_area: int) -> bool:
         .first()
         is not None
     )
+    current_app.logger.debug(f"exists {id_area} {exists}")
     return exists
 
 
