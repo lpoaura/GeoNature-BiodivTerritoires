@@ -149,7 +149,6 @@ def home_stats() -> Response:
 @api.route("/<type_code>/<area_code>")
 @cache.cached(timeout=CACHE_TIMEOUT)
 def main_area_info(type_code: str, area_code: str) -> Response:
-
     try:
         query = (
             DB.session.query(
@@ -725,7 +724,7 @@ def get_surrounding_count_species_by_group2inpn(
             Taxref.group2_inpn,
             funcfilter(
                 func.count(distinct(Taxref.cd_ref)),
-                TMaxThreatenedStatus.threatened == True,
+                TMaxThreatenedStatus.threatened.is_(True),
             ).label("threatened"),
             funcfilter(
                 func.count(distinct(Taxref.cd_ref)),
@@ -761,7 +760,7 @@ def get_surrounding_count_species_by_group2inpn(
             Taxref.group2_inpn,
             funcfilter(
                 func.count(distinct(Taxref.cd_ref)),
-                TMaxThreatenedStatus.threatened == True,
+                TMaxThreatenedStatus.threatened.is_(True),
             ).label("threatened"),
             funcfilter(
                 func.count(distinct(Taxref.cd_ref)),

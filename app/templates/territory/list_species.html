@@ -67,97 +67,116 @@
 </div>
 
 <script type="text/javascript">
+  const taxa_link_url_template = "{{taxa_link_url_template}}";
 
-    const taxa_link_url_template = '{{taxa_link_url_template}}';
+  const uicnDefLink = "https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN";
 
-    const uicnDefLink = "https://fr.wikipedia.org/wiki/Liste_rouge_de_l'UICN"
+  const redListOrder = {
+    LRM: "Monde",
+    LRE: "Europe",
+    LRN: "National",
+    LRR: "Régional",
+    LRD: "Départemental",
+  };
 
-    const redListOrder = {
-        'LRM':'Monde',
-        'LRE':'Europe',
-        'LRN':'National',
-        'LRR':'Régional',
-        'LRD':'Départemental'
-    }
+  const redListOrderKeys = () => Object.keys(redListOrder);
 
-    const redListOrderKeys = () => Object.keys(redListOrder);
+  const LRIcon = (category) => {
+    mediaIcon = document.createElement("img");
+    mediaIcon.classList.add("m-2");
+    mediaIcon.src = `/static/assets/images/uicn/${category.toLowerCase()}.svg`;
+    mediaIconSpan = document.createElement("span");
+    mediaIconSpan.classList.add();
+    mediaIconSpan.innerHTML = category;
+    mediaIcon.appendChild(mediaIconSpan);
+    return mediaIcon;
+  };
 
-    const LRIcon = (category) => {
-        mediaIcon = document.createElement('img')
-        mediaIcon.classList.add('m-2')
-        mediaIcon.src = `/static/assets/images/uicn/${category.toLowerCase()}.svg`
-        mediaIconSpan = document.createElement('span')
-        mediaIconSpan.classList.add();
-        mediaIconSpan.innerHTML = category
-        mediaIcon.appendChild(mediaIconSpan)
-        return mediaIcon
-    }
-
-    const statusRow = (values, type=null) => {
-        const typGrp = type === 'LR' ? `<td>${values.status_scale}</td>` : `<td>${values.type_grp}</td>`;
-        const isThreatenedClass = values.threatened ? 'table-danger':''
-        return `<tr class="${isThreatenedClass}">
+  const statusRow = (values, type = null) => {
+    const typGrp =
+      type === "LR"
+        ? `<td>${values.status_scale}</td>`
+        : `<td>${values.type_grp}</td>`;
+    const isThreatenedClass = values.threatened ? "table-danger" : "";
+    return `<tr class="${isThreatenedClass}">
                         ${typGrp}
                     <td>
                         ${values.territory}
                     </td>
                     <td>
-                        ${values.url ? `<a href="${values.url?values.url:'#'}" target="_blank" data-toggle="tooltip" title="Référence">
+                        ${
+                          values.url
+                            ? `<a href="${
+                                values.url ? values.url : "#"
+                              }" target="_blank" data-toggle="tooltip" title="Référence">
                             ${values.text}
-                        </a>`:`<span>${values.text}</span>` }
+                        </a>`
+                            : `<span>${values.text}</span>`
+                        }
 
                     </td>
                     <td>
-                        ${values.values.join('<br>')}
+                        ${values.values.join("<br>")}
                     </td>
-                </tr>`
-    }
+                </tr>`;
+  };
 
-    const getStatus = (status, type=null) => {
-        const key = Object.keys(status.text)[0]
-        const text = status.text[key]
-        const threatenedStatus = ['EN','CR','VU']
-        //console.log('isThreatened',Object.keys(text.values).some((e) => threatenedStatus.include(text.values[e].code_statut)))
-        const result = {
-            status_scale: status.cd_type_statut.startsWith('LR') ? redListOrder[status.cd_type_statut] : null,
-            type_grp: status.regroupement_type,
-            url: text.doc_url,
-            text: text.full_citation,
-            territory: text.lb_adm_tr,
-            values: Object.keys(text.values).map((e) => {
-                return type === 'LR' ? LRIcon(text.values[e].code_statut).outerHTML : `<strong>${text.values[e].code_statut}</strong> - ${text.values[e].label_statut}`
-            }),
-            threatened:  Object.keys(text.values).some((e) => threatenedStatus.includes(text.values[e].code_statut))
-            }
-        console.log('getStatus result', result)
-        return result
-    } ;
+  const getStatus = (status, type = null) => {
+    const key = Object.keys(status.text)[0];
+    const text = status.text[key];
+    const threatenedStatus = ["EN", "CR", "VU"];
+    //console.log('isThreatened',Object.keys(text.values).some((e) => threatenedStatus.include(text.values[e].code_statut)))
+    const result = {
+      status_scale: status.cd_type_statut.startsWith("LR")
+        ? redListOrder[status.cd_type_statut]
+        : null,
+      type_grp: status.regroupement_type,
+      url: text.doc_url,
+      text: text.full_citation,
+      territory: text.lb_adm_tr,
+      values: Object.keys(text.values).map((e) => {
+        return type === "LR"
+          ? LRIcon(text.values[e].code_statut).outerHTML
+          : `<strong>${text.values[e].code_statut}</strong> - ${text.values[e].label_statut}`;
+      }),
+      threatened: Object.keys(text.values).some((e) =>
+        threatenedStatus.includes(text.values[e].code_statut)
+      ),
+    };
+    console.log("getStatus result", result);
+    return result;
+  };
 
-  $(document.body).on('click', "#protectionDetails", function () {
-      var cdref = $(this).data("cdref");
-      debugLog('api regl', '{{taxhub_url}}/api/taxref/' + cdref);
-      axios.get('{{taxhub_url}}/api/taxref/' + cdref)
-          .then(function (response) {
-                  $('#modalInfoTitle').html('Réglementation pour&nbsp;:&nbsp;<i>' + response.data.nom_valide);
-                  let tableContent = '';
+  $(document.body).on("click", "#protectionDetails", function () {
+    var cdref = $(this).data("cdref");
+    debugLog("api regl", "{{taxhub_url}}/api/taxref/" + cdref);
+    axios
+      .get("{{taxhub_url}}/api/taxref/" + cdref)
+      .then(function (response) {
+        $("#modalInfoTitle").html(
+          "Réglementation pour&nbsp;:&nbsp;<i>" + response.data.nom_valide
+        );
+        let tableContent = "";
 
-                  const status = response.data.status;
-                  let keys = Object.keys(status).filter(i => !status[i].cd_type_statut.startsWith('LR'))
+        const status = response.data.status;
+        let keys = Object.keys(status).filter(
+          (i) => !status[i].cd_type_statut.startsWith("LR")
+        );
 
-                  const itemsLength = keys.length;
-                  if (itemsLength == 0) {
-                      $('#modalInfoBody').html('Aucune protection');
-                  } else {
-                    console.log('test', keys)
-                    keys.forEach(k => {
-                      //const regroupement_type= status[k].regroupement_type
-                      console.log("Start get Value", status[k])
-                      const item = getStatus(status[k])
-                      console.log(item)
-                      tableContent += statusRow(item)
-                    })
+        const itemsLength = keys.length;
+        if (itemsLength == 0) {
+          $("#modalInfoBody").html("Aucune protection");
+        } else {
+          console.log("test", keys);
+          keys.forEach((k) => {
+            //const regroupement_type= status[k].regroupement_type
+            console.log("Start get Value", status[k]);
+            const item = getStatus(status[k]);
+            console.log(item);
+            tableContent += statusRow(item);
+          });
 
-                      $('#modalInfoBody').html(`
+          $("#modalInfoBody").html(`
                       <table class="table table-striped table-hover"><thead class="thead-dark">
                         <tr>
                             <th>Type</th>
@@ -168,45 +187,51 @@
                         </thead>
                         ${tableContent}
                        </table>`);
-                  }
+        }
 
-                  // show modal
-                  $('#modalInfo').modal('show');
-                  // store each style conditions for each style type in localStorage
-              }
-          )
-          .catch(function (error) {
-              debugLog('<protectionDetails> Error', error);
-          });
+        // show modal
+        $("#modalInfo").modal("show");
+        // store each style conditions for each style type in localStorage
+      })
+      .catch(function (error) {
+        debugLog("<protectionDetails> Error", error);
+      });
   });
 
-  $(document.body).on('click', "#redlistDetails", function () {
-      var cdref = $(this).data("cdref");
-      var nom_valide = $(this).data("nomvalide");
-      axios.get('{{taxhub_url}}/api/taxref/' + cdref)
-          .then(function (response) {
-                  $('#modalInfoTitle').html(`Statuts de conservation pour&nbsp;:&nbsp;<i>${response.data.nom_valide}</i>`);
-                  let tableContent = '';
+  $(document.body).on("click", "#redlistDetails", function () {
+    var cdref = $(this).data("cdref");
+    var nom_valide = $(this).data("nomvalide");
+    axios
+      .get("{{taxhub_url}}/api/taxref/" + cdref)
+      .then(function (response) {
+        $("#modalInfoTitle").html(
+          `Statuts de conservation pour&nbsp;:&nbsp;<i>${response.data.nom_valide}</i>`
+        );
+        let tableContent = "";
 
-                  const status = response.data.status;
-                  let keys = Object.keys(status).filter(i => status[i].cd_type_statut.startsWith('LR'))
-                  console.log('before', redListOrderKeys(),redListOrderKeys(), keys)
-                  keys = keys.sort(function(a, b){return redListOrderKeys().indexOf(a) - redListOrderKeys().indexOf(b)})
-                  console.log('after',redListOrderKeys(),redListOrderKeys(), keys)
-                  console.debug(keys);
-                  const itemsLength = keys.length;
-                  if (itemsLength == 0) {
-                      $('#modalInfoBody').html('Aucune protection');
-                  } else {
-                    console.log('test', keys)
-                    keys.forEach(k => {
-                      //const regroupement_type= status[k].regroupement_type
-                      console.log("Start get Value", status[k])
-                      const item = getStatus(status[k],'LR')
-                      console.log(item)
-                      tableContent += statusRow(item,'LR')
-                    })
-                      $('#modalInfoBody').html(`
+        const status = response.data.status;
+        let keys = Object.keys(status).filter((i) =>
+          status[i].cd_type_statut.startsWith("LR")
+        );
+        console.log("before", redListOrderKeys(), redListOrderKeys(), keys);
+        keys = keys.sort(function (a, b) {
+          return redListOrderKeys().indexOf(a) - redListOrderKeys().indexOf(b);
+        });
+        console.log("after", redListOrderKeys(), redListOrderKeys(), keys);
+        console.debug(keys);
+        const itemsLength = keys.length;
+        if (itemsLength == 0) {
+          $("#modalInfoBody").html("Aucune protection");
+        } else {
+          console.log("test", keys);
+          keys.forEach((k) => {
+            //const regroupement_type= status[k].regroupement_type
+            console.log("Start get Value", status[k]);
+            const item = getStatus(status[k], "LR");
+            console.log(item);
+            tableContent += statusRow(item, "LR");
+          });
+          $("#modalInfoBody").html(`
                       <table class="table table-striped table-hover"><thead class="thead-dark">
                         <tr>
                             <th>Echelle</th>
@@ -217,200 +242,260 @@
                         </thead>
                         ${tableContent}
                        </table>`);
-                  }
+        }
 
-                  // show modal
-                  $('#modalInfo').modal('show');
-                  // store each style conditions for each style type in localStorage
-              }
-          )
-          .catch(function (error) {
-              debugLog('<protectionDetails> Error', error);
-          });
+        // show modal
+        $("#modalInfo").modal("show");
+        // store each style conditions for each style type in localStorage
+      })
+      .catch(function (error) {
+        debugLog("<protectionDetails> Error", error);
+      });
   });
 
-  var listSpecieTableDatas = '/api/list_taxa/{{ area_info.id_area }}';
+  var listSpecieTableDatas = "/api/list_taxa/{{ area_info.id_area }}";
 
   $(document).ready(function () {
-      function format(d) {
-          var dataArray = [];
-          // Nombre de dates
-          dataArray.push('<tr><td><b>Nombre de dates</b></td><td>' + d.count_date + '</td></tr>');
-          dataArray.push('<tr><td><b>Nombre d\'observateurs</b></td><td>' + d.count_observer + '</td></tr>');
-          dataArray.push('<tr><td><b>Nombre de jeux de données</b></td><td>' + d.count_dataset + '</td></tr>');
-          // Années d'objservation
-          dataArray.push('<tr><td><b>Années d\'observation</b></td><td>' + d.list_years + '</td></tr>');
-          // Mois d'observation
-          var monthsArray = [];
-          d.list_months.forEach(getMonth);
+    function format(d) {
+      var dataArray = [];
+      // Nombre de dates
+      dataArray.push(
+        "<tr><td><b>Nombre de dates</b></td><td>" + d.count_date + "</td></tr>"
+      );
+      dataArray.push(
+        "<tr><td><b>Nombre d'observateurs</b></td><td>" +
+          d.count_observer +
+          "</td></tr>"
+      );
+      dataArray.push(
+        "<tr><td><b>Nombre de jeux de données</b></td><td>" +
+          d.count_dataset +
+          "</td></tr>"
+      );
+      // Années d'objservation
+      dataArray.push(
+        "<tr><td><b>Années d'observation</b></td><td>" +
+          d.list_years +
+          "</td></tr>"
+      );
+      // Mois d'observation
+      var monthsArray = [];
+      d.list_months.forEach(getMonth);
 
-          function getMonth(value, index, array) {
-              monthsArray.push(months[value - 1]);
-          }
-
-          monthsAsText = monthsArray.join(', ');
-          dataArray.push('<tr><td><b>Mois d\'observations</b></td><td>' + monthsAsText + '</td></tr>');
-          // Statuts biologiques d'observation
-          var list_biostatus = '';
-          if (d.bio_status.length > 0) {
-              for (var i = 0; i < d.bio_status.length; i++) {
-                  list_biostatus += '<span class="badge badge-info">' + d.bio_status[i] + '</span>&nbsp;';
-              }
-          } else {
-              list_biostatus = 'Aucun statut spécifié'
-          }
-          ;
-          dataArray.push('<tr><td><b>Statuts biologiques</b></td><td>' + list_biostatus + '</td></tr>');
-
-          return '<table class="table">' + dataArray.join('') + '</table>'
+      function getMonth(value, index, array) {
+        monthsArray.push(months[value - 1]);
       }
 
-      var listSpeciesTable = $('#listSpeciesTable').DataTable({
-          ajax: {
-              url: listSpecieTableDatas,
-              dataSrc: "data"
+      monthsAsText = monthsArray.join(", ");
+      dataArray.push(
+        "<tr><td><b>Mois d'observations</b></td><td>" +
+          monthsAsText +
+          "</td></tr>"
+      );
+      // Statuts biologiques d'observation
+      var list_biostatus = "";
+      if (d.bio_status.length > 0) {
+        for (var i = 0; i < d.bio_status.length; i++) {
+          list_biostatus +=
+            '<span class="badge badge-info">' +
+            d.bio_status[i] +
+            "</span>&nbsp;";
+        }
+      } else {
+        list_biostatus = "Aucun statut spécifié";
+      }
+      dataArray.push(
+        `<tr><td><b>Statuts biologiques</b></td><td>${list_biostatus}</td></tr>`
+      );
+
+      return `<table class="table">${dataArray.join("")}</table>`;
+    }
+
+    var listSpeciesTable = $("#listSpeciesTable").DataTable({
+      ajax: {
+        url: listSpecieTableDatas,
+        dataSrc: "data",
+      },
+      scrollY: specieListScrollY,
+      scrollCollapse: false,
+      paging: false,
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "Tout"],
+      ],
+      dom: "Bftrp",
+      language: dataTableFr,
+      buttons: {
+        name: "primary",
+        buttons: [
+          { extend: "copy", className: "btn btn-info" },
+          {
+            extend: "csvHtml5",
+            className: "btn btn-info",
+            customize: function (csv) {
+              return (
+                "Liste des espèces de {{  area_info.area_name }} ({{ area_info.area_code }})\n\n" +
+                csv
+              );
+            },
           },
-          scrollY: specieListScrollY,
-          scrollCollapse: false,
-          paging: false,
-          lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tout"]],
-          dom: 'Bftrp',
-          language: dataTableFr,
-          buttons: {
-              name: 'primary',
-              buttons: [
-                  {extend: 'copy', className: 'btn btn-info'},
-                  {
-                      extend: 'csvHtml5', className: 'btn btn-info', customize: function (csv) {
-                          return "Liste des espèces de {{  area_info.area_name }} ({{ area_info.area_code }})\n\n" + csv;
-                      }
-                  },
-                  {extend: 'pdf', className: 'btn btn-info'},
-              ]
+          { extend: "pdf", className: "btn btn-info" },
+        ],
+      },
+      columnDefs: [
+        { className: "text-center align-middle", targets: "_all" },
+        {
+          targets: [4, 8, 9, 10],
+          visible: false,
+          searchable: false,
+        },
+      ],
+      createdRow: function (row, data, dataIndex) {
+        if (data.threatened) {
+          $(row).addClass("table-danger");
+        }
+      },
+      columns: [
+        {
+          class: "details-control text-center align-middle",
+          orderable: false,
+          data: "",
+          defaultContent:
+            '<a data-toggle="tooltip" data-placement="right" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>',
+        },
+        { data: "group2_inpn" },
+        {
+          data: function (row) {
+            return `<a href="${generateTaxaLinkUrl(
+              taxa_link_url_template,
+              row.cd_ref
+            )}" 
+            target="_blank" 
+            data-toggle="tooltip" 
+            data-placement="left"
+            title="Fiche de ${
+              row.nom_vern
+            } (cd_nom&nbsp;:&nbsp;${row.cd_ref})">${row.nom_vern}</a>`;
           },
-          columnDefs: [
-              {className: "text-center align-middle", targets: '_all'},
-              {
-                  "targets": [4, 8, 9, 10],
-                  "visible": false,
-                  "searchable": false
-              },
-          ],
-          createdRow: function (row, data, dataIndex) {
-              if (data.threatened) {
-                  $(row).addClass('table-danger');
-              }
-          }
-          ,
-          columns: [
-              {
-                  "class": "details-control text-center align-middle",
-                  "orderable": false,
-                  "data": "",
-                  "defaultContent": '<a data-toggle="tooltip" title="Voir plus d\'informations"><i class="fa fa-fw fa-plus-circle text-info"></i></a>'
-              },
-              {#{data: "group1_inpn"},#}
-              {data: "group2_inpn"},
-              {
-                  data: function (row) {
-                    return `<a href="${generateTaxaLinkUrl(taxa_link_url_template,row.cd_ref)}" target="_blank" data-toggle="tooltip" title="Fiche de ${row.nom_vern} (cd_nom&nbsp;:&nbsp;${row.cd_ref})">${row.nom_vern}</a>`;
-                  }
-              },
-              {
-                  data: function (row) {
-                    return `<a href="${generateTaxaLinkUrl(taxa_link_url_template,row.cd_ref)}" target="_blank" data-toggle="tooltip" title="Fiche de ${row.nom_vern} (cd_nom&nbsp;:&nbsp;${row.cd_ref})"><i>${row.lb_nom}</i></a>`;
-                  }
-              },
-              {
-                  data: function (row) {
-                      var threatened = null;
-                      if (row.threatened == true) {
-                          threatened = row.threatened;
-                      }
-                      return threatened;
-                  }
-              },
-              {
-                  data: function (row) {
-                        return `
+        },
+        {
+          data: function (row) {
+            return `<a href="${generateTaxaLinkUrl(
+              taxa_link_url_template,
+              row.cd_ref
+            )}" 
+            target="_blank" 
+            data-toggle="tooltip"
+            data-placement="left" 
+            title="Fiche de ${row.nom_vern} (cd_nom&nbsp;:&nbsp;${
+              row.cd_ref
+            })"><i>${row.lb_nom}</i></a>`;
+          },
+        },
+        {
+          data: function (row) {
+            return row.threatened == true ? row.threatened == true : false;
+          },
+        },
+        {
+          data: function (row) {
+            return `
                         <i
                             id="redlistDetails"
                             data-nomvalide="${row.lb_nom}"
                             data-cdref="${row.cd_ref}"
                             data-toggle="tooltip"
+                            data-placement="left"
                             title="Voir ses statuts de conservation"
-                            class="fa ${row.threatened ? 'fa-check-circle':'fa-info-circle text-muted'}">
-                        </i>`
-                      //var threatened = '';
-                      //if (row.threatened == true) {
-                      //    threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
-                      //}
-                      //return threatened;
-                  }
-              },
-              {
-                  data: function (row) {
-                      var protection = '';
-                      if (row.protection == true) {
-                          protection = '<i id="protectionDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de protection" class="fa fa-check-circle"></i>';
-                      }
-                      return protection;
-                  }
-              },
-              {data: "count_occtax"},
-              {data: "count_observer"},
-              {data: "count_date"},
-              {data: "count_dataset"},
-              {
-                  data: function (row) {
-                      var data = '';
-                      if (row.reproduction == true) {
-                          data = '<i class="fas fa-check-circle text-success"></i>&nbsp;<span data-toggle="tooltip" title="Dernière année d\'observation en reproduction">' + row.last_year_reproduction + '</span>';
-                      }
-                      ;
-                      return data;
-                  }
-              },
-              {data: "last_year"}
-          ]
-      });
+                            class="fa ${
+                              row.threatened
+                                ? "fa-check-circle"
+                                : "fa-info-circle text-muted"
+                            }">
+                        </i>`;
+            //var threatened = '';
+            //if (row.threatened == true) {
+            //    threatened = '<i id="redlistDetails" data-nomvalide="' + row.lb_nom + '" data-cdref="' + row.cd_ref + '" data-toggle="tooltip" title="Voir ses statuts de conservation" class="fa fa-check-circle"></i>';
+            //}
+            //return threatened;
+          },
+        },
+        {
+          data: function (row) {
+            return row.protection == true
+              ? `
+            <i id="protectionDetails" 
+               data-nomvalide="${row.lb_nom}" 
+               data-cdref="${row.cd_ref}" 
+               data-toggle="tooltip"
+               data-placement="left" 
+               title="Voir ses statuts de protection" 
+               class="fa fa-check-circle">
+            </i>
+            `
+              : "";
+          },
+        },
+        { data: "count_occtax" },
+        { data: "count_observer" },
+        { data: "count_date" },
+        { data: "count_dataset" },
+        {
+          data: function (row) {
+            var data = "";
+            if (row.reproduction == true) {
+              data = `<i class="fas fa-check-circle text-success"></i>&nbsp;
+                <span 
+                  data-toggle="tooltip" data-placement="left" 
+                  title="Dernière année d\'observation en reproduction">${row.last_year_reproduction}
+                </span>`;
+            }
+            return data;
+          },
+        },
+        { data: "last_year" },
+      ],
+    });
 
-      var detailRows = [];
+    var detailRows = [];
 
-      $('#listSpeciesTable tbody').on('click', 'tr td.details-control', function () {
-          var tr = $(this).closest('tr');
-          var row = listSpeciesTable.row(tr);
-          var idx = $.inArray(tr.attr('id'), detailRows);
+    $("#listSpeciesTable tbody").on(
+      "click",
+      "tr td.details-control",
+      function () {
+        var tr = $(this).closest("tr");
+        var row = listSpeciesTable.row(tr);
+        var idx = $.inArray(tr.attr("id"), detailRows);
 
-          if (row.child.isShown()) {
-              tr.removeClass('details');
-              row.child.hide();
-              // Remove from the 'open' array
-              detailRows.splice(idx, 1);
-          } else {
-              tr.addClass('details');
-              row.child(format(row.data())).show();
+        if (row.child.isShown()) {
+          tr.removeClass("details");
+          row.child.hide();
+          // Remove from the 'open' array
+          detailRows.splice(idx, 1);
+        } else {
+          tr.addClass("details");
+          row.child(format(row.data())).show();
 
-              // Add to the 'open' array
-              if (idx === -1) {
-                  detailRows.push(tr.attr('id'));
-              }
+          // Add to the 'open' array
+          if (idx === -1) {
+            detailRows.push(tr.attr("id"));
           }
+        }
+      }
+    );
+
+    // On each draw, loop over the `detailRows` array and show any child rows
+    listSpeciesTable.on("draw", function () {
+      $.each(detailRows, function (i, id) {
+        $("#" + id + " td.details-control").trigger("click");
       });
+    });
 
-      // On each draw, loop over the `detailRows` array and show any child rows
-      listSpeciesTable.on('draw', function () {
-          $.each(detailRows, function (i, id) {
-              $('#' + id + ' td.details-control').trigger('click');
-          });
-      });
+    $(".dt-buttons").addClass("btn-group-sm float-right pl-2");
 
-      $('.dt-buttons').addClass('btn-group-sm float-right pl-2');
-
-      $(document).on('shown.bs.collapse', '#collapseSpeciesList', function () {
-          debugLog('CoLLaPse!!!');
-          listSpeciesTable.columns.adjust().draw();
-      });
-
+    $(document).on("shown.bs.collapse", "#collapseSpeciesList", function () {
+      debugLog("CoLLaPse!!!");
+      listSpeciesTable.columns.adjust().draw();
+    });
   });
 </script>

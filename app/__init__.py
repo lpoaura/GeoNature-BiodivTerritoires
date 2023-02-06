@@ -4,7 +4,7 @@ import logging
 from decouple import config
 from flask import Flask, render_template
 
-from app.core.env import DB, admin, assets, cache, ckeditor
+from app.core.env import DB, admin, cache, ckeditor
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,6 @@ def create_app():
     app.config["SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS"] = True
 
     DB.init_app(app)
-    assets.init_app(app)
     admin.init_app(app)
     ckeditor.init_app(app)
     cache.init_app(app)

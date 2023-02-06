@@ -1,14 +1,12 @@
 from decouple import Choices, config
 from flask import current_app
 from flask_admin import Admin
-from flask_assets import Environment
 from flask_caching import Cache
 from flask_ckeditor import CKEditor
 from flask_sqlalchemy import SQLAlchemy
 
 DB = SQLAlchemy()
 admin = Admin(name="Biodiv-Territoires", template_mode="bootstrap4")
-assets = Environment()
 ckeditor = CKEditor()
 cache = Cache(
     config={

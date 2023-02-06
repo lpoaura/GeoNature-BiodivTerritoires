@@ -223,7 +223,7 @@ def create_special_pages():
                     </p>
                 </div>
             </div>
-            """,
+            """,  # noqa
         },
         {
             "url": "about",
@@ -257,7 +257,7 @@ def create_special_pages():
             "navbar_link": False,
             "is_active": False,
             "content": """
-            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/" 
+            <p> Editez ce contenu dans l'<a href="/admin/tdynamicpages/"
             target="_blank">interface d'administration</a> (<b>url = financial_partners</b>)</p>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed 
                 do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
@@ -266,7 +266,7 @@ def create_special_pages():
                 in reprehenderit in voluptate velit esse cillum dolore eu fugiat 
                 nulla pariatur. Excepteur sint occaecat cupidatat non proident, 
                 sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            """,
+            """,  # noqa
         },
         {
             "url": "home_desc",
@@ -283,7 +283,7 @@ def create_special_pages():
                 in reprehenderit in voluptate velit esse cillum dolore eu fugiat 
                 nulla pariatur. Excepteur sint occaecat cupidatat non proident, 
                 sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            """,
+            """,  # noqa
         },
         {
             "url": "technical_partners",
@@ -300,7 +300,7 @@ def create_special_pages():
                 in reprehenderit in voluptate velit esse cillum dolore eu fugiat 
                 nulla pariatur. Excepteur sint occaecat cupidatat non proident, 
                 sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            """,
+            """,  # noqa
         },
         {
             "url": "datas-intro",
@@ -314,14 +314,19 @@ def create_special_pages():
                 <li>Donn&eacute;es t&eacute;l&eacute;chargeables&nbsp;;</li>
                 <li>etc.</li>
             </ul>
-            """,
+            """,  # noqa
         },
         {
             "url": "territory-intro",
             "link_name": "Introduction de la fiche territoire",
             "navbar_link": False,
             "is_active": False,
-            "content": "Dans les différents blocs ci-après, vous trouverez des informations de synthèse sur le territoire. Il s'agit des connaissances disponibles qui peuvent s'avérer lacunaires. Le choix a été de mettre en avant les espèces présentant les statuts les plus défavorables.Vous pouvez choisir la distance de recherche des données autour du territoire sélectionné.",
+            "content": """Dans les différents blocs ci-après, 
+            vous trouverez des informations de synthèse sur le territoire. 
+            Il s'agit des connaissances disponibles qui peuvent s'avérer lacunaires. 
+            Le choix a été de mettre en avant les espèces présentant les statuts 
+            les plus défavorables.Vous pouvez choisir la distance de recherche des données 
+            autour du territoire sélectionné.""",  # noqa
         },
     ]
 
@@ -339,7 +344,6 @@ def create_special_pages():
 
 
 def init_custom_files():
-
     filenames = ["custom.css", "custom.js"]
     for file in filenames:
         fullpath = os.path.join(
