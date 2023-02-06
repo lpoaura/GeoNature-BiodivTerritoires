@@ -29,36 +29,47 @@ const formatAreaSelection = (area) => {
 
 $(".search-territory-select").select2({
   ajax: {
-    url: "/api/find/area",
-    dataType: "json",
-    delay: 250,
-    data: function (params) {
-      return {
-        q: params.term, // search term
-        page: params.page,
-      };
-    },
-    processResults: function (data, params) {
-      // parse the results into the format expected by Select2
-      // since we are using custom formatting functions we do not need to
-      // alter the remote JSON data, except to indicate that infinite
-      // scrolling can be used
-      params.page = params.page || 1;
-
-      return {
-        results: data.datas,
-        pagination: {
-          more: params.page * 30 < data.total_count,
-        },
-      };
-    },
-    cache: true,
+      url: "/api/find/area",
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+          return {
+              q: params.term, // search term
+              page: params.page
+          };
+      },
+      processResults: function (data, params) {
+          params.page = params.page || 1;
+          return {
+              results: data.datas,
+              pagination: {
+                  more: (params.page * 30) < data.total_count
+              }
+          };
+      },
+      cache: true
   },
-  placeholder: "Recherchez un territoire",
+  language: {
+      // You can find all of the options in the language files provided in the
+      // build. They all must be functions that return the string that should be
+      // displayed.
+      inputTooShort: function () {
+        return "Veuillez saisir plus de 3 caractères...";
+      }
+    },
+  theme: 'bootstrap4',
+  placeholder: 'Recherchez un territoire',
   minimumInputLength: 3,
   templateResult: formatArea,
-  templateSelection: formatAreaSelection,
+  templateSelection: formatAreaSelection
 });
+
+
+$('.search-territory-select').change(function () {
+  var data = $(this).val();
+  location.href = '/api/area/' + data;
+});
+
 
 const hex = (c) => {
   const s = "0123456789abcdef";
@@ -203,3 +214,4 @@ const generateTaxaLinkUrl = (urlTemplate, cdnom) => {
     : "https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]";
   return urlTemplate.replace("[CDNOM]", cdnom);
 };
+

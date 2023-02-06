@@ -3,7 +3,7 @@
         <span class="input-group-text text-primary"><i class="fa fa-search-location"></i></span>
     </div>
     <select class="search-territory-select form-control mr-sm-2" type="text" placeholder="Rechercher un territoire"
-            aria-label="Search" style="width:1%">
+            aria-label="Search" style="min-width:1%">
     </select>
 </div>
 
@@ -52,31 +52,6 @@
         templateSelection: formatAreaSelection
     });
 
-    function formatArea(area) {
-        if (area.loading) {
-            return area.text;
-        }
-
-        var $container = $(
-            "<div class='clearfix'>" +
-            "<div><strong><span id='select2-result-area__area_name'></span></strong>" +
-            "&nbsp;(" +
-            "<span id='select2-result-area__area_code'></span>)" +
-            "&nbsp;" +
-            "<span class='badge badge-primary text-right' id='select2-result-area__type_name'></span></div>" +
-            "</div>"
-        );
-
-        $container.find("#select2-result-area__area_name").text(area.area_name);
-        $container.find("#select2-result-area__type_name").text(area.type_name);
-        $container.find("#select2-result-area__area_code").text(area.area_code);
-
-        return $container;
-    }
-
-    function formatAreaSelection(area) {
-        return area.area_name ? area.area_name : 'Recherchez un territoire';
-    }
 
     $('.search-territory-select').change(function () {
         var data = $(this).val();

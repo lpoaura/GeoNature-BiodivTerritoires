@@ -1,7 +1,11 @@
-{% extends "core/layout.html" %} {% block title %}La biodiversité de {{
-area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
-{% endblock %} {% block head %} {{ super() }} {% endblock %} {% block content %}
-
+{% extends "core/layout.html" %}
+{% block title %} 
+La biodiversité de {{ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
+{% endblock %} 
+{% block head %} 
+{{ super() }} 
+{% endblock %} 
+{% block content %}
 
 <script type="text/javascript">
   var buffer = {{ default_buffer }};
@@ -313,7 +317,8 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
                 <div class="card border-warning shadow h-100">
                   <div class="card-header info h-100">
                     <i class="fas fa-lightbulb text-warning"></i>
-                    Vous pouvez télécharger le tableau en le copiant dans votre presse-papier (Copy) ou en l'exportant  au format CSV.
+                    Vous pouvez télécharger le tableau en le copiant dans votre
+                    presse-papier (Copy) ou en l'exportant au format CSV.
                   </div>
                 </div>
               </div>
@@ -401,7 +406,8 @@ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
                 <div class="card border-warning shadow h-100">
                   <div class="card-header info h-100">
                     <i class="fas fa-lightbulb text-warning"></i>
-                    Vous pouvez télécharger le tableau en le copiant dans votre presse-papier (Copy) ou en l'exportant  au format CSV.
+                    Vous pouvez télécharger le tableau en le copiant dans votre
+                    presse-papier (Copy) ou en l'exportant au format CSV.
                   </div>
                 </div>
               </div>
