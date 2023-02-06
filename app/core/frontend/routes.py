@@ -49,7 +49,9 @@ def global_variables():
     values["site_desc"] = current_app.config["SITE_DESC"]
     values["default_grid"] = current_app.config["DEFAULT_GRID"]
     values["default_buffer"] = current_app.config["DEFAULT_BUFFER"]
-    values["taxa_link_url_template"] = current_app.config["TAXA_LINK_URL_TEMPLATE"]
+    values["taxa_link_url_template"] = current_app.config[
+        "TAXA_LINK_URL_TEMPLATE"
+    ]
     # values["base_layers"] = config.BASE_LAYERS
     values["taxhub_url"] = current_app.config["TAXHUB_URL"]
     values["special_pages"] = (

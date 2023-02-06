@@ -1,7 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 from utils_flask_sqla.serializers import serializable
 
-import config
 from app.core.env import DB
 
 

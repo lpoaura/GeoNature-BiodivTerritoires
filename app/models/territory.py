@@ -41,8 +41,9 @@ class MVTerritoryGeneralStats(DB.Model):
     geom_4326 = Column(Geometry("GEOMETRY", 4326))
 
     def __repr__(self):
-        return "<MVTerritoryGeneralStats: id_area={id_area}, area_name={area_name}>".format(
-            id_area=self.id_area, area_name=self.area_name
+        return (
+            f"<MVTerritoryGeneralStats: id_area={self.id_area}, "
+            f"area_name={self.area_name}>"
         )
 
 

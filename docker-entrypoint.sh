@@ -1,9 +1,18 @@
 #!/bin/bash
-
-echo "+-------------------------------------------+"
-echo "|               GeoNature                   |"
-echo "|        Biodiversité des territoires       |"
-echo "+-------------------------------------------+"
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+echo "   .|||||||||.          .|||||||||."
+echo "  |||||||||||||        |||||||||||||"
+echo " |||||||||||' .\      /. '|||||||||||"
+echo " '||||||||||_,__o    o__,_||||||||||'"
+echo ""
+echo " > GeoNature"
+echo " > Biodiversité des territoires"
+echo " > https://github.com/lpoaura/GeoNature-BiodivTerritoires"
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
 
 until [ "$(psql $(python -c 'print("'$SQLALCHEMY_DATABASE_URI'".replace("+psycopg2",""))') -XtAc "SELECT 1")" = '1' ]; do
   echo "Awaiting Database container"

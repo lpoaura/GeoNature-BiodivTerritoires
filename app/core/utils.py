@@ -87,9 +87,8 @@ def geom_from_geojson(data):
         geom = from_shape(geojson, srid=4326)
     except Exception as e:
         current_app.logger.error(
-            "<geom_from_geojson> Can't convert geojson geometry to wkb: {}".format(
-                str(e)
-            )
+            "<geom_from_geojson> Can't convert geojson geometry "
+            f"to wkb: {str(e)}"
         )
     return geom
 
@@ -109,9 +108,8 @@ def get_geojson_feature(wkb):
         return feature
     except Exception as e:
         current_app.logger.error(
-            "<get_geojson_feature> Can't convert wkb geometry to geojson: {}".format(
-                str(e)
-            )
+            "<get_geojson_feature> Can't convert wkb geometry "
+            f"to geojson: {str(e)}"
         )
 
 
@@ -175,7 +173,7 @@ def get_max_threatened_status(cdref):
     )
     current_app.logger.debug(query)
     result = query.first()
-    if result == None:
+    if not result:
         return False
     else:
         return result[0]
@@ -204,17 +202,17 @@ def create_special_pages():
             "is_active": False,
             "content": """
             <div class="container-fluid">
-                <div class="float-right"><a href="https://www.auvergnerhonealpes.fr/" target="_blank"
-                                            title="Région Auvergne-Rhône-Alpes" data-toggle="tooltip"><img
-                        src="https://www.auvergnerhonealpes.fr/cms_viewFile.php?idtf=1406&path=logo-partenaire-2017-rvb-pastille-bleue-png.png"
-                        height="100px"/></a></div>
+                <div class="float-right">
+                <a href="https://www.auvergnerhonealpes.fr/" target="_blank"
+                   title="Région Auvergne-Rhône-Alpes" data-toggle="tooltip"><img
+                   src="https://www.auvergnerhonealpes.fr/cms_viewFile.php?idtf=1406&path=logo-partenaire-2017-rvb-pastille-bleue-png.png"
+                   height="100px"/></a></div>
                 <div class="text-center">
                     <p class="text-muted">
                         <a href="/">Accueil</a> |
                         <a href="/credits" target="_blank">Conception et crédits</a> |
                         <a href="/mentions-legales">Mentions légales</a>
-                    <p>
-    
+                    <p>    
                         <div id="clear">
                     <p class="text-muted">
                         Biodiversité des territoires - LPO Auvergne-Rhône-Alpes, 2020

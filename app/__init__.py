@@ -4,7 +4,7 @@ import logging
 from decouple import config
 from flask import Flask, render_template
 
-from app.core.env import DB, admin, assets, cache, ckeditor, create_schemas
+from app.core.env import DB, admin, assets, cache, ckeditor
 
 logger = logging.getLogger(__name__)
 
@@ -45,15 +45,22 @@ def create_app():
         )
         app.config["DEFAULT_GRID"] = config("DEFAULT_GRID", default="M1")
         app.config["DEFAULT_BUFFER"] = config("DEFAULT_BUFFER", default=2000)
-        app.config['FILTER_CD_NOMENCLATURE_SENSITIVITY'] = config("FILTER_CD_NOMENCLATURE_SENSITIVITY", default='0')
-        app.config['FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL'] = config("FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL", default='5')
-        app.config['FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS'] = config("FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS", default='No')
+        app.config["FILTER_CD_NOMENCLATURE_SENSITIVITY"] = config(
+            "FILTER_CD_NOMENCLATURE_SENSITIVITY", default="0"
+        )
+        app.config["FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL"] = config(
+            "FILTER_CD_NOMENCLATURE_DIFFUSION_LEVEL", default="5"
+        )
+        app.config["FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS"] = config(
+            "FILTER_NOT_CD_NOMENCLATURE_OBSERVATION_STATUS", default="No"
+        )
 
         app.config["TAXHUB_URL"] = config(
             "TAXHUB_URL", default="http://demo.geonature.fr/taxhub/"
         )
         app.config["TAXA_LINK_URL_TEMPLATE"] = config(
-            "TAXA_LINK_URL_TEMPLATE", default="https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]"
+            "TAXA_LINK_URL_TEMPLATE",
+            default="https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]",
         )
 
         # Global app info
@@ -62,7 +69,10 @@ def create_app():
         )
         app.config["SITE_DESC"] = config(
             "SITE_DESC",
-            default="Une plateforme de porté à connaissance de la <b>biodiversité</b> des territoires",
+            default=(
+                "Une plateforme de porté à connaissance de la "
+                "<b>biodiversité</b> des territoires"
+            ),
         )
 
         # Cache
@@ -80,15 +90,13 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["PYSCSS_STYLE"] = "compressed"
     app.config["SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS"] = True
-    # Define the database object which is imported
-    # by modules and controllers
+
     DB.init_app(app)
     assets.init_app(app)
     admin.init_app(app)
     ckeditor.init_app(app)
     cache.init_app(app)
 
-    # pass parameters to the usershub authenfication sub-module, DONT CHANGE THIS
     app.config["DB"] = DB
 
     # Sample HTTP error handling
@@ -107,8 +115,6 @@ def create_app():
             create_tables,
             init_custom_files,
         )
-
-        # create_schemas(DB)
 
         create_tables(DB)
 

@@ -3,13 +3,13 @@ from flask import current_app
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     Column,
     DateTime,
     Float,
     ForeignKey,
     Integer,
     String,
-    Boolean,
 )
 from sqlalchemy.orm import relationship
 from utils_flask_sqla.serializers import serializable
