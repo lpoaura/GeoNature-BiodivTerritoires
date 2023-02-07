@@ -192,7 +192,10 @@ def datas() -> str:
 
 
 @rendered.route("/territory/<string:type_code>/<string:area_code>")
-def territory(type_code: str, area_code: str) -> str:
+@rendered.route(
+    "/<string:template>/territory/<string:type_code>/<string:area_code>"
+)
+def territory(type_code: str, area_code: str, template: str = "") -> str:
     """"""
     try:
         q_area_info = (
@@ -233,67 +236,16 @@ def territory(type_code: str, area_code: str) -> str:
             .first()
         )
         DB.session.commit()
+        current_app.logger.debug(f"AREA_INFO {dir(area_info)}")
+        base_template = (
+            "territory/_embed_main.html"
+            if template == "embed"
+            else "territory/_main.html"
+        )
         return render_template(
-            "territory/_main.html",
+            base_template,
             area_info=area_info,
-            gen_stats=gen_stats,
-            legend_dict=legend_dict,
-            intro=intro,
-        )
-
-    except Exception as e:
-        flash(f"Erreur: {e}")
-        current_app.logger.error(f"<territory> ERROR: {str(e)}")
-        return redirect(url_for("rendered.index"))
-    finally:
-        DB.session.close()
-
-
-@rendered.route("/embed/territory/<string:type_code>/<string:area_code>")
-def embed_territory(type_code: str, area_code: str) -> str:
-    """"""
-    try:
-        q_area_info = (
-            DB.session.query(
-                BibAreasTypes.type_code,
-                BibAreasTypes.type_name,
-                BibAreasTypes.type_desc,
-                LAreas.id_area,
-                LAreas.area_name,
-                LAreas.area_code,
-            )
-            .join(
-                LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True
-            )
-            .filter(
-                and_(BibAreasTypes.type_code == type_code.upper()),
-                LAreas.area_code == area_code,
-            )
-        )
-        area_info = q_area_info.one()
-
-        # Retrieve general stats
-        q_gen_stats = DB.session.query(MVTerritoryGeneralStats).filter(
-            MVTerritoryGeneralStats.id_area == area_info.id_area
-        )
-        gen_stats = q_gen_stats.one()
-        # generate Legend Dict
-        legend_dict = {}
-        for type in DB.session.query(MVAreaNtileLimit.type).distinct():
-            legend_dict[type[0]] = get_legend_classes(type)
-        intro = (
-            DB.session.query(
-                TDynamicPages.title,
-                TDynamicPages.short_desc,
-                TDynamicPages.content,
-            )
-            .filter(TDynamicPages.url == "territory-intro")
-            .first()
-        )
-        DB.session.commit()
-        return render_template(
-            "territory/_embed_main.html",
-            area_info=area_info,
+            area_info_dict=area_info._asdict(),
             gen_stats=gen_stats,
             legend_dict=legend_dict,
             intro=intro,
