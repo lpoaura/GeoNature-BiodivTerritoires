@@ -13,7 +13,7 @@ packages = [
 start = 'wsgi:app'
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.8.1,<4.0"
 flask = "^2.2.2"
 flask-sqlalchemy = "2.5.1"
 flask-admin = "^1.6.0"
@@ -22,11 +22,12 @@ geoalchemy2 = "0.11.1"
 pypnnomenclature = "^1.5.3"
 flask-ckeditor = "^0.4.6"
 geojson = "^2.5.0"
-utils-flask-sqlalchemy = "^0.3.0"
-utils-flask-sqlalchemy-geo = "^0.2.5"
+utils-flask-sqlalchemy = "^0.3.1"
+utils-flask-sqlalchemy-geo = "^0.2.6"
 redis = "^4.3.4"
 flask-caching = "^2.0.1"
 python-decouple = "^3.6"
+shapely = ">=1.5.16,<2.0"
 
 
 [tool.poetry.group.dev.dependencies]
