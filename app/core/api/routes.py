@@ -203,9 +203,19 @@ def get_surrounding_area(
             )
         ).first()
 
-        selected_type_codes = DB.session.query(
-            LAreasTypeSelection.id_type
-        ).all()
+        selected_type_codes = (
+            DB.session.query(LAreasTypeSelection.id_type)
+            .join(
+                BibAreasTypes,
+                BibAreasTypes.id_type == LAreasTypeSelection.id_type,
+            )
+            .filter(
+                BibAreasTypes.type_code.in_(
+                    current_app.config["FILTER_SECURED_AREA_TYPE"]
+                )
+            )
+            .all()
+        )
         select = []
         for s in selected_type_codes:
             select.append(s[0])

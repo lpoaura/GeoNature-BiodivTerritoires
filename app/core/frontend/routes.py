@@ -197,6 +197,10 @@ def datas() -> str:
 )
 def territory(type_code: str, area_code: str, template: str = "") -> str:
     """"""
+    if type_code.lower() not in (
+        item.lower() for item in current_app.config["FILTER_SECURED_AREA_TYPE"]
+    ):
+        return redirect(url_for("rendered.index"))
     try:
         q_area_info = (
             DB.session.query(
