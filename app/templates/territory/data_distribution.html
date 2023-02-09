@@ -295,6 +295,10 @@
         datasMapValues.areaGridDatas.on("click", function (e) {
           listSpeciesUpdate(e.layer.feature.properties.id_area);
         });
+        datasMap.on("resize");
+        setTimeout(function () {
+          datasMap.invalidateSize();
+        }, 400);
       })
       .catch(function (error) {
         console.error("getTerritoryArea Error", error);
@@ -524,5 +528,12 @@
         datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
       }, 10);
     });
+
+    const mapDiv = document.getElementById("datasMap");
+    const resizeObserver = new ResizeObserver(() => {
+      datasMap.invalidateSize();
+      datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
+    });
+    resizeObserver.observe(mapDiv);
   });
 </script>
