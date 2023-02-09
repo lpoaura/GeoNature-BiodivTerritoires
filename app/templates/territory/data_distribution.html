@@ -295,10 +295,6 @@
         datasMapValues.areaGridDatas.on("click", function (e) {
           listSpeciesUpdate(e.layer.feature.properties.id_area);
         });
-        datasMap.on("resize");
-        setTimeout(function () {
-          datasMap.invalidateSize();
-        }, 400);
       })
       .catch(function (error) {
         console.error("getTerritoryArea Error", error);
