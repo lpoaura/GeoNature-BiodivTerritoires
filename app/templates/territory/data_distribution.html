@@ -531,7 +531,7 @@
 
     const mapDiv = document.getElementById("datasMap");
     const resizeObserver = new ResizeObserver(() => {
-      datasMap.invalidateSize();
+      //datasMap.invalidateSize();
       datasMap.fitBounds(datasMapValues.areaGridDatas.getBounds());
     });
     resizeObserver.observe(mapDiv);
