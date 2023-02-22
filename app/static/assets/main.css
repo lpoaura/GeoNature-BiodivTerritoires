@@ -217,12 +217,12 @@ h4 {
 }
 
 #genstats .count {
-  font-size: 2rem;
+  font-size: 1.3rem;
   font-weight: bolder;
 }
 
 #genstats .subject {
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .leaflet-popup-content-wrapper {
@@ -259,9 +259,9 @@ h5 {
 #territoryIntro p {
   color: white;
   text-align: left;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bolder;
-  line-height: 40px;
+  line-height: 2rem;
 }
 
 .icon-rounded {
